@@ -1,5 +1,5 @@
 import os
-import configparser
+import json
 from pathlib import Path
 
 # Rutas típicas según la plataforma
@@ -11,70 +11,188 @@ DEFAULT_PATHS = [
 ]
 
 RELATIVE_INI_PATH = Path("TAGame/Config/DefaultStatsAPI.ini")
+CONFIG_JSON_PATH = Path("app_config.json")
+
+def load_saved_path() -> str | None:
+    """Carga la ruta de instalación de Rocket League guardada en app_config.json."""
+    if CONFIG_JSON_PATH.exists():
+        try:
+            with open(CONFIG_JSON_PATH, "r", encoding="utf-8") as f:
+                data = json.load(f)
+                return data.get("rl_installation_path")
+        except:
+            pass
+    return None
+
+def save_installation_path(path_str: str):
+    """Guarda la ruta de instalación en app_config.json."""
+    try:
+        with open(CONFIG_JSON_PATH, "w", encoding="utf-8") as f:
+            json.dump({"rl_installation_path": path_str}, f, indent=4, ensure_ascii=False)
+    except Exception as e:
+        print(f"Error al guardar la ruta de instalación en JSON: {e}")
 
 def find_rl_installation() -> Path | None:
-    """Busca la ruta de instalación de Rocket League en las carpetas habituales."""
+    """Busca la ruta de instalación de Rocket League en las carpetas habituales o en la guardada."""
+    saved = load_saved_path()
+    if saved and Path(saved).exists():
+        return Path(saved)
+
     for path in DEFAULT_PATHS:
         ini_candidate = path / RELATIVE_INI_PATH
         if ini_candidate.exists() or path.exists():
+            # Guardamos para futuras ejecuciones
+            save_installation_path(str(path))
             return path
     return None
 
-def get_valid_ini_path() -> Path:
-    """Obtiene la ruta final del archivo DefaultStatsAPI.ini (autodetectada o manual)."""
-    base_path = find_rl_installation()
-    
-    if base_path and (base_path / RELATIVE_INI_PATH).parent.exists():
-        print(f"[+] Rocket League detectado automáticamente en: {base_path}")
-        return base_path / RELATIVE_INI_PATH
+def validate_rl_path(path_str: str) -> tuple[bool, str]:
+    try:
+        cleaned_path = path_str.strip('"\' ')
+        if not cleaned_path:
+            return False, "La ruta no puede estar vacía."
+        path = Path(cleaned_path)
+        
+        # Intentar verificar si existe la ruta en el disco de manera segura
+        if not path.exists():
+            return False, "La ruta especificada no existe en el disco."
+        
+        # Indicadores de que es el directorio raíz de Rocket League (TAGame o Binaries)
+        has_tagame = (path / "TAGame").exists()
+        has_binaries = (path / "Binaries").exists()
+        has_ini_dir = (path / RELATIVE_INI_PATH.parent).exists()
+        
+        if has_tagame or has_binaries or has_ini_dir:
+            return True, ""
+        
+        return False, "La carpeta existe, pero no parece ser la raíz de Rocket League (debe contener 'TAGame' o 'Binaries')."
+    except Exception as e:
+        return False, f"Ruta inválida o inaccesible: {e}"
 
-    print("[!] No se encontró la instalación estándar de Rocket League (Epic/Steam).")
+def get_valid_ini_path() -> Path:
+    """Obtiene la ruta final del archivo DefaultStatsAPI.ini."""
+    base_path = find_rl_installation()
+    if base_path:
+        return base_path / RELATIVE_INI_PATH
+    return Path("")
+
+def read_ini_values(ini_path: Path) -> tuple[int, float]:
+    """Lee los valores actuales de Port y PacketSendRate del archivo .ini de forma segura."""
+    port = 49123
+    send_rate = 30.0
+    if not ini_path.exists():
+        return port, send_rate
+
+    try:
+        with open(ini_path, "r", encoding="utf-8") as f:
+            lines = f.readlines()
+        
+        in_exporter_section = False
+        for line in lines:
+            stripped = line.strip()
+            if stripped.startswith("[") and stripped.endswith("]"):
+                section_name = stripped[1:-1].strip()
+                if section_name in ["TAGame.MatchStatsExporter_TA", "DefaultStatsAPI"]:
+                    in_exporter_section = True
+                else:
+                    in_exporter_section = False
+            
+            if in_exporter_section:
+                if stripped.startswith("Port="):
+                    try:
+                        port = int(stripped.split("=")[1].strip())
+                    except:
+                        pass
+                elif stripped.startswith("PacketSendRate="):
+                    try:
+                        send_rate = float(stripped.split("=")[1].strip())
+                    except:
+                        pass
+    except Exception as e:
+        print(f"Error al leer valores del .ini: {e}")
     
-    while True:
-        user_input = input("👉 Introduce la ruta raíz de instalación de Rocket League (ej: D:\\Juegos\\rocketleague): ").strip('"\' ')
-        custom_path = Path(user_input)
-        
-        ini_path = custom_path / RELATIVE_INI_PATH
-        
-        # Verificamos si existe la carpeta TAGame/Config
-        if ini_path.parent.exists():
-            return ini_path
-        else:
-            print(f"[X] La ruta proporcionada no parece válida. No se encontró la carpeta: {ini_path.parent}")
+    return port, send_rate
 
 def setup_stats_api(send_rate: float = 30.0, port: int = 49123) -> bool:
     """
-    Lee y/o modifica el archivo DefaultStatsAPI.ini con la configuración elegida.
+    Modifica el archivo DefaultStatsAPI.ini con la configuración elegida,
+    cambiando únicamente los valores numéricos y conservando los comentarios.
     """
     ini_path = get_valid_ini_path()
-    
-    # Nos aseguramos de que el directorio del .ini exista
-    ini_path.parent.mkdir(parents=True, exist_ok=True)
+    if not ini_path or ini_path == Path(""):
+        return False
 
-    config = configparser.ConfigParser()
-    # Preservar mayúsculas/minúsculas de las llaves .ini
-    config.optionxform = str  # type: ignore
+    default_content = f"""; Archivo de configuración de Rocket League Stats API
+[TAGame.MatchStatsExporter_TA]
 
-    # Si el archivo ya existe, lo leemos
-    if ini_path.exists():
-        config.read(ini_path)
+; Port the client will listen for connections on
+Port={port}
 
-    # Rocket League suele leer estas propiedades bajo la sección [DefaultStatsAPI] o [Engine.StatsAPI]
-    # Si la sección no existe la creamos o usamos el archivo plano si aplica
-    section = "DefaultStatsAPI"
-    if not config.has_section(section):
-        config.add_section(section)
+; How many times per second the game sends the update state (capped at 120, 0 disables this feature)
+PacketSendRate={send_rate}
+"""
 
-    # Asignar valores
-    config.set(section, "PacketSendRate", str(send_rate))
-    config.set(section, "Port", str(port))
+    if not ini_path.exists():
+        try:
+            ini_path.parent.mkdir(parents=True, exist_ok=True)
+            with open(ini_path, "w", encoding="utf-8") as f:
+                f.write(default_content)
+            print(f" [✓] Archivo creado con éxito en:\n    {ini_path}")
+            return True
+        except PermissionError:
+            print(f"[X] Error de permisos al crear {ini_path}.")
+            return False
+        except Exception as e:
+            print(f"[X] Error al crear .ini: {e}")
+            return False
 
     try:
-        with open(ini_path, "w", encoding="utf-8") as configfile:
-            config.write(configfile)
+        with open(ini_path, "r", encoding="utf-8") as f:
+            lines = f.readlines()
+
+        new_lines = []
+        in_exporter_section = False
+        port_updated = False
+        rate_updated = False
+
+        for line in lines:
+            stripped = line.strip()
+            # Detectar inicio de sección
+            if stripped.startswith("[") and stripped.endswith("]"):
+                section_name = stripped[1:-1].strip()
+                if section_name == "TAGame.MatchStatsExporter_TA":
+                    in_exporter_section = True
+                else:
+                    in_exporter_section = False
+
+            if in_exporter_section:
+                if stripped.startswith("Port="):
+                    prefix = line.split("Port=")[0]
+                    new_lines.append(f"{prefix}Port={port}\n")
+                    port_updated = True
+                    continue
+                elif stripped.startswith("PacketSendRate="):
+                    prefix = line.split("PacketSendRate=")[0]
+                    # Si viene con decimales de python (.0), los guardamos como int si es entero para más limpieza
+                    val = int(send_rate) if send_rate.is_integer() else send_rate
+                    new_lines.append(f"{prefix}PacketSendRate={val}\n")
+                    rate_updated = True
+                    continue
+
+            new_lines.append(line)
+
+        # Si la sección no tenía las llaves, las agregamos al final del archivo
+        if not port_updated:
+            new_lines.append(f"Port={port}\n")
+        if not rate_updated:
+            val = int(send_rate) if send_rate.is_integer() else send_rate
+            new_lines.append(f"PacketSendRate={val}\n")
+
+        with open(ini_path, "w", encoding="utf-8") as f:
+            f.writelines(new_lines)
+            
         print(f" [✓] Archivo configurado con éxito en:\n    {ini_path}")
         print(f" [i] PacketSendRate = {send_rate} | Port = {port}")
-        print(" [!] Recuerda reiniciar Rocket League si ya lo tenías abierto.")
         return True
     except PermissionError:
         print(f"[X] Error de permisos al escribir en {ini_path}. Intenta ejecutar el script como Administrador.")
@@ -82,7 +200,3 @@ def setup_stats_api(send_rate: float = 30.0, port: int = 49123) -> bool:
     except Exception as e:
         print(f"[X] Error inesperado: {e}")
         return False
-
-if __name__ == "__main__":
-    # Test individual del módulo
-    setup_stats_api(send_rate=30.0, port=49123)

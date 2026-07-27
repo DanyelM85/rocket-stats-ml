@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel de Estadísticas - Rocket League API</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- FontAwesome para iconos -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#e0fbfd',
+                            100: '#baf4fa',
+                            500: '#00adb5',
+                            600: '#008f95',
+                            700: '#007176',
+                            800: '#00585c',
+                        },
+                        rlblue: '#3978ff',
+                        rlorange: '#ff8a00',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Estilos personalizados para animaciones y scrollbar */
+        .glass-card {
+            background: rgba(15, 23, 42, 0.75);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        .glow-cyan {
+            box-shadow: 0 0 20px rgba(0, 173, 181, 0.2);
+        }
+        .glow-rlblue {
+            box-shadow: 0 0 20px rgba(57, 120, 255, 0.25);
+        }
+        .glow-rlorange {
+            box-shadow: 0 0 20px rgba(255, 138, 0, 0.25);
+        }
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(15, 23, 42, 0.5);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(0, 173, 181, 0.4);
+        }
+        @keyframes pulse-slow {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.6; transform: scale(1.05); }
+        }
+        .pulse-indicator {
+            animation: pulse-slow 2s infinite ease-in-out;
+        }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen font-sans bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-slate-900 via-slate-950 to-black p-6">
+
+    <div class="max-w-7xl mx-auto space-y-6">
+        
+        <!-- Header -->
+        <header class="glass-card rounded-2xl p-5 flex flex-col md:flex-row items-center justify-between gap-4 border-b border-brand-500/10">
+            <div class="flex items-center gap-4">
+                <div class="w-12 h-12 rounded-xl bg-brand-500/10 border border-brand-500/30 flex items-center justify-center glow-cyan">
+                    <i class="fa-solid fa-gauge-high text-2xl text-brand-500"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold tracking-tight text-white flex items-center gap-2">
+                        Rocket League Stats <span class="text-xs bg-brand-500/10 text-brand-500 border border-brand-500/30 px-2 py-0.5 rounded-full uppercase">ML Ready</span>
+                    </h1>
+                    <p class="text-slate-400 text-xs">Monitoreo de Telemetría e Ingesta de Datos en Tiempo Real</p>
+                </div>
+            </div>
+            
+            <!-- Connection Status Pill -->
+            <div class="flex items-center gap-3 bg-slate-900 border border-slate-800 rounded-full px-4 py-2">
+                <span class="text-xs font-semibold text-slate-400">Estado API:</span>
+                <div class="flex items-center gap-2">
+                    <span id="status-dot" class="w-2.5 h-2.5 rounded-full bg-rose-500 pulse-indicator"></span>
+                    <span id="status-text" class="text-xs font-bold text-rose-400 uppercase">Desconectado</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Layout Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            
+            <!-- Left Side: Control Panel & Configuration (5 cols) -->
+            <div class="lg:col-span-5 flex flex-col gap-6">
+                
+                <!-- Settings Form -->
+                <section class="glass-card rounded-2xl p-6 flex flex-col gap-5">
+                    <div class="flex items-center gap-2 pb-3 border-b border-slate-800">
+                        <i class="fa-solid fa-sliders text-brand-500"></i>
+                        <h2 class="font-bold text-sm text-slate-200">Configuración de la API</h2>
+                    </div>
+
+                    <!-- RL installation path -->
+                    <div class="flex flex-col gap-2">
+                        <label for="folder-path" class="text-xs font-semibold text-slate-400">Ruta Raíz de Rocket League:</label>
+                        <div class="flex gap-2">
+                            <input type="text" id="folder-path" 
+                                   class="flex-1 bg-slate-950 border border-slate-800 focus:border-brand-500 focus:ring-1 focus:ring-brand-500 text-slate-200 rounded-xl px-3.5 py-2 text-xs outline-none transition-all"
+                                   placeholder="Ej: C:\Program Files\Epic Games\rocketleague">
+                            <button id="btn-browse" 
+                                    class="bg-slate-800 hover:bg-slate-700 text-brand-500 hover:text-white border border-slate-700 rounded-xl px-4 py-2 text-xs font-semibold flex items-center gap-1.5 transition-all">
+                                <i class="fa-regular fa-folder-open"></i>
+                                <span>Buscar</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Grid for Port & Rate -->
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="flex flex-col gap-2">
+                            <label for="api-port" class="text-xs font-semibold text-slate-400">Puerto del Socket:</label>
+                            <input type="number" id="api-port" value="49123"
+                                   class="bg-slate-950 border border-slate-800 focus:border-brand-500 focus:ring-1 focus:ring-brand-500 text-slate-200 rounded-xl px-3.5 py-2 text-xs outline-none transition-all">
+                        </div>
+                        <div class="flex flex-col gap-2">
+                            <label for="send-rate" class="text-xs font-semibold text-slate-400">Frecuencia (Hz): <span id="rate-val" class="text-brand-500">30</span></label>
+                            <input type="range" id="send-rate" min="1" max="120" value="30"
+                                   class="h-2 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-brand-500 mt-2">
+                        </div>
+                    </div>
+
+                    <!-- Validation / Status Notification Box -->
+                    <div id="settings-status" class="hidden text-xs rounded-xl p-3.5 border font-medium"></div>
+
+                    <!-- Apply Settings Button -->
+                    <button id="btn-apply-settings"
+                            class="w-full bg-brand-500 hover:bg-brand-600 active:scale-[0.98] text-slate-950 font-bold py-2.5 px-4 rounded-xl shadow-lg hover:shadow-brand-500/20 flex items-center justify-center gap-2 transition-all">
+                        <i class="fa-solid fa-floppy-disk"></i>
+                        <span>Aplicar y Guardar Cambios</span>
+                    </button>
+                </section>
+
+                <!-- Status & Active Listeners -->
+                <section class="glass-card rounded-2xl p-6 flex flex-col gap-4">
+                    <div class="flex items-center gap-2 pb-3 border-b border-slate-800">
+                        <i class="fa-solid fa-wifi text-brand-500"></i>
+                        <h2 class="font-bold text-sm text-slate-200">Control de Captura</h2>
+                    </div>
+
+                    <p class="text-xs text-slate-400 leading-relaxed">
+                        Habilita la simulación para probar el panel sin tener Rocket League abierto, o activa el listener para capturar datos reales.
+                    </p>
+
+                    <!-- Toggle Switches -->
+                    <div class="flex flex-col gap-3 mt-2">
+                        <!-- Toggle Live Capture -->
+                        <div class="flex items-center justify-between bg-slate-950/60 border border-slate-900 rounded-xl p-3.5">
+                            <div class="flex items-center gap-3">
+                                <div class="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center border border-emerald-500/20">
+                                    <i class="fa-solid fa-network-wired text-emerald-400 text-sm"></i>
+                                </div>
+                                <div>
+                                    <h4 class="text-xs font-semibold text-slate-200">Escuchar Socket Local</h4>
+                                    <p class="text-[10px] text-slate-500">Conectar al juego en vivo</p>
+                                </div>
+                            </div>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" id="toggle-capture" class="sr-only peer">
+                                <div class="w-11 h-6 bg-slate-800 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-slate-400 after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-500 peer-checked:after:bg-white"></div>
+                            </label>
+                        </div>
+
+                        <!-- Toggle Simulation -->
+                        <div class="flex items-center justify-between bg-slate-950/60 border border-slate-900 rounded-xl p-3.5">
+                            <div class="flex items-center gap-3">
+                                <div class="w-8 h-8 rounded-lg bg-purple-500/10 flex items-center justify-center border border-purple-500/20">
+                                    <i class="fa-solid fa-wand-magic-sparkles text-purple-400 text-sm"></i>
+                                </div>
+                                <div>
+                                    <h4 class="text-xs font-semibold text-slate-200">Simulación Telemetría</h4>
+                                    <p class="text-[10px] text-slate-500">Generar datos simulados en vivo</p>
+                                </div>
+                            </div>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" id="toggle-simulate" class="sr-only peer">
+                                <div class="w-11 h-6 bg-slate-800 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-slate-400 after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-purple-500 peer-checked:after:bg-white"></div>
+                            </label>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Help -->
+                <section class="glass-card rounded-2xl p-5 text-xs text-slate-400">
+                    <div class="flex items-center gap-2 mb-2.5 font-bold text-slate-200">
+                        <i class="fa-solid fa-circle-question text-amber-500"></i>
+                        <span>¿Cómo funciona la API?</span>
+                    </div>
+                    <ul class="space-y-1.5 list-disc pl-4 text-[11px] leading-relaxed">
+                        <li>Cuando abres Rocket League e inicias un partido, el juego empieza a enviar telemetría en el puerto configurado.</li>
+                        <li>Configura la ruta de instalación para que podamos habilitar automáticamente la API escribiendo el archivo <code class="text-brand-500 font-mono">DefaultStatsAPI.ini</code>.</li>
+                    </ul>
+                </section>
+            </div>
+            
+            <!-- Right Side: Live Telemetry & Dashboard (7 cols) -->
+            <div class="lg:col-span-7 flex flex-col gap-6">
+                
+                <!-- Telemetry Score & Info Card -->
+                <div class="glass-card rounded-2xl p-6 flex flex-col md:flex-row items-center justify-between gap-6 relative overflow-hidden">
+                    <!-- Glowing decorative backgrounds for Teams -->
+                    <div class="absolute left-0 top-0 bottom-0 w-24 bg-gradient-to-r from-rlblue/10 to-transparent pointer-events-none"></div>
+                    <div class="absolute right-0 top-0 bottom-0 w-24 bg-gradient-to-l from-rlorange/10 to-transparent pointer-events-none"></div>
+
+                    <!-- Scoreboard UI -->
+                    <div class="flex items-center justify-center gap-6 w-full">
+                        <!-- Blue Team -->
+                        <div class="text-center">
+                            <div class="text-xs font-extrabold text-rlblue tracking-wider uppercase mb-1 drop-shadow-[0_0_8px_rgba(57,120,255,0.4)]">Azul</div>
+                            <div id="score-blue" class="text-5xl font-black text-white w-20 py-2 rounded-xl bg-slate-950/80 border border-slate-800 glow-rlblue">0</div>
+                        </div>
+
+                        <!-- Match Timer & Info -->
+                        <div class="text-center px-4 flex flex-col items-center">
+                            <span class="text-[10px] font-semibold text-slate-500 uppercase tracking-widest mb-1">Tiempo Restante</span>
+                            <div id="match-timer" class="text-3xl font-mono font-bold text-slate-100 bg-slate-900 border border-slate-800 px-4 py-1.5 rounded-xl">05:00</div>
+                            <!-- Ball speed dial -->
+                            <div class="mt-2 flex items-center gap-1.5 bg-brand-500/10 text-brand-500 border border-brand-500/20 rounded-full px-3 py-0.5 text-xs font-bold">
+                                <i class="fa-solid fa-wind"></i>
+                                <span>Velocidad Balón: <span id="ball-speed" class="text-white">0</span> km/h</span>
+                            </div>
+                        </div>
+
+                        <!-- Orange Team -->
+                        <div class="text-center">
+                            <div class="text-xs font-extrabold text-rlorange tracking-wider uppercase mb-1 drop-shadow-[0_0_8px_rgba(255,138,0,0.4)]">Naranja</div>
+                            <div id="score-orange" class="text-5xl font-black text-white w-20 py-2 rounded-xl bg-slate-950/80 border border-slate-800 glow-rlorange">0</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Players Table -->
+                <section class="glass-card rounded-2xl p-6 flex flex-col gap-4">
+                    <div class="flex items-center justify-between pb-3 border-b border-slate-800">
+                        <div class="flex items-center gap-2">
+                            <i class="fa-solid fa-users text-brand-500"></i>
+                            <h2 class="font-bold text-sm text-slate-200">Jugadores en la Sesión</h2>
+                        </div>
+                        <span class="text-[10px] text-slate-500 font-medium">Actualizado en tiempo real</span>
+                    </div>
+
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="text-slate-500 text-[10px] font-bold uppercase tracking-wider border-b border-slate-900">
+                                    <th class="py-2.5">Jugador</th>
+                                    <th class="py-2.5">Equipo</th>
+                                    <th class="py-2.5">Boost</th>
+                                    <th class="py-2.5 text-center">Goles</th>
+                                    <th class="py-2.5 text-center">Salvadas</th>
+                                    <th class="py-2.5 text-center">Score</th>
+                                </tr>
+                            </thead>
+                            <tbody id="players-list" class="text-xs divide-y divide-slate-900">
+                                <tr id="players-empty-row">
+                                    <td colspan="6" class="py-8 text-center text-slate-500 italic">
+                                        Activa la captura o simulación para visualizar datos
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <!-- Live Log & Event Terminal -->
+                <section class="glass-card rounded-2xl p-6 flex flex-col gap-3">
+                    <div class="flex items-center gap-2 pb-3 border-b border-slate-800">
+                        <i class="fa-solid fa-terminal text-brand-500"></i>
+                        <h2 class="font-bold text-sm text-slate-200">Terminal de Sucesos en Vivo</h2>
+                    </div>
+
+                    <div id="log-terminal" class="bg-black/80 font-mono text-[11px] text-emerald-400 p-4 rounded-xl h-36 overflow-y-auto border border-slate-900 space-y-1.5 flex flex-col">
+                        <div class="text-slate-500">[SISTEMA] Listo para iniciar captura...</div>
+                    </div>
+                </section>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- Script Eel -->
+    <script type="text/javascript" src="/eel.js"></script>
+    <script>
+        // DOM Elements
+        const folderPathInput = document.getElementById('folder-path');
+        const apiPortInput = document.getElementById('api-port');
+        const sendRateInput = document.getElementById('send-rate');
+        const rateVal = document.getElementById('rate-val');
+        
+        const btnBrowse = document.getElementById('btn-browse');
+        const btnApplySettings = document.getElementById('btn-apply-settings');
+        const settingsStatus = document.getElementById('settings-status');
+        
+        const statusDot = document.getElementById('status-dot');
+        const statusText = document.getElementById('status-text');
+        
+        const toggleCapture = document.getElementById('toggle-capture');
+        const toggleSimulate = document.getElementById('toggle-simulate');
+        
+        const scoreBlue = document.getElementById('score-blue');
+        const scoreOrange = document.getElementById('score-orange');
+        const matchTimer = document.getElementById('match-timer');
+        const ballSpeed = document.getElementById('ball-speed');
+        const playersList = document.getElementById('players-list');
+        const logTerminal = document.getElementById('log-terminal');
+
+        // Update rate label on drag
+        sendRateInput.addEventListener('input', () => {
+            rateVal.textContent = sendRateInput.value;
+        });
+
+        // Add message helper for settingsStatus box
+        function showSettingsStatus(msg, type) {
+            settingsStatus.textContent = msg;
+            settingsStatus.className = "text-xs rounded-xl p-3.5 border font-medium block";
+            if (type === 'success') {
+                settingsStatus.classList.add('bg-emerald-500/10', 'border-emerald-500/30', 'text-emerald-400');
+            } else if (type === 'error') {
+                settingsStatus.classList.add('bg-rose-500/10', 'border-rose-500/30', 'text-rose-400');
+            } else if (type === 'loading') {
+                settingsStatus.classList.add('bg-amber-500/10', 'border-amber-500/30', 'text-amber-400');
+            }
+        }
+
+        // Fetch & load current configuration from python on load
+        async function loadState() {
+            try {
+                const state = await eel.get_current_state()();
+                if (state) {
+                    folderPathInput.value = state.path;
+                    apiPortInput.value = state.port;
+                    sendRateInput.value = state.send_rate;
+                    rateVal.textContent = state.send_rate;
+                    
+                    toggleCapture.checked = state.capture_active;
+                    toggleSimulate.checked = state.simulation_active;
+                    
+                    if (state.has_existing) {
+                        showSettingsStatus(`✓ Configuración existente leída: Puerto ${state.port} | Frecuencia ${state.send_rate} Hz. ¿Deseas modificarla o dejarla así para capturar datos?`, 'success');
+                    }
+                    
+                    if (state.capture_active) {
+                        updateStatusUI('connected', 'Capturando datos');
+                    } else if (state.simulation_active) {
+                        updateStatusUI('simulating', 'Simulación Activa');
+                    } else {
+                        updateStatusUI('disconnected', 'Desconectado');
+                    }
+                }
+            } catch (err) {
+                console.error("Error al cargar estado:", err);
+            }
+        }
+
+        // Open native windows directory browser
+        btnBrowse.addEventListener('click', async () => {
+            showSettingsStatus('Buscando directorio...', 'loading');
+            try {
+                const path = await eel.browse_directory()();
+                if (path) {
+                    folderPathInput.value = path;
+                    // Auto-validar ruta elegida
+                    const validData = await eel.validate_path(path)();
+                    if (validData.valid) {
+                        showSettingsStatus('✓ Ruta de Rocket League válida.', 'success');
+                    } else {
+                        showSettingsStatus(validData.error || 'Directorio inválido.', 'error');
+                    }
+                } else {
+                    settingsStatus.className = "hidden";
+                }
+            } catch (err) {
+                showSettingsStatus('Error al buscar directorio.', 'error');
+            }
+        });
+
+        // Apply settings
+        btnApplySettings.addEventListener('click', async () => {
+            const path = folderPathInput.value.trim();
+            const port = parseInt(apiPortInput.value) || 49123;
+            const rate = parseFloat(sendRateInput.value) || 30.0;
+            
+            showSettingsStatus('Guardando ajustes y modificando archivo .ini...', 'loading');
+            
+            try {
+                const res = await eel.save_and_apply_settings(path, port, rate)();
+                if (res.success) {
+                    showSettingsStatus('✓ ¡Configuración de la API guardada y aplicada con éxito!', 'success');
+                } else {
+                    showSettingsStatus(res.error || 'Error al guardar.', 'error');
+                }
+            } catch (err) {
+                showSettingsStatus('Error de comunicación con el backend.', 'error');
+            }
+        });
+
+        // Toggle capture logic
+        toggleCapture.addEventListener('change', async () => {
+            const active = toggleCapture.checked;
+            if (active) {
+                toggleSimulate.checked = false; // Desmarcar simulación
+            }
+            try {
+                const res = await eel.toggle_live_capture(active)();
+                if (res && res.active) {
+                    addLog("Conexión del socket iniciada.");
+                } else {
+                    addLog("Conexión del socket detenida.");
+                }
+            } catch (err) {
+                toggleCapture.checked = !active;
+                addLog("[ERROR] No se pudo cambiar el estado del listener de captura.");
+            }
+        });
+
+        // Toggle simulation logic
+        toggleSimulate.addEventListener('change', async () => {
+            const active = toggleSimulate.checked;
+            if (active) {
+                toggleCapture.checked = false; // Desmarcar socket
+            }
+            try {
+                const res = await eel.toggle_simulation(active)();
+                if (res && res.active) {
+                    addLog("Simulación de telemetría iniciada.");
+                } else {
+                    addLog("Simulación de telemetría detenida.");
+                }
+            } catch (err) {
+                toggleSimulate.checked = !active;
+                addLog("[ERROR] No se pudo cambiar el estado del simulador.");
+            }
+        });
+
+        // Logging function
+        function addLog(message) {
+            const time = new Date().toLocaleTimeString();
+            const logItem = document.createElement('div');
+            logItem.innerHTML = `<span class="text-slate-500">[${time}]</span> ${message}`;
+            logTerminal.appendChild(logItem);
+            logTerminal.scrollTop = logTerminal.scrollHeight;
+        }
+
+        // Status update callback UI
+        function updateStatusUI(status, label) {
+            statusText.textContent = label;
+            statusDot.className = "w-2.5 h-2.5 rounded-full pulse-indicator";
+            statusText.className = "text-xs font-bold uppercase";
+            
+            if (status === 'connected') {
+                statusDot.classList.add('bg-emerald-500');
+                statusText.classList.add('text-emerald-400');
+            } else if (status === 'connecting') {
+                statusDot.classList.add('bg-amber-500');
+                statusText.classList.add('text-amber-400');
+            } else if (status === 'simulating') {
+                statusDot.classList.add('bg-purple-500');
+                statusText.classList.add('text-purple-400');
+            } else {
+                statusDot.classList.add('bg-rose-500');
+                statusText.classList.add('text-rose-400');
+            }
+        }
+
+        // Formats game time
+        function formatTime(seconds) {
+            const m = Math.floor(seconds / 60);
+            const s = seconds % 60;
+            return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+        }
+
+        // Exposed functions to python
+        eel.expose(on_status_change);
+        function on_status_change(status, message) {
+            console.log("Status change:", status, message);
+            addLog(message);
+            
+            if (status === 'connected') {
+                updateStatusUI('connected', 'Capturando datos');
+                toggleCapture.checked = true;
+                toggleSimulate.checked = false;
+            } else if (status === 'connecting') {
+                updateStatusUI('connecting', 'Conectando...');
+                toggleCapture.checked = true;
+                toggleSimulate.checked = false;
+            } else if (status === 'simulating') {
+                updateStatusUI('simulating', 'Simulación Activa');
+                toggleSimulate.checked = true;
+                toggleCapture.checked = false;
+            } else {
+                updateStatusUI('disconnected', 'Desconectado');
+                toggleCapture.checked = false;
+            }
+        }
+
+        eel.expose(on_log_event);
+        function on_log_event(message) {
+            addLog(message);
+        }
+
+        eel.expose(on_telemetry_data);
+        function on_telemetry_data(payload) {
+            // Update Score & Timer
+            if (payload.data && payload.data.game) {
+                const game = payload.data.game;
+                scoreBlue.textContent = game.blue_score;
+                scoreOrange.textContent = game.orange_score;
+                matchTimer.textContent = formatTime(game.time);
+                ballSpeed.textContent = game.ball_speed;
+            }
+
+            // Update Players List
+            if (payload.data && payload.data.players) {
+                const players = payload.data.players;
+                playersList.innerHTML = '';
+                
+                if (players.length === 0) {
+                    playersList.innerHTML = `
+                        <tr>
+                            <td colspan="6" class="py-8 text-center text-slate-500 italic">
+                                Sin jugadores detectados
+                            </td>
+                        </tr>
+                    `;
+                    return;
+                }
+
+                players.forEach(p => {
+                    const row = document.createElement('tr');
+                    row.className = "hover:bg-slate-900/40 transition-colors";
+                    
+                    const teamBadge = p.team === 0 
+                        ? `<span class="bg-rlblue/10 text-rlblue border border-rlblue/30 px-2 py-0.5 rounded text-[10px] uppercase font-bold">Azul</span>`
+                        : `<span class="bg-rlorange/10 text-rlorange border border-rlorange/30 px-2 py-0.5 rounded text-[10px] uppercase font-bold">Naranja</span>`;
+                    
+                    row.innerHTML = `
+                        <td class="py-3 font-semibold text-slate-200">${p.name}</td>
+                        <td class="py-3">${teamBadge}</td>
+                        <td class="py-3 w-40">
+                            <div class="flex items-center gap-2">
+                                <div class="w-full bg-slate-950 rounded-full h-2 border border-slate-900 overflow-hidden">
+                                    <div class="h-full rounded-full transition-all duration-300 ${p.boost > 50 ? 'bg-emerald-500' : p.boost > 20 ? 'bg-amber-500' : 'bg-rose-500'}" style="width: ${p.boost}%"></div>
+                                </div>
+                                <span class="font-mono text-slate-300 text-[10px] w-6">${p.boost}%</span>
+                            </div>
+                        </td>
+                        <td class="py-3 text-center text-slate-300 font-semibold">${p.goals}</td>
+                        <td class="py-3 text-center text-slate-300 font-semibold">${p.saves}</td>
+                        <td class="py-3 text-center text-brand-500 font-bold font-mono">${p.score}</td>
+                    `;
+                    playersList.appendChild(row);
+                });
+            }
+        }
+
+        // Initialize state on load
+        window.addEventListener('load', loadState);
+    </script>
+</body>
+</html>
