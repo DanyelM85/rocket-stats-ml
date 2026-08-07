@@ -37,16 +37,28 @@
                     <p class="text-slate-400 text-xs">Monitoreo de Telemetría e Ingesta de Datos en Tiempo Real</p>
                 </div>
             </div>
-            <div class="flex items-center gap-3 bg-slate-900 border border-slate-800 rounded-full px-4 py-2">
-                <span class="text-xs font-semibold text-slate-400">Estado API:</span>
-                <div class="flex items-center gap-2">
-                    <span id="status-dot" class="w-2.5 h-2.5 rounded-full bg-rose-500 pulse-indicator"></span>
-                    <span id="status-text" class="text-xs font-bold text-rose-400 uppercase">Desconectado</span>
+            <div class="flex items-center gap-4">
+                <div class="hidden sm:flex items-center gap-3 bg-slate-900/60 border border-slate-800 rounded-xl px-4 py-2 text-xs">
+                    <div class="text-right">
+                        <div class="font-bold text-slate-300" id="match-mode">Modo: Esperando...</div>
+                        <div class="text-[10px] text-slate-500" id="match-arena">Arena: Esperando...</div>
+                    </div>
+                    <div class="w-px h-8 bg-slate-800"></div>
+                    <div class="flex items-center gap-1 text-amber-500 font-semibold" id="match-overtime">
+                        <span id="overtime-badge" class="hidden bg-amber-500/10 border border-amber-500/20 px-2 py-0.5 rounded text-[10px] uppercase">Prorroga</span>
+                    </div>
+                </div>
+                <div class="flex items-center gap-3 bg-slate-900 border border-slate-800 rounded-full px-4 py-2">
+                    <span class="text-xs font-semibold text-slate-400">Estado API:</span>
+                    <div class="flex items-center gap-2">
+                        <span id="status-dot" class="w-2.5 h-2.5 rounded-full bg-rose-500 pulse-indicator"></span>
+                        <span id="status-text" class="text-xs font-bold text-rose-400 uppercase">Desconectado</span>
+                    </div>
                 </div>
             </div>
         </header>
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
-            <div class="lg:col-span-5 flex flex-col gap-6">
+            <div class="lg:col-span-4 flex flex-col gap-6">
                 <section class="glass-card rounded-2xl p-6 flex flex-col gap-5">
                     <div class="flex items-center gap-2 pb-3 border-b border-slate-800">
                         <i class="fa-solid fa-sliders text-brand-500"></i>
@@ -104,27 +116,27 @@
                         </div>
                     </div>
                 </section>
-                <section class="glass-card rounded-2xl p-5 text-xs text-slate-400">
-                    <div class="flex items-center gap-2 mb-2.5 font-bold text-slate-200">
-                        <i class="fa-solid fa-circle-question text-amber-500"></i>
-                        <span>¿Cómo funciona la API?</span>
+                <section class="glass-card rounded-2xl p-5 text-xs text-slate-400 flex flex-col gap-3">
+                    <div class="flex items-center gap-2 font-bold text-slate-200 pb-2 border-b border-slate-800">
+                        <i class="fa-solid fa-bullseye text-amber-500"></i>
+                        <span>Cámara Espectador / Objetivo</span>
                     </div>
-                    <ul class="space-y-1.5 list-disc pl-4 text-[11px] leading-relaxed">
-                        <li>Cuando abres Rocket League e inicias un partido, el juego empieza a enviar telemetría en el puerto configurado.</li>
-                        <li>Configura la ruta de instalación para que podamos habilitar automáticamente la API escribiendo el archivo <code class="text-brand-500 font-mono">DefaultStatsAPI.ini</code>.</li>
-                    </ul>
+                    <div class="flex items-center justify-between bg-slate-950/40 p-2.5 rounded-xl border border-slate-900">
+                        <span class="text-[11px] text-slate-400">Enfocado actualmente:</span>
+                        <span id="target-player" class="font-extrabold text-brand-500 text-xs">Ninguno</span>
+                    </div>
                 </section>
             </div>
-            <div class="lg:col-span-7 flex flex-col gap-6">
+            <div class="lg:col-span-8 flex flex-col gap-6">
                 <div class="glass-card rounded-2xl p-6 flex flex-col md:flex-row items-center justify-between gap-6 relative overflow-hidden">
                     <div class="absolute left-0 top-0 bottom-0 w-24 bg-gradient-to-r from-rlblue/10 to-transparent pointer-events-none"></div>
                     <div class="absolute right-0 top-0 bottom-0 w-24 bg-gradient-to-l from-rlorange/10 to-transparent pointer-events-none"></div>
                     <div class="flex items-center justify-center gap-6 w-full">
                         <div class="text-center">
-                            <div class="text-xs font-extrabold text-rlblue tracking-wider uppercase mb-1 drop-shadow-[0_0_8px_rgba(57,120,255,0.4)]">Azul</div>
+                            <div class="text-xs font-extrabold text-rlblue tracking-wider uppercase mb-1 drop-shadow-[0_0_8px_rgba(57,120,255,0.4)]" id="team-0-name">Azul</div>
                             <div id="score-blue" class="text-5xl font-black text-white w-20 py-2 rounded-xl bg-slate-950/80 border border-slate-800 glow-rlblue">0</div>
                         </div>
-                        <div class="text-center px-4 flex flex-col items-center">
+                        <div class="text-center px-4 flex flex-col items-center w-60">
                             <span class="text-[10px] font-semibold text-slate-500 uppercase tracking-widest mb-1">Tiempo Restante</span>
                             <div id="match-timer" class="text-3xl font-mono font-bold text-slate-100 bg-slate-900 border border-slate-800 px-4 py-1.5 rounded-xl">05:00</div>
                             <div class="mt-2 flex items-center gap-1.5 bg-brand-500/10 text-brand-500 border border-brand-500/20 rounded-full px-3 py-0.5 text-xs font-bold">
@@ -133,7 +145,7 @@
                             </div>
                         </div>
                         <div class="text-center">
-                            <div class="text-xs font-extrabold text-rlorange tracking-wider uppercase mb-1 drop-shadow-[0_0_8px_rgba(255,138,0,0.4)]">Naranja</div>
+                            <div class="text-xs font-extrabold text-rlorange tracking-wider uppercase mb-1 drop-shadow-[0_0_8px_rgba(255,138,0,0.4)]" id="team-1-name">Naranja</div>
                             <div id="score-orange" class="text-5xl font-black text-white w-20 py-2 rounded-xl bg-slate-950/80 border border-slate-800 glow-rlorange">0</div>
                         </div>
                     </div>
@@ -150,17 +162,18 @@
                         <table class="w-full text-left border-collapse">
                             <thead>
                                 <tr class="text-slate-500 text-[10px] font-bold uppercase tracking-wider border-b border-slate-900">
-                                    <th class="py-2.5">Jugador</th>
+                                    <th class="py-2.5 pr-2">Jugador / Auto</th>
                                     <th class="py-2.5">Equipo</th>
+                                    <th class="py-2.5">Estado</th>
                                     <th class="py-2.5">Boost</th>
-                                    <th class="py-2.5 text-center">Goles</th>
-                                    <th class="py-2.5 text-center">Salvadas</th>
+                                    <th class="py-2.5 text-center">Pts / T / A</th>
+                                    <th class="py-2.5 text-center">G / A / S</th>
                                     <th class="py-2.5 text-center">Score</th>
                                 </tr>
                             </thead>
                             <tbody id="players-list" class="text-xs divide-y divide-slate-900">
                                 <tr id="players-empty-row">
-                                    <td colspan="6" class="py-8 text-center text-slate-500 italic">
+                                    <td colspan="7" class="py-8 text-center text-slate-500 italic">
                                         Activa la captura para visualizar datos
                                     </td>
                                 </tr>
@@ -168,13 +181,31 @@
                         </table>
                     </div>
                 </section>
+                
+                <!-- Terminal & JSON Tabs (Cambio Solicitado) -->
                 <section class="glass-card rounded-2xl p-6 flex flex-col gap-3">
-                    <div class="flex items-center gap-2 pb-3 border-b border-slate-800">
-                        <i class="fa-solid fa-terminal text-brand-500"></i>
-                        <h2 class="font-bold text-sm text-slate-200">Terminal de Sucesos en Vivo</h2>
+                    <div class="flex items-center justify-between pb-2 border-b border-slate-800">
+                        <div class="flex items-center gap-2">
+                            <i class="fa-solid fa-terminal text-brand-500"></i>
+                            <h2 class="font-bold text-sm text-slate-200">Consola e Inspección de Datos</h2>
+                        </div>
+                        <div class="flex bg-slate-950 p-1 rounded-lg border border-slate-900 text-[11px] font-semibold">
+                            <button id="tab-btn-terminal" class="px-3 py-1 rounded-md bg-brand-500 text-slate-950 font-bold transition-all">Sucesos (Logs)</button>
+                            <button id="tab-btn-json" class="px-3 py-1 rounded-md text-slate-400 hover:text-white transition-all">JSON en Vivo</button>
+                        </div>
                     </div>
-                    <div id="log-terminal" class="bg-black/80 font-mono text-[11px] text-emerald-400 p-4 rounded-xl h-36 overflow-y-auto border border-slate-900 space-y-1.5 flex flex-col">
+                    
+                    <!-- Contenedor 1: Logs del Terminal -->
+                    <div id="log-terminal" class="bg-black/80 font-mono text-[11px] text-emerald-400 p-4 rounded-xl h-48 overflow-y-auto border border-slate-900 space-y-1.5 flex flex-col">
                         <div class="text-slate-500">[SISTEMA] Listo para iniciar captura...</div>
+                    </div>
+                    
+                    <!-- Contenedor 2: JSON Inspector (Oculto inicialmente) -->
+                    <div id="json-container" class="hidden relative">
+                        <button id="btn-copy-json" class="absolute right-3 top-3 bg-slate-900 hover:bg-slate-800 border border-slate-800 text-[10px] text-slate-400 hover:text-white px-2 py-1 rounded flex items-center gap-1.5 transition-all">
+                            <i class="fa-regular fa-copy"></i> Copiar
+                        </button>
+                        <pre id="json-terminal" class="bg-black/90 font-mono text-[10px] text-cyan-400 p-4 rounded-xl h-48 overflow-y-auto border border-slate-900 select-all scrollbar-thin">{}</pre>
                     </div>
                 </section>
             </div>
@@ -198,6 +229,66 @@
         const ballSpeed = document.getElementById('ball-speed');
         const playersList = document.getElementById('players-list');
         const logTerminal = document.getElementById('log-terminal');
+        
+        // Elementos nuevos agregados para máxima visibilidad de datos
+        const matchMode = document.getElementById('match-mode');
+        const matchArena = document.getElementById('match-arena');
+        const overtimeBadge = document.getElementById('overtime-badge');
+        const targetPlayer = document.getElementById('target-player');
+        const team0Name = document.getElementById('team-0-name');
+        const team1Name = document.getElementById('team-1-name');
+
+        // Elementos de la pestaña JSON
+        const tabBtnTerminal = document.getElementById('tab-btn-terminal');
+        const tabBtnJson = document.getElementById('tab-btn-json');
+        const jsonContainer = document.getElementById('json-container');
+        const jsonTerminal = document.getElementById('json-terminal');
+        const btnCopyJson = document.getElementById('btn-copy-json');
+
+        const playlistNames = {
+            1: "Duelo (1v1)",
+            2: "Dobles (2v2)",
+            3: "Estándar (3v3)",
+            4: "Caos (4v4)",
+            8: "Exhibición Offline",
+            11: "Competitivo Dobles",
+            13: "Competitivo Estándar"
+        };
+
+        const arenaNames = {
+            "cs_p": "Champions Field",
+            "stadium_p": "DFH Stadium",
+            "park_p": "Beckwith Park",
+            "trainstation_p": "Urban Station",
+            "wasteland_p": "Wasteland",
+            "underwater_p": "AquaDome",
+            "beach_p": "Salty Shores",
+            "music_p": "Neon Fields"
+        };
+
+        // Lógica de cambio de Pestaña
+        tabBtnTerminal.addEventListener('click', () => {
+            tabBtnTerminal.className = "px-3 py-1 rounded-md bg-brand-500 text-slate-950 font-bold transition-all";
+            tabBtnJson.className = "px-3 py-1 rounded-md text-slate-400 hover:text-white transition-all";
+            logTerminal.classList.remove('hidden');
+            jsonContainer.classList.add('hidden');
+        });
+
+        tabBtnJson.addEventListener('click', () => {
+            tabBtnJson.className = "px-3 py-1 rounded-md bg-brand-500 text-slate-950 font-bold transition-all";
+            tabBtnTerminal.className = "px-3 py-1 rounded-md text-slate-400 hover:text-white transition-all";
+            jsonContainer.classList.remove('hidden');
+            logTerminal.classList.add('hidden');
+        });
+
+        // Botón Copiar JSON
+        btnCopyJson.addEventListener('click', () => {
+            navigator.clipboard.writeText(jsonTerminal.textContent);
+            btnCopyJson.innerHTML = `<i class="fa-solid fa-check text-emerald-400"></i> Copiado`;
+            setTimeout(() => {
+                btnCopyJson.innerHTML = `<i class="fa-regular fa-copy"></i> Copiar`;
+            }, 2000);
+        });
 
         sendRateInput.addEventListener('input', () => {
             rateVal.textContent = sendRateInput.value;
@@ -295,6 +386,12 @@
             const logItem = document.createElement('div');
             logItem.innerHTML = `<span class="text-slate-500">[${time}]</span> ${message}`;
             logTerminal.appendChild(logItem);
+            
+            // Limitar logs en el DOM a un máximo de 50 líneas para evitar lag y fugas de memoria
+            while (logTerminal.children.length > 50) {
+                logTerminal.removeChild(logTerminal.firstChild);
+            }
+            
             logTerminal.scrollTop = logTerminal.scrollHeight;
         }
 
@@ -341,42 +438,188 @@
             addLog(message);
         }
 
+        // Variable para controlar la frecuencia de renderizado del JSON crudo en pantalla (evita saturar el navegador)
+        let lastJsonUpdate = 0;
+
         eel.expose(on_telemetry_data);
         function on_telemetry_data(payload) {
-            if (payload.data && payload.data.game) {
-                const game = payload.data.game;
-                scoreBlue.textContent = game.blue_score;
-                scoreOrange.textContent = game.orange_score;
-                matchTimer.textContent = formatTime(game.time);
-                ballSpeed.textContent = game.ball_speed;
+            const eventName = payload.Event || payload.event;
+            let data = payload.Data || payload.data;
+            if (!data) return;
+
+            // Procesar deserialización secundaria si el juego lo manda codificado como string
+            if (typeof data === 'string') {
+                try {
+                    data = JSON.parse(data);
+                } catch (e) {
+                    console.error("Error al deserializar Data secundaria de Rocket League:", e);
+                    return;
+                }
             }
-            if (payload.data && payload.data.players) {
-                const players = payload.data.players;
+
+            // Actualizar el visualizador JSON de la pestaña
+            const now = Date.now();
+            if (now - lastJsonUpdate > 500) { // Limitado a 2 actualizaciones por segundo para rendimiento óptimo
+                jsonTerminal.textContent = JSON.stringify({ Event: eventName, Data: data }, null, 2);
+                lastJsonUpdate = now;
+            }
+
+            // Mostrar y registrar todos los eventos no periódicos para dar visibilidad
+            if (eventName && eventName !== 'UpdateState') {
+                let details = "";
+                if (eventName === 'StatfeedEvent') {
+                    const ev = data.Event || data;
+                    details = `🌟 ${ev.PlayerName || 'Jugador'} obtuvo: ${ev.StatEvent || 'evento'}`;
+                } else if (eventName === 'BallHit') {
+                    details = `⚽ Pelota golpeada`;
+                } else if (eventName === 'BoostPickup') {
+                    details = `⚡ Boost recogido`;
+                } else if (eventName === 'RoundStarted') {
+                    details = `🏁 ¡Comienza la ronda!`;
+                } else if (eventName === 'CountdownBegin') {
+                    details = `⏱️ Cuenta regresiva iniciada`;
+                } else {
+                    details = `ℹ️ Evento: ${eventName}`;
+                }
+                addLog(details);
+                return; 
+            }
+
+            const game = data.Game || data.game;
+            if (game) {
+                let blueScore = 0;
+                let orangeScore = 0;
+                if (game.Teams || game.teams) {
+                    const teams = game.Teams || game.teams;
+                    teams.forEach(t => {
+                        const teamNum = t.TeamNum !== undefined ? t.TeamNum : t.team;
+                        const score = t.Score !== undefined ? t.Score : t.score;
+                        const name = t.Name || t.name;
+                        if (teamNum === 0) {
+                            blueScore = score;
+                            if (name) team0Name.textContent = name;
+                        }
+                        if (teamNum === 1) {
+                            orangeScore = score;
+                            if (name) team1Name.textContent = name;
+                        }
+                    });
+                } else {
+                    blueScore = game.blue_score !== undefined ? game.blue_score : 0;
+                    orangeScore = game.orange_score !== undefined ? game.orange_score : 0;
+                }
+
+                const time = game.TimeSeconds !== undefined ? game.TimeSeconds : (game.time !== undefined ? game.time : 300);
+                
+                let rawBallSpeed = 0;
+                if (game.Ball || game.ball) {
+                    const ball = game.Ball || game.ball;
+                    rawBallSpeed = ball.Speed !== undefined ? ball.Speed : (ball.speed !== undefined ? ball.speed : 0);
+                } else {
+                    rawBallSpeed = game.ball_speed !== undefined ? game.ball_speed : 0;
+                }
+                
+                // Conversión de velocidad
+                let speedKmh = rawBallSpeed;
+                if (rawBallSpeed > 0 && rawBallSpeed < 10) {
+                    speedKmh = Math.round(rawBallSpeed * 100); 
+                } else if (rawBallSpeed > 300) {
+                    speedKmh = Math.round(rawBallSpeed * 0.036);
+                } else {
+                    speedKmh = Math.round(rawBallSpeed);
+                }
+
+                scoreBlue.textContent = blueScore;
+                scoreOrange.textContent = orangeScore;
+                matchTimer.textContent = formatTime(time);
+                ballSpeed.textContent = speedKmh;
+
+                // Capturar metadatos del partido
+                if (game.PlaylistId !== undefined) {
+                    matchMode.textContent = "Modo: " + (playlistNames[game.PlaylistId] || `ID ${game.PlaylistId}`);
+                }
+                if (game.Arena) {
+                    matchArena.textContent = "Arena: " + (arenaNames[game.Arena.toLowerCase()] || game.Arena);
+                }
+                if (game.bOvertime) {
+                    overtimeBadge.classList.remove('hidden');
+                } else {
+                    overtimeBadge.classList.add('hidden');
+                }
+                if (game.Target && game.Target.Name) {
+                    targetPlayer.textContent = game.Target.Name;
+                } else if (game.Target && game.Target.name) {
+                    targetPlayer.textContent = game.Target.name;
+                } else {
+                    targetPlayer.textContent = "Cámara Libre / Ninguno";
+                }
+            }
+
+            const players = data.Players || data.players;
+            if (players) {
                 playersList.innerHTML = '';
                 if (players.length === 0) {
-                    playersList.innerHTML = `<tr><td colspan="6" class="py-8 text-center text-slate-500 italic">Sin jugadores detectados</td></tr>`;
+                    playersList.innerHTML = `<tr><td colspan="7" class="py-8 text-center text-slate-500 italic">Sin jugadores detectados</td></tr>`;
                     return;
                 }
                 players.forEach(p => {
+                    const name = p.Name || p.name || 'Jugador';
+                    const teamNum = p.TeamNum !== undefined ? p.TeamNum : (p.team !== undefined ? p.team : 0);
+                    const boost = p.Boost !== undefined ? p.Boost : (p.boost !== undefined ? p.boost : 0);
+                    const goals = p.Goals !== undefined ? p.Goals : (p.goals !== undefined ? p.goals : 0);
+                    const saves = p.Saves !== undefined ? p.Saves : (p.saves !== undefined ? p.saves : 0);
+                    const score = p.Score !== undefined ? p.Score : (p.score !== undefined ? p.score : 0);
+                    
+                    const shots = p.Shots !== undefined ? p.Shots : 0;
+                    const assists = p.Assists !== undefined ? p.Assists : 0;
+                    const touches = p.Touches !== undefined ? p.Touches : 0;
+                    const demos = p.Demos !== undefined ? p.Demos : 0;
+                    const bOnGround = p.bOnGround !== undefined ? p.bOnGround : true;
+                    
+                    let carModel = "Octane"; 
+                    if (p.Loadout && p.Loadout.length > 0) {
+                        const body = p.Loadout.find(item => item.startsWith("Body_") || item.startsWith("BODY_"));
+                        if (body) {
+                            carModel = body.split("_")[1] || body;
+                        }
+                    }
+
                     const row = document.createElement('tr');
                     row.className = "hover:bg-slate-900/40 transition-colors";
-                    const teamBadge = p.team === 0 
+                    const teamBadge = teamNum === 0 
                         ? `<span class="bg-rlblue/10 text-rlblue border border-rlblue/30 px-2 py-0.5 rounded text-[10px] uppercase font-bold">Azul</span>`
                         : `<span class="bg-rlorange/10 text-rlorange border border-rlorange/30 px-2 py-0.5 rounded text-[10px] uppercase font-bold">Naranja</span>`;
+                    
+                    const stateBadge = bOnGround 
+                        ? `<span class="bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-1.5 py-0.5 rounded text-[10px] font-bold"><i class="fa-solid fa-house text-[9px] mr-1"></i>Suelo</span>`
+                        : `<span class="bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 px-1.5 py-0.5 rounded text-[10px] font-bold"><i class="fa-solid fa-plane text-[9px] mr-1"></i>Aire</span>`;
+
                     row.innerHTML = `
-                        <td class="py-3 font-semibold text-slate-200">${p.name}</td>
-                        <td class="py-3">${teamBadge}</td>
-                        <td class="py-3 w-40">
-                            <div class="flex items-center gap-2">
-                                <div class="w-full bg-slate-950 rounded-full h-2 border border-slate-900 overflow-hidden">
-                                    <div class="h-full rounded-full transition-all duration-300 ${p.boost > 50 ? 'bg-emerald-500' : p.boost > 20 ? 'bg-amber-500' : 'bg-rose-500'}" style="width: ${p.boost}%"></div>
-                                </div>
-                                <span class="font-mono text-slate-300 text-[10px] w-6">${p.boost}%</span>
+                        <td class="py-3 pr-2">
+                            <div class="font-semibold text-slate-200">${name}</div>
+                            <div class="text-[9px] text-slate-500 flex items-center gap-1">
+                                <i class="fa-solid fa-car"></i> ${carModel}
                             </div>
                         </td>
-                        <td class="py-3 text-center text-slate-300 font-semibold">${p.goals}</td>
-                        <td class="py-3 text-center text-slate-300 font-semibold">${p.saves}</td>
-                        <td class="py-3 text-center text-brand-500 font-bold font-mono">${p.score}</td>
+                        <td class="py-3">${teamBadge}</td>
+                        <td class="py-3">${stateBadge}</td>
+                        <td class="py-3 w-32">
+                            <div class="flex items-center gap-2">
+                                <div class="w-full bg-slate-950 rounded-full h-2 border border-slate-900 overflow-hidden">
+                                    <div class="h-full rounded-full transition-all duration-300 ${boost > 50 ? 'bg-emerald-500' : boost > 20 ? 'bg-amber-500' : 'bg-rose-500'}" style="width: ${boost}%"></div>
+                                </div>
+                                <span class="font-mono text-slate-300 text-[10px] w-6">${boost}%</span>
+                            </div>
+                        </td>
+                        <td class="py-3 text-center text-slate-300">
+                            <div class="font-bold text-slate-200 font-mono">${shots} <span class="text-[9px] text-slate-500 font-normal">T</span></div>
+                            <div class="text-[9px] text-slate-500">${touches} Toques | ${demos} Dem</div>
+                        </td>
+                        <td class="py-3 text-center text-slate-300">
+                            <div class="font-bold text-slate-200 font-mono">${goals} <span class="text-[9px] text-slate-500 font-normal">G</span></div>
+                            <div class="text-[9px] text-slate-500">${assists} Asis | ${saves} Salv</div>
+                        </td>
+                        <td class="py-3 text-center text-brand-500 font-bold font-mono text-sm">${score}</td>
                     `;
                     playersList.appendChild(row);
                 });

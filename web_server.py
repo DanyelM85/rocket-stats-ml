@@ -16,16 +16,35 @@ _current_port = 49123
 _current_send_rate = 30.0
 _current_path = ""
 
+# Buffer en memoria para telemetría
+_telemetry_buffer = []
+_last_disk_flush = 0.0
+_last_state_write = 0.0
+
 def save_telemetry_payload(payload):
+    global _last_disk_flush, _last_state_write, _telemetry_buffer
     try:
-        data_dir = Path("data")
-        data_dir.mkdir(exist_ok=True)
-        log_file = data_dir / "telemetry_log.jsonl"
-        with open(log_file, "a", encoding="utf-8") as f:
-            f.write(json.dumps(payload) + "\n")
-        latest_file = data_dir / "latest_state.json"
-        with open(latest_file, "w", encoding="utf-8") as f:
-            json.dump(payload, f, indent=4, ensure_ascii=False)
+        now = time.time()
+        _telemetry_buffer.append(json.dumps(payload) + "\n")
+        
+        # Reducción de Escritura en Disco 150x: Guardamos logs acumulados cada 5 segundos o 150 paquetes
+        if now - _last_disk_flush > 5.0 or len(_telemetry_buffer) >= 150:
+            data_dir = Path("data")
+            data_dir.mkdir(exist_ok=True)
+            log_file = data_dir / "telemetry_log.jsonl"
+            with open(log_file, "a", encoding="utf-8") as f:
+                f.writelines(_telemetry_buffer)
+            _telemetry_buffer.clear()
+            _last_disk_flush = now
+            
+        # Reducción de Escritura en Disco 30x: Guardamos el archivo latest_state.json solo una vez por segundo
+        if now - _last_state_write > 1.0:
+            data_dir = Path("data")
+            data_dir.mkdir(exist_ok=True)
+            latest_file = data_dir / "latest_state.json"
+            with open(latest_file, "w", encoding="utf-8") as f:
+                json.dump(payload, f, indent=4, ensure_ascii=False)
+            _last_state_write = now
     except Exception as e:
         print(f"Error al guardar la telemetría en disco: {e}")
 
@@ -51,18 +70,25 @@ class RLConnectionThread(threading.Thread):
                 while self.running:
                     data = self.socket.recv(8192)
                     if not data:
+                        print("[SOCKET] Conexión cerrada por el host (Rocket League).")
+                        eel.on_log_event("⚠️ Conexión cerrada por Rocket League.")
                         break
-                    buffer += data.decode('utf-8', errors='ignore')
-                    while "\n" in buffer:
-                        line, buffer = buffer.split("\n", 1)
-                        line = line.strip()
-                        if line:
-                            try:
-                                payload = json.loads(line)
-                                eel.on_telemetry_data(payload)
-                                save_telemetry_payload(payload)
-                            except Exception:
-                                pass
+                    
+                    decoded = data.decode('utf-8', errors='ignore')
+                    buffer += decoded
+                    
+                    # Decodificar objetos JSON consecutivos directamente del stream usando raw_decode
+                    decoder = json.JSONDecoder()
+                    buffer = buffer.strip()
+                    while buffer:
+                        try:
+                            payload, idx = decoder.raw_decode(buffer)
+                            eel.on_telemetry_data(payload)
+                            save_telemetry_payload(payload)
+                            buffer = buffer[idx:].strip()
+                        except json.JSONDecodeError:
+                            # Si el JSON está incompleto, rompemos para esperar más datos en el socket
+                            break
             except Exception as e:
                 if self.running:
                     eel.on_status_change("disconnected", f"Sin conexión: {str(e)}. Reintentando en 3 segundos...")
