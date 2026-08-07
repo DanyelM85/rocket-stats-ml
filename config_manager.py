@@ -113,15 +113,7 @@ def read_ini_values(ini_path: Path) -> tuple[int, float]:
     
     return port, send_rate
 
-def setup_stats_api(send_rate: float = 30.0, port: int = 49123) -> bool:
-    """
-    Modifica el archivo DefaultStatsAPI.ini con la configuración elegida,
-    cambiando únicamente los valores numéricos y conservando los comentarios.
-    """
-    ini_path = get_valid_ini_path()
-    if not ini_path or ini_path == Path(""):
-        return False
-
+def _write_values_to_ini(ini_path: Path, send_rate: float, port: int) -> bool:
     default_content = f"""; Archivo de configuración de Rocket League Stats API
 [TAGame.MatchStatsExporter_TA]
 
@@ -192,7 +184,6 @@ PacketSendRate={send_rate}
             f.writelines(new_lines)
             
         print(f" [✓] Archivo configurado con éxito en:\n    {ini_path}")
-        print(f" [i] PacketSendRate = {send_rate} | Port = {port}")
         return True
     except PermissionError:
         print(f"[X] Error de permisos al escribir en {ini_path}. Intenta ejecutar el script como Administrador.")
@@ -200,3 +191,30 @@ PacketSendRate={send_rate}
     except Exception as e:
         print(f"[X] Error inesperado: {e}")
         return False
+
+def setup_stats_api(send_rate: float = 30.0, port: int = 49123) -> bool:
+    """
+    Modifica el archivo DefaultStatsAPI.ini en la instalación,
+    y también TAStatsAPI.ini en Documents/My Games/Rocket League.
+    """
+    success = False
+    
+    # 1. Configurar en carpeta de instalación
+    ini_path = get_valid_ini_path()
+    if ini_path and ini_path != Path(""):
+        success = _write_values_to_ini(ini_path, send_rate, port)
+
+    # 2. Configurar en Documents/My Games/Rocket League
+    try:
+        docs_paths = [
+            Path.home() / "Documents" / "My Games" / "Rocket League" / "TAGame" / "Config" / "TAStatsAPI.ini",
+            Path.home() / "OneDrive" / "Documents" / "My Games" / "Rocket League" / "TAGame" / "Config" / "TAStatsAPI.ini"
+        ]
+        for docs_ini in docs_paths:
+            if docs_ini.parent.exists() or docs_ini.exists():
+                _write_values_to_ini(docs_ini, send_rate, port)
+                success = True
+    except Exception as e:
+        print(f"No se pudo escribir en la carpeta de Documents: {e}")
+
+    return success

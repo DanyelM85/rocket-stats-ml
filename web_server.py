@@ -21,6 +21,24 @@ _current_send_rate = 30.0
 _current_path = ""
 
 # Funciones de utilidad para hilos de fondo
+def save_telemetry_payload(payload):
+    """Guarda la telemetría en la carpeta 'data' tanto en un log de sesión (.jsonl) como el estado actual (.json)."""
+    try:
+        data_dir = Path("data")
+        data_dir.mkdir(exist_ok=True)
+        
+        # 1. Historial completo (JSON Lines)
+        log_file = data_dir / "telemetry_log.jsonl"
+        with open(log_file, "a", encoding="utf-8") as f:
+            f.write(json.dumps(payload) + "\n")
+            
+        # 2. Último estado en tiempo real (JSON legible)
+        latest_file = data_dir / "latest_state.json"
+        with open(latest_file, "w", encoding="utf-8") as f:
+            json.dump(payload, f, indent=4, ensure_ascii=False)
+    except Exception as e:
+        print(f"Error al guardar la telemetría en disco: {e}")
+
 class RLConnectionThread(threading.Thread):
     def __init__(self, port):
         super().__init__()
@@ -54,6 +72,7 @@ class RLConnectionThread(threading.Thread):
                             try:
                                 payload = json.loads(line)
                                 eel.on_telemetry_data(payload)
+                                save_telemetry_payload(payload)
                             except Exception:
                                 # En caso de que sea un fragmento parcial no JSON
                                 pass
@@ -151,6 +170,7 @@ class RLSimulationThread(threading.Thread):
                 }
             }
             eel.on_telemetry_data(telemetry_data)
+            save_telemetry_payload(telemetry_data)
             time.sleep(1)
 
     def stop(self):
