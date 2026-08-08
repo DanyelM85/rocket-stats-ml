@@ -6,6 +6,8 @@ import threading
 import socket
 import json
 import time
+import ctypes
+from ctypes import wintypes
 
 eel.init('web')
 
@@ -16,37 +18,60 @@ _current_port = 49123
 _current_send_rate = 30.0
 _current_path = ""
 
-# Buffer en memoria para telemetría
-_telemetry_buffer = []
-_last_disk_flush = 0.0
-_last_state_write = 0.0
+# --- ESTRUCTURAS DE LLAMADA DIRECTA A XINPUT EN WINDOWS (SIN DEPENDENCIAS) ---
+class XINPUT_GAMEPAD(ctypes.Structure):
+    _fields_ = [
+        ("wButtons", wintypes.WORD),
+        ("bLeftTrigger", ctypes.c_ubyte),
+        ("bRightTrigger", ctypes.c_ubyte),
+        ("sThumbLX", ctypes.c_short),
+        ("sThumbLY", ctypes.c_short),
+        ("sThumbRX", ctypes.c_short),
+        ("sThumbRY", ctypes.c_short),
+    ]
 
-def save_telemetry_payload(payload):
-    global _last_disk_flush, _last_state_write, _telemetry_buffer
+class XINPUT_STATE(ctypes.Structure):
+    _fields_ = [
+        ("dwPacketNumber", wintypes.DWORD),
+        ("Gamepad", XINPUT_GAMEPAD),
+    ]
+
+_xinput_dll = None
+for dll_name in ("xinput1_4", "xinput1_3", "xinput9_1_0"):
     try:
-        now = time.time()
-        _telemetry_buffer.append(json.dumps(payload) + "\n")
+        _xinput_dll = ctypes.windll.LoadLibrary(dll_name)
+        break
+    except Exception:
+        continue
+
+def get_active_gamepad_state():
+    """Lee de forma directa el puerto de control XInput de Windows."""
+    if not _xinput_dll:
+        return {}
+    state = XINPUT_STATE()
+    # Consultamos el control 0 (Jugador Principal)
+    res = _xinput_dll.XInputGetState(0, ctypes.byref(state))
+    if res == 0:  # ERROR_SUCCESS
+        gp = state.Gamepad
+        rt = int((gp.bRightTrigger / 255.0) * 100)
+        lt = int((gp.bLeftTrigger / 255.0) * 100)
         
-        # Reducción de Escritura en Disco 150x: Guardamos logs acumulados cada 5 segundos o 150 paquetes
-        if now - _last_disk_flush > 5.0 or len(_telemetry_buffer) >= 150:
-            data_dir = Path("data")
-            data_dir.mkdir(exist_ok=True)
-            log_file = data_dir / "telemetry_log.jsonl"
-            with open(log_file, "a", encoding="utf-8") as f:
-                f.writelines(_telemetry_buffer)
-            _telemetry_buffer.clear()
-            _last_disk_flush = now
+        lx = gp.sThumbLX
+        if abs(lx) < 3000:
+            steer = 0
+        else:
+            steer = int((lx / 32767.0) * 100)
             
-        # Reducción de Escritura en Disco 30x: Guardamos el archivo latest_state.json solo una vez por segundo
-        if now - _last_state_write > 1.0:
-            data_dir = Path("data")
-            data_dir.mkdir(exist_ok=True)
-            latest_file = data_dir / "latest_state.json"
-            with open(latest_file, "w", encoding="utf-8") as f:
-                json.dump(payload, f, indent=4, ensure_ascii=False)
-            _last_state_write = now
-    except Exception as e:
-        print(f"Error al guardar la telemetría en disco: {e}")
+        return {
+            "Throttle": rt - lt,  # Rango [-100, 100]
+            "Steer": steer,        # Rango [-100, 100]
+            "Handbrake": bool(gp.wButtons & 0x4000),
+            "BoostButton": bool(gp.wButtons & 0x2000),
+            "JumpButton": bool(gp.wButtons & 0x1000)
+        }
+    return {}
+
+
 
 class RLConnectionThread(threading.Thread):
     def __init__(self, port):
@@ -70,24 +95,35 @@ class RLConnectionThread(threading.Thread):
                 while self.running:
                     data = self.socket.recv(8192)
                     if not data:
-                        print("[SOCKET] Conexión cerrada por el host (Rocket League).")
-                        eel.on_log_event("⚠️ Conexión cerrada por Rocket League.")
                         break
                     
                     decoded = data.decode('utf-8', errors='ignore')
                     buffer += decoded
                     
-                    # Decodificar objetos JSON consecutivos directamente del stream usando raw_decode
                     decoder = json.JSONDecoder()
                     buffer = buffer.strip()
                     while buffer:
                         try:
                             payload, idx = decoder.raw_decode(buffer)
+                            gp_state = get_active_gamepad_state()
+                            if gp_state:
+                                data_field = payload.get("Data") or payload.get("data")
+                                if isinstance(data_field, dict):
+                                    data_field["GamepadInput"] = gp_state
+                                elif isinstance(data_field, str):
+                                    try:
+                                        parsed = json.loads(data_field)
+                                        parsed["GamepadInput"] = gp_state
+                                        if "Data" in payload:
+                                            payload["Data"] = parsed
+                                        else:
+                                            payload["data"] = parsed
+                                    except:
+                                        pass
+                            
                             eel.on_telemetry_data(payload)
-                            save_telemetry_payload(payload)
                             buffer = buffer[idx:].strip()
                         except json.JSONDecodeError:
-                            # Si el JSON está incompleto, rompemos para esperar más datos en el socket
                             break
             except Exception as e:
                 if self.running:

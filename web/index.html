@@ -59,36 +59,51 @@
         </header>
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
             <div class="lg:col-span-4 flex flex-col gap-6">
+                <!-- CONFIGURACIÓN DE LA API (MODULAR, COLAPSABLE) -->
                 <section class="glass-card rounded-2xl p-6 flex flex-col gap-5">
-                    <div class="flex items-center gap-2 pb-3 border-b border-slate-800">
-                        <i class="fa-solid fa-sliders text-brand-500"></i>
-                        <h2 class="font-bold text-sm text-slate-200">Configuración de la API</h2>
-                    </div>
-                    <div class="flex flex-col gap-2">
-                        <label for="folder-path" class="text-xs font-semibold text-slate-400">Ruta Raíz de Rocket League:</label>
-                        <div class="flex gap-2">
-                            <input type="text" id="folder-path" class="flex-1 bg-slate-950 border border-slate-800 focus:border-brand-500 focus:ring-1 focus:ring-brand-500 text-slate-200 rounded-xl px-3.5 py-2 text-xs outline-none transition-all" placeholder="Ej: C:\Program Files\Epic Games\rocketleague">
-                            <button id="btn-browse" class="bg-slate-800 hover:bg-slate-700 text-brand-500 hover:text-white border border-slate-700 rounded-xl px-4 py-2 text-xs font-semibold flex items-center gap-1.5 transition-all">
-                                <i class="fa-regular fa-folder-open"></i>
-                                <span>Buscar</span>
-                            </button>
+                    <button id="btn-toggle-settings" class="w-full flex items-center justify-between pb-3 border-b border-slate-800 text-left outline-none cursor-pointer">
+                        <div class="flex items-center gap-2">
+                            <i class="fa-solid fa-sliders text-brand-500"></i>
+                            <h2 class="font-bold text-sm text-slate-200">Configuración de la API</h2>
                         </div>
-                    </div>
-                    <div class="grid grid-cols-2 gap-4">
-                        <div class="flex flex-col gap-2">
-                            <label for="api-port" class="text-xs font-semibold text-slate-400">Puerto del Socket:</label>
-                            <input type="number" id="api-port" value="49123" class="bg-slate-950 border border-slate-800 focus:border-brand-500 focus:ring-1 focus:ring-brand-500 text-slate-200 rounded-xl px-3.5 py-2 text-xs outline-none transition-all">
-                        </div>
-                        <div class="flex flex-col gap-2">
-                            <label for="send-rate" class="text-xs font-semibold text-slate-400">Frecuencia (Hz): <span id="rate-val" class="text-brand-500">30</span></label>
-                            <input type="range" id="send-rate" min="1" max="120" value="30" class="h-2 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-brand-500 mt-2">
-                        </div>
-                    </div>
-                    <div id="settings-status" class="hidden text-xs rounded-xl p-3.5 border font-medium"></div>
-                    <button id="btn-apply-settings" class="w-full bg-brand-500 hover:bg-brand-600 active:scale-[0.98] text-slate-950 font-bold py-2.5 px-4 rounded-xl shadow-lg hover:shadow-brand-500/20 flex items-center justify-center gap-2 transition-all">
-                        <i class="fa-solid fa-floppy-disk"></i>
-                        <span>Aplicar y Guardar Cambios</span>
+                        <i id="settings-chevron" class="fa-solid fa-chevron-up text-xs text-slate-400 transition-transform duration-300"></i>
                     </button>
+                    
+                    <div id="settings-content" class="flex flex-col gap-5 transition-all duration-300 overflow-hidden">
+                        <!-- Banner de Configuración Existente Leída -->
+                        <div id="config-banner" class="hidden bg-emerald-500/10 border border-emerald-500/20 rounded-xl p-3.5 text-xs text-emerald-400 font-semibold leading-relaxed">
+                            <span class="flex items-start gap-1.5">
+                                <i class="fa-solid fa-circle-check mt-0.5 text-emerald-400"></i>
+                                <span>✓ Configuración existente leída: Puerto <span id="banner-port" class="text-white font-mono">49123</span> | Frecuencia <span id="banner-hz" class="text-white font-mono">30</span> Hz. ¿Deseas modificarla o dejarla así para capturar datos?</span>
+                            </span>
+                        </div>
+
+                        <div class="flex flex-col gap-2">
+                            <label for="folder-path" class="text-xs font-semibold text-slate-400">Ruta Raíz de Rocket League:</label>
+                            <div class="flex gap-2">
+                                <input type="text" id="folder-path" class="flex-1 bg-slate-950 border border-slate-800 focus:border-brand-500 focus:ring-1 focus:ring-brand-500 text-slate-200 rounded-xl px-3.5 py-2 text-xs outline-none transition-all" placeholder="Ej: C:\Program Files\Epic Games\rocketleague">
+                                <button id="btn-browse" class="bg-slate-800 hover:bg-slate-700 text-brand-500 hover:text-white border border-slate-700 rounded-xl px-4 py-2 text-xs font-semibold flex items-center gap-1.5 transition-all">
+                                    <i class="fa-regular fa-folder-open"></i>
+                                    <span>Buscar</span>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="flex flex-col gap-2">
+                                <label for="api-port" class="text-xs font-semibold text-slate-400">Puerto del Socket:</label>
+                                <input type="number" id="api-port" value="49123" class="bg-slate-950 border border-slate-800 focus:border-brand-500 focus:ring-1 focus:ring-brand-500 text-slate-200 rounded-xl px-3.5 py-2 text-xs outline-none transition-all">
+                            </div>
+                            <div class="flex flex-col gap-2">
+                                <label for="send-rate" class="text-xs font-semibold text-slate-400">Frecuencia (Hz): <span id="rate-val" class="text-brand-500">30</span></label>
+                                <input type="range" id="send-rate" min="1" max="120" value="30" class="h-2 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-brand-500 mt-2">
+                            </div>
+                        </div>
+                        <div id="settings-status" class="hidden text-xs rounded-xl p-3.5 border font-medium"></div>
+                        <button id="btn-apply-settings" class="w-full bg-brand-500 hover:bg-brand-600 active:scale-[0.98] text-slate-950 font-bold py-2.5 px-4 rounded-xl shadow-lg hover:shadow-brand-500/20 flex items-center justify-center gap-2 transition-all">
+                            <i class="fa-solid fa-floppy-disk"></i>
+                            <span>Aplicar y Guardar Cambios</span>
+                        </button>
+                    </div>
                 </section>
                 <section class="glass-card rounded-2xl p-6 flex flex-col gap-4">
                     <div class="flex items-center gap-2 pb-3 border-b border-slate-800">
@@ -128,86 +143,144 @@
                 </section>
             </div>
             <div class="lg:col-span-8 flex flex-col gap-6">
-                <div class="glass-card rounded-2xl p-6 flex flex-col md:flex-row items-center justify-between gap-6 relative overflow-hidden">
-                    <div class="absolute left-0 top-0 bottom-0 w-24 bg-gradient-to-r from-rlblue/10 to-transparent pointer-events-none"></div>
-                    <div class="absolute right-0 top-0 bottom-0 w-24 bg-gradient-to-l from-rlorange/10 to-transparent pointer-events-none"></div>
-                    <div class="flex items-center justify-center gap-6 w-full">
-                        <div class="text-center">
-                            <div class="text-xs font-extrabold text-rlblue tracking-wider uppercase mb-1 drop-shadow-[0_0_8px_rgba(57,120,255,0.4)]" id="team-0-name">Azul</div>
-                            <div id="score-blue" class="text-5xl font-black text-white w-20 py-2 rounded-xl bg-slate-950/80 border border-slate-800 glow-rlblue">0</div>
+                <!-- HEADER SUPER-SIMPLIFICADO DE PARTIDA EN VIVO -->
+                <div class="glass-card rounded-2xl p-4 flex flex-wrap items-center justify-between gap-4 relative overflow-hidden">
+                    <div class="flex items-center gap-3">
+                        <span id="target-player-badge" class="px-3 py-1 bg-brand-500/10 text-brand-500 border border-brand-500/20 text-xs font-black rounded-lg uppercase tracking-wider">
+                            TARGET FOCUS: DANYELM855
+                        </span>
+                        <div class="flex items-center gap-1.5 bg-slate-900 border border-slate-800 rounded-lg px-2.5 py-1">
+                            <span class="text-[10px] font-semibold text-slate-500 uppercase">Reloj:</span>
+                            <span id="match-timer" class="text-xs font-mono font-bold text-slate-100">05:00</span>
                         </div>
-                        <div class="text-center px-4 flex flex-col items-center w-60">
-                            <span class="text-[10px] font-semibold text-slate-500 uppercase tracking-widest mb-1">Tiempo Restante</span>
-                            <div id="match-timer" class="text-3xl font-mono font-bold text-slate-100 bg-slate-900 border border-slate-800 px-4 py-1.5 rounded-xl">05:00</div>
-                            <div class="mt-2 flex items-center gap-1.5 bg-brand-500/10 text-brand-500 border border-brand-500/20 rounded-full px-3 py-0.5 text-xs font-bold">
-                                <i class="fa-solid fa-wind"></i>
-                                <span>Velocidad Balón: <span id="ball-speed" class="text-white">0</span> km/h</span>
-                            </div>
+                    </div>
+                    <div class="flex items-center gap-4">
+                        <div class="flex items-center gap-1.5 bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 rounded-lg px-3 py-1 text-xs font-extrabold">
+                            <i class="fa-solid fa-gauge-high"></i>
+                            <span>Vel. Balón: <span id="ball-speed" class="text-white">0</span> km/h</span>
                         </div>
-                        <div class="text-center">
-                            <div class="text-xs font-extrabold text-rlorange tracking-wider uppercase mb-1 drop-shadow-[0_0_8px_rgba(255,138,0,0.4)]" id="team-1-name">Naranja</div>
-                            <div id="score-orange" class="text-5xl font-black text-white w-20 py-2 rounded-xl bg-slate-950/80 border border-slate-800 glow-rlorange">0</div>
-                        </div>
+                        <button id="btn-reset-map" class="text-xs bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-300 hover:text-white px-3 py-1 rounded-xl font-bold transition-all flex items-center gap-1">
+                            <i class="fa-solid fa-arrows-rotate"></i> Re-calibrar Radar
+                        </button>
                     </div>
                 </div>
-                <section class="glass-card rounded-2xl p-6 flex flex-col gap-4">
-                    <div class="flex items-center justify-between pb-3 border-b border-slate-800">
-                        <div class="flex items-center gap-2">
-                            <i class="fa-solid fa-users text-brand-500"></i>
-                            <h2 class="font-bold text-sm text-slate-200">Jugadores en la Sesión</h2>
+
+                <!-- CONTENEDOR PRINCIPAL: CORE STATS COCKPIT (FULL WIDTH) -->
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                    <!-- CUADRO DE ESTADÍSTICAS PRO SUPER-DETALLADO (Lg: col-span-12) -->
+                    <section class="lg:col-span-12 flex flex-col gap-5">
+                        <!-- PANEL DE CONTROL TÁCTICO: AIRE VS SUELO -->
+                        <div class="glass-card rounded-2xl p-5 flex flex-col gap-3">
+                            <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+                                <span class="text-xs font-black text-slate-200 tracking-wider flex items-center gap-1.5">
+                                    <i class="fa-solid fa-angles-up text-indigo-400"></i> DISTRIBUCIÓN DE ALTURA / ACROBACIA
+                                </span>
+                                <span class="text-[9px] bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 px-1.5 py-0.5 rounded-md font-bold uppercase">Aéreo vs Suelo</span>
+                            </div>
+                            
+                            <!-- Barra dual de progreso -->
+                            <div class="flex flex-col gap-2.5">
+                                <div class="flex justify-between text-xs font-extrabold text-slate-400">
+                                    <span class="flex items-center gap-1.5"><i class="fa-solid fa-plane text-cyan-400"></i> Tiempo Aéreo: <span id="db-air-pct" class="text-white">0%</span></span>
+                                    <span class="flex items-center gap-1.5">Suelo: <span id="db-ground-pct" class="text-white">100%</span> <i class="fa-solid fa-car text-emerald-400"></i></span>
+                                </div>
+                                <div class="w-full h-3 bg-slate-950 rounded-full overflow-hidden border border-slate-900 flex">
+                                    <div id="db-air-bar" class="bg-gradient-to-r from-cyan-500 to-indigo-500 h-full transition-all duration-300 shadow-[0_0_10px_rgba(6,182,212,0.4)]" style="width: 0%"></div>
+                                    <div id="db-ground-bar" class="bg-gradient-to-r from-emerald-500 to-teal-500 h-full transition-all duration-300" style="width: 100%"></div>
+                                </div>
+                            </div>
                         </div>
-                        <span class="text-[10px] text-slate-500 font-medium">Actualizado en tiempo real</span>
-                    </div>
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-left border-collapse">
-                            <thead>
-                                <tr class="text-slate-500 text-[10px] font-bold uppercase tracking-wider border-b border-slate-900">
-                                    <th class="py-2.5 pr-2">Jugador / Auto</th>
-                                    <th class="py-2.5">Equipo</th>
-                                    <th class="py-2.5">Estado</th>
-                                    <th class="py-2.5">Boost</th>
-                                    <th class="py-2.5 text-center">Pts / T / A</th>
-                                    <th class="py-2.5 text-center">G / A / S</th>
-                                    <th class="py-2.5 text-center">Score</th>
-                                </tr>
-                            </thead>
-                            <tbody id="players-list" class="text-xs divide-y divide-slate-900">
-                                <tr id="players-empty-row">
-                                    <td colspan="7" class="py-8 text-center text-slate-500 italic">
-                                        Activa la captura para visualizar datos
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </section>
-                
-                <!-- Terminal & JSON Tabs (Cambio Solicitado) -->
-                <section class="glass-card rounded-2xl p-6 flex flex-col gap-3">
-                    <div class="flex items-center justify-between pb-2 border-b border-slate-800">
-                        <div class="flex items-center gap-2">
-                            <i class="fa-solid fa-terminal text-brand-500"></i>
-                            <h2 class="font-bold text-sm text-slate-200">Consola e Inspección de Datos</h2>
+
+                        <!-- PANEL CINEMÁTICA Y MOVILIDAD -->
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="glass-card rounded-2xl p-4 flex flex-col gap-2">
+                                <span class="text-[10px] font-extrabold text-slate-500 uppercase tracking-widest">Velocidad Promedio</span>
+                                <div class="flex items-baseline gap-1.5 mt-1">
+                                    <span id="db-avg-speed" class="text-2xl font-black text-white">0 km/h</span>
+                                    <span class="text-[10px] text-slate-500 font-bold">Media</span>
+                                </div>
+                                <div class="flex items-center gap-1.5 mt-1 text-[10px] text-slate-400 font-semibold border-t border-slate-900 pt-1.5">
+                                    <span>Instantánea:</span>
+                                    <span id="db-current-speed" class="text-cyan-400 font-bold">0 km/h</span>
+                                </div>
+                            </div>
+                            
+                            <div class="glass-card rounded-2xl p-4 flex flex-col gap-2">
+                                <span class="text-[10px] font-extrabold text-slate-500 uppercase tracking-widest">Tiempo Supersónico</span>
+                                <div class="flex items-center justify-between mt-1">
+                                    <span id="db-supersonic-pct" class="text-2xl font-black text-white">0%</span>
+                                    <span id="db-supersonic-badge" class="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase bg-slate-900 text-slate-500 border border-slate-800">Crucero</span>
+                                </div>
+                                <p class="text-[9px] text-slate-500 font-bold border-t border-slate-900 pt-1.5 mt-1 uppercase tracking-wider">Velocidad > 2200 UU/s</p>
+                            </div>
                         </div>
-                        <div class="flex bg-slate-950 p-1 rounded-lg border border-slate-900 text-[11px] font-semibold">
-                            <button id="tab-btn-terminal" class="px-3 py-1 rounded-md bg-brand-500 text-slate-950 font-bold transition-all">Sucesos (Logs)</button>
-                            <button id="tab-btn-json" class="px-3 py-1 rounded-md text-slate-400 hover:text-white transition-all">JSON en Vivo</button>
+
+                        <!-- GESTIÓN Y EFICIENCIA DE TURBO -->
+                        <div class="glass-card rounded-2xl p-4 flex flex-col gap-3">
+                            <span class="text-xs font-black text-slate-200 tracking-wider flex items-center gap-1.5">
+                                <i class="fa-solid fa-bolt text-yellow-500"></i> CONSUMO Y EFICIENCIA DE TURBO (BOOST)
+                            </span>
+                            <div class="grid grid-cols-4 gap-2 mt-1 border-t border-slate-900 pt-3">
+                                <div class="flex flex-col text-center p-2 bg-slate-950/40 border border-slate-900 rounded-xl">
+                                    <span class="text-[9px] text-slate-500 font-bold uppercase">Recolectado</span>
+                                    <span id="db-boost-picked-up" class="text-lg font-extrabold text-yellow-400 mt-1">0</span>
+                                </div>
+                                <div class="flex flex-col text-center p-2 bg-slate-950/40 border border-slate-900 rounded-xl">
+                                    <span class="text-[9px] text-slate-500 font-bold uppercase">Consumido</span>
+                                    <span id="db-boost-consumed" class="text-lg font-extrabold text-orange-400 mt-1">0</span>
+                                </div>
+                                <div class="flex flex-col text-center p-2 bg-slate-950/40 border border-slate-900 rounded-xl">
+                                    <span class="text-[9px] text-slate-500 font-bold uppercase">% No Supers.</span>
+                                    <span id="db-boost-non-supersonic-pct" class="text-lg font-extrabold text-rose-400 mt-1">0%</span>
+                                </div>
+                                <div class="flex flex-col text-center p-2 bg-slate-950/40 border border-slate-900 rounded-xl">
+                                    <span class="text-[9px] text-slate-500 font-bold uppercase">Eficiencia</span>
+                                    <span id="db-boost-efficiency" class="text-[11px] font-extrabold text-cyan-400 mt-1.5">0 /toque</span>
+                                </div>
+                            </div>
+                            <div class="text-[10px] text-slate-400 mt-0.5 flex items-start gap-1.5 bg-slate-950/20 px-2.5 py-1.5 rounded-lg">
+                                <i class="fa-solid fa-circle-info text-slate-500 mt-0.5"></i>
+                                <span>Turbo gastado sin estar en supersónico (Aceleración o corrección ineficiente).</span>
+                            </div>
                         </div>
-                    </div>
-                    
-                    <!-- Contenedor 1: Logs del Terminal -->
-                    <div id="log-terminal" class="bg-black/80 font-mono text-[11px] text-emerald-400 p-4 rounded-xl h-48 overflow-y-auto border border-slate-900 space-y-1.5 flex flex-col">
-                        <div class="text-slate-500">[SISTEMA] Listo para iniciar captura...</div>
-                    </div>
-                    
-                    <!-- Contenedor 2: JSON Inspector (Oculto inicialmente) -->
-                    <div id="json-container" class="hidden relative">
-                        <button id="btn-copy-json" class="absolute right-3 top-3 bg-slate-900 hover:bg-slate-800 border border-slate-800 text-[10px] text-slate-400 hover:text-white px-2 py-1 rounded flex items-center gap-1.5 transition-all">
-                            <i class="fa-regular fa-copy"></i> Copiar
-                        </button>
-                        <pre id="json-terminal" class="bg-black/90 font-mono text-[10px] text-cyan-400 p-4 rounded-xl h-48 overflow-y-auto border border-slate-900 select-all scrollbar-thin">{}</pre>
-                    </div>
-                </section>
+
+                        <!-- MÉTRICAS DE COMBATE Y APORTACIÓN -->
+                        <div class="grid grid-cols-3 gap-4">
+                            <div class="glass-card rounded-2xl p-3 flex flex-col items-center justify-center text-center">
+                                <span class="text-[9px] text-slate-500 font-bold uppercase">Golpes al Balón</span>
+                                <span id="db-touches" class="text-2xl font-black text-white mt-1 shadow-sm shadow-cyan-400/20">0</span>
+                            </div>
+                            <div class="glass-card rounded-2xl p-3 flex flex-col items-center justify-center text-center">
+                                <span class="text-[9px] text-slate-500 font-bold uppercase">Score en Juego</span>
+                                <span id="db-score" class="text-2xl font-black text-brand-500 mt-1">0</span>
+                            </div>
+                            <div class="glass-card rounded-2xl p-3 flex flex-col items-center justify-center text-center font-bold">
+                                <span class="text-[9px] text-slate-500 font-bold uppercase">Demoliciones</span>
+                                <span id="db-demos" class="text-2xl font-black text-red-500 mt-1">0</span>
+                            </div>
+                        </div>
+
+                        <!-- REJILLA DETALLADA DE GOLES / ASISTENCIAS / SALVADAS / DISPAROS -->
+                        <div class="glass-card rounded-2xl p-4 grid grid-cols-4 gap-3 bg-slate-950/30">
+                            <div class="text-center p-2">
+                                <div class="text-[9px] text-slate-500 font-black uppercase tracking-wider">Goles</div>
+                                <div id="db-goals" class="text-xl font-black text-emerald-400 mt-0.5">0</div>
+                            </div>
+                            <div class="text-center p-2">
+                                <div class="text-[9px] text-slate-500 font-black uppercase tracking-wider">Disparos</div>
+                                <div id="db-shots" class="text-xl font-black text-cyan-400 mt-0.5">0</div>
+                            </div>
+                            <div class="text-center p-2">
+                                <div class="text-[9px] text-slate-500 font-black uppercase tracking-wider">Salvadas</div>
+                                <div id="db-saves" class="text-xl font-black text-indigo-400 mt-0.5">0</div>
+                            </div>
+                            <div class="text-center p-2">
+                                <div class="text-[9px] text-slate-500 font-black uppercase tracking-wider">Asistencias</div>
+                                <div id="db-assists" class="text-xl font-black text-yellow-400 mt-0.5">0</div>
+                            </div>
+                        </div>
+                    </section>
+                </div>
             </div>
         </div>
     </div>
@@ -230,20 +303,20 @@
         const playersList = document.getElementById('players-list');
         const logTerminal = document.getElementById('log-terminal');
         
-        // Elementos nuevos agregados para máxima visibilidad de datos
         const matchMode = document.getElementById('match-mode');
         const matchArena = document.getElementById('match-arena');
         const overtimeBadge = document.getElementById('overtime-badge');
         const targetPlayer = document.getElementById('target-player');
         const team0Name = document.getElementById('team-0-name');
         const team1Name = document.getElementById('team-1-name');
-
-        // Elementos de la pestaña JSON
-        const tabBtnTerminal = document.getElementById('tab-btn-terminal');
-        const tabBtnJson = document.getElementById('tab-btn-json');
-        const jsonContainer = document.getElementById('json-container');
-        const jsonTerminal = document.getElementById('json-terminal');
-        const btnCopyJson = document.getElementById('btn-copy-json');
+        
+        // Elementos del Mini-mapa HTML (removido)
+        const htmlMinimap = null;
+        const htmlPads = null;
+        const htmlPlayers = null;
+        const htmlBall = null;
+        const htmlBallLabel = null;
+        const btnResetMap = null;
 
         const playlistNames = {
             1: "Duelo (1v1)",
@@ -266,29 +339,467 @@
             "music_p": "Neon Fields"
         };
 
-        // Lógica de cambio de Pestaña
-        tabBtnTerminal.addEventListener('click', () => {
-            tabBtnTerminal.className = "px-3 py-1 rounded-md bg-brand-500 text-slate-950 font-bold transition-all";
-            tabBtnJson.className = "px-3 py-1 rounded-md text-slate-400 hover:text-white transition-all";
-            logTerminal.classList.remove('hidden');
-            jsonContainer.classList.add('hidden');
-        });
+        // Estado acumulativo del usuario
+        let userStats = {
+            totalFrames: 0,
+            lowBoostFrames: 0,
+            onGroundFrames: 0,
+            airFrames: 0,
+            lastScore: 0,
+            lastGoals: 0,
+            lastSaves: 0,
+            lastShots: 0,
+            lastTouches: 0,
+            
+            // Métricas avanzadas de rendimiento pro
+            boostConsumed: 0,
+            boostConsumedNonSupersonic: 0,
+            boostPickedUp: 0,
+            supersonicFrames: 0,
+            totalSpeedSum: 0,
+            speedCount: 0,
+            demos: 0
+        };
 
-        tabBtnJson.addEventListener('click', () => {
-            tabBtnJson.className = "px-3 py-1 rounded-md bg-brand-500 text-slate-950 font-bold transition-all";
-            tabBtnTerminal.className = "px-3 py-1 rounded-md text-slate-400 hover:text-white transition-all";
-            jsonContainer.classList.remove('hidden');
-            logTerminal.classList.add('hidden');
-        });
+        // Cache para registrar momentos importantes (Goles con velocidades)
+        let lastPlayersGoals = {};
+        let importantMoments = [];
 
-        // Botón Copiar JSON
-        btnCopyJson.addEventListener('click', () => {
-            navigator.clipboard.writeText(jsonTerminal.textContent);
-            btnCopyJson.innerHTML = `<i class="fa-solid fa-check text-emerald-400"></i> Copiado`;
-            setTimeout(() => {
-                btnCopyJson.innerHTML = `<i class="fa-regular fa-copy"></i> Copiar`;
-            }, 2000);
-        });
+        // --- SISTEMA DE ESTIMACIÓN FÍSICA Y CINEMÁTICA EN CANVAS ---
+        let lastFrameTime = performance.now();
+
+        // Presets de Hitboxes Reglamentarias de Rocket League (en cm)
+        const hitboxPresets = {
+            "octane": { length: 118, width: 84, color: '#3978ff' },
+            "dominus": { length: 128, width: 83, color: '#f43f5e' },
+            "breakout": { length: 131, width: 82, color: '#a855f7' },
+            "plank": { length: 129, width: 85, color: '#10b981' },
+            "hybrid": { length: 127, width: 82, color: '#eab308' },
+            "merc": { length: 116, width: 84, color: '#ec4899' }
+        };
+
+        // Puntos de reaparición (Spawn) oficiales de Saque de Centro (Kickoff) de Rocket League
+        const standardSpawns = {
+            blue: [
+                { x: -2048, y: -2560, yaw: 0.785 }, // Diagonal Izquierda
+                { x: 2048, y: -2560, yaw: 2.356 },  // Diagonal Derecha
+                { x: -256, y: -3840, yaw: 1.571 },  // Defensa Izquierda
+                { x: 256, y: -3840, yaw: 1.571 },   // Defensa Derecha
+                { x: 0, y: -4608, yaw: 1.571 }       // Portería / Centro
+            ],
+            orange: [
+                { x: 2048, y: 2560, yaw: -0.785 },  // Diagonal Izquierda
+                { x: -2048, y: 2560, yaw: -2.356 }, // Diagonal Derecha
+                { x: 256, y: 3840, yaw: -1.571 },   // Defensa Izquierda
+                { x: -256, y: 3840, yaw: -1.571 },  // Defensa Derecha
+                { x: 0, y: 4608, yaw: -1.571 }       // Portería / Centro
+            ]
+        };
+
+        let physicalBall = {
+            x: 0,
+            y: 0,
+            vx: 0,
+            vy: 0,
+            spin: 0.0, // Rotación (Velocidad angular alrededor del eje vertical)
+            lastTouchTime: 0
+        };
+
+        let physicalPlayers = {}; // Llave: Nombre -> { x, y, vx, vy, team, isMe, speed, lastBoost, yaw, hitboxType, inputs }
+        let lastBlueScore = 0;
+        let lastOrangeScore = 0;
+        let isReplayActive = false;
+        let lastTimeSeconds = 300;
+
+        // Elementos y lógica colapsable de la Configuración de la API
+        const btnToggleSettings = document.getElementById('btn-toggle-settings');
+        const settingsContent = document.getElementById('settings-content');
+        const settingsChevron = document.getElementById('settings-chevron');
+        const configBanner = document.getElementById('config-banner');
+        const bannerPort = document.getElementById('banner-port');
+        const bannerHz = document.getElementById('banner-hz');
+
+        let isSettingsExpanded = true;
+
+        function toggleSettingsPanel(expand) {
+            if (expand === undefined) {
+                isSettingsExpanded = !isSettingsExpanded;
+            } else {
+                isSettingsExpanded = expand;
+            }
+
+            if (isSettingsExpanded) {
+                if (settingsContent) settingsContent.classList.remove('hidden');
+                if (settingsChevron) settingsChevron.style.transform = 'rotate(0deg)';
+            } else {
+                if (settingsContent) settingsContent.classList.add('hidden');
+                if (settingsChevron) settingsChevron.style.transform = 'rotate(-180deg)';
+            }
+        }
+
+        if (btnToggleSettings) {
+            btnToggleSettings.addEventListener('click', () => toggleSettingsPanel());
+        }
+
+        // Posiciones de los 6 Boost de 100 oficiales del juego (Cooldown de 10s)
+        const bigBoostPads = [
+            { x: -3072, y: 4096, name: "Esquina Naranja Izquierda", active: true, cooldown: 0 },
+            { x: 3072, y: 4096, name: "Esquina Naranja Derecha", active: true, cooldown: 0 },
+            { x: -3072, y: -4096, name: "Esquina Azul Izquierda", active: true, cooldown: 0 },
+            { x: 3072, y: -4096, name: "Esquina Azul Derecha", active: true, cooldown: 0 },
+            { x: -3584, y: 0, name: "Lateral Izquierda", active: true, cooldown: 0 },
+            { x: 3584, y: 0, name: "Lateral Derecha", active: true, cooldown: 0 }
+        ];
+
+        // Mapeo reglamentario de alta precisión de los Pads pequeños de +12 Boost oficiales (Sencillos, Diagonales y de Entrada)
+        const smallBoostPads = [
+            // Línea Central (Eje Y = 0)
+            { x: 0, y: 0, active: true, cooldown: 0 },
+            { x: -1788, y: 0, active: true, cooldown: 0 },
+            { x: 1788, y: 0, active: true, cooldown: 0 },
+
+            // Carriles Defensivos / Ofensivos Intermedios (X = ±1024, Y = ±1792)
+            { x: -1024, y: -1792, active: true, cooldown: 0 },
+            { x: 1024, y: -1792, active: true, cooldown: 0 },
+            { x: -1024, y: 1792, active: true, cooldown: 0 },
+            { x: 1024, y: 1792, active: true, cooldown: 0 },
+
+            // Círculo Central de Saque (X = ±512, Y = ±384)
+            { x: -512, y: -384, active: true, cooldown: 0 },
+            { x: 512, y: -384, active: true, cooldown: 0 },
+            { x: -512, y: 384, active: true, cooldown: 0 },
+            { x: 512, y: 384, active: true, cooldown: 0 },
+
+            // Bandas Laterales / Extremos (X = ±3584, Y = ±2484)
+            { x: -3584, y: -2484, active: true, cooldown: 0 },
+            { x: 3584, y: -2484, active: true, cooldown: 0 },
+            { x: -3584, y: 2484, active: true, cooldown: 0 },
+            { x: 3584, y: 2484, active: true, cooldown: 0 },
+
+            // Delante de las Porterías / Postes (X = ±1792, Y = ±4184)
+            { x: -1792, y: -4184, active: true, cooldown: 0 },
+            { x: 1792, y: -4184, active: true, cooldown: 0 },
+            { x: -1792, y: 4184, active: true, cooldown: 0 },
+            { x: 1792, y: 4184, active: true, cooldown: 0 },
+
+            // Entradas Directas de Arco a Porterías (X = 0, Y = ±2816 & ±4240)
+            { x: 0, y: -2816, active: true, cooldown: 0 },
+            { x: 0, y: 2816, active: true, cooldown: 0 },
+            { x: 0, y: -4240, active: true, cooldown: 0 },
+            { x: 0, y: 4240, active: true, cooldown: 0 },
+
+            // Diagonales de Entrada a Portería (X = ±940, Y = ±3308)
+            { x: -940, y: -3308, active: true, cooldown: 0 },
+            { x: 940, y: -3308, active: true, cooldown: 0 },
+            { x: -940, y: 3308, active: true, cooldown: 0 },
+            { x: 940, y: 3308, active: true, cooldown: 0 }
+        ];
+
+        // Inicializar o Re-calibrar mapa al saque de centro (origen)
+        function resetPhysicalMap() {
+            physicalBall.x = 0;
+            physicalBall.y = 0;
+            physicalBall.vx = 0;
+            physicalBall.vy = 0;
+            physicalBall.spin = 0.0;
+
+            Object.keys(physicalPlayers).forEach(name => {
+                const p = physicalPlayers[name];
+                if (p.team === 0) { 
+                    p.x = p.isMe ? -1000 : 1000;
+                    p.y = -3500;
+                    p.yaw = Math.PI / 2;
+                } else { 
+                    p.x = 0;
+                    p.y = 3500;
+                    p.yaw = -Math.PI / 2;
+                }
+                p.vx = 0;
+                p.vy = 0;
+                p.lastBoost = 33;
+                p.inputs = null;
+            });
+            addLog("📍 Mapa Físico Re-Calibrado al Saque de Centro.");
+        }
+
+        function getZoneName(x, y) {
+            let side = y < 0 ? "Campo Azul" : "Campo Naranja";
+            let absX = Math.abs(x);
+            let absY = Math.abs(y);
+            
+            if (absY > 4000) {
+                if (absX < 1000) return `Portería de ${side}`;
+                return `Córner de ${side}`;
+            }
+            if (absY > 2000) {
+                if (absX < 1500) return `Defensa/Ataque Central ${side}`;
+                return `Banda Lateral ${side}`;
+            }
+            if (absX < 1500) return "Centro del Campo";
+            return "Banda Media";
+        }
+
+        if (btnResetMap) {
+            btnResetMap.addEventListener('click', resetPhysicalMap);
+        }
+
+        // Renderizado e Integración Cinemática (Corriendo a 30 FPS con delta-time de alta precisión)
+        function drawMinimap() {
+            const nowTime = performance.now();
+            let dt = (nowTime - lastFrameTime) / 1000.0;
+            if (dt > 0.1) dt = 0.033; // Filtro anticaídas (jitter limit)
+            lastFrameTime = nowTime;
+
+            const mapX = (rx) => ((rx + 4096) / 8192) * 220;
+            const mapY = (ry) => ((-ry + 5120) / 10240) * 280;
+
+            // --- DECREMENTAR COOLDOWNS DE BOOST PADS Y RE-RENDERIZAR EN HTML ---
+            let padsHtml = "";
+            smallBoostPads.forEach(pad => {
+                if (!pad.active) {
+                    pad.cooldown -= dt;
+                    if (pad.cooldown <= 0) {
+                        pad.active = true;
+                        pad.cooldown = 0;
+                    }
+                }
+                const px = mapX(pad.x);
+                const py = mapY(pad.y);
+                const opacity = pad.active ? "bg-white/40 shadow-[0_0_2px_rgba(255,255,255,0.4)]" : "bg-white/5";
+                padsHtml += `<div class="absolute w-1 h-1 rounded-full -translate-x-1/2 -translate-y-1/2 ${opacity}" style="left: ${px}px; top: ${py}px;"></div>`;
+            });
+
+            bigBoostPads.forEach(pad => {
+                if (!pad.active) {
+                    pad.cooldown -= dt;
+                    if (pad.cooldown <= 0) {
+                        pad.active = true;
+                        pad.cooldown = 0;
+                    }
+                }
+                const px = mapX(pad.x);
+                const py = mapY(pad.y);
+                const opacity = pad.active ? "bg-yellow-400 shadow-[0_0_6px_#facc15] opacity-80" : "bg-yellow-950 opacity-20 border border-yellow-900/30";
+                padsHtml += `<div class="absolute w-2 h-2 rounded-full -translate-x-1/2 -translate-y-1/2 transition-all duration-300 ${opacity}" style="left: ${px}px; top: ${py}px;"></div>`;
+            });
+            if (htmlPads) htmlPads.innerHTML = padsHtml;
+
+            // --- SIMULAR E INTEGRAR FÍSICA DEL BALÓN (Magnus espín) ---
+            physicalBall.vx += physicalBall.vy * physicalBall.spin * 0.01 * dt;
+            physicalBall.vy -= physicalBall.vx * physicalBall.spin * 0.01 * dt;
+
+            // --- DETECCION DE CUENTA ATRÁS EN KICKOFF (3 segundos inactivos) ---
+            // Si el balón está en el saque (0,0) y velocidades nulas, los jugadores están congelados
+            const isKickoffCountdown = (physicalBall.x === 0 && physicalBall.y === 0 && physicalBall.vx === 0 && physicalBall.vy === 0);
+
+            if (!isKickoffCountdown) {
+                physicalBall.x += physicalBall.vx * dt;
+                physicalBall.y += physicalBall.vy * dt;
+            } else {
+                // Durante la cuenta regresiva forzar velocidades a cero para evitar deslizamiento pre-saque
+                Object.keys(physicalPlayers).forEach(name => {
+                    const p = physicalPlayers[name];
+                    p.vx = 0;
+                    p.vy = 0;
+                });
+            }
+
+            // Actualizar posición y etiqueta HTML del Balón
+            const bx = mapX(physicalBall.x);
+            const by = mapY(physicalBall.y);
+            if (htmlBall) {
+                htmlBall.style.left = `${bx}px`;
+                htmlBall.style.top = `${by}px`;
+            }
+            if (htmlBallLabel) {
+                htmlBallLabel.innerText = `⚽ (${Math.round(physicalBall.x)},${Math.round(physicalBall.y)})`;
+            }
+
+            // Actualizar HUD del radar del Balón para el Coach
+            const ballZone = getZoneName(physicalBall.x, physicalBall.y);
+            const posRadarBall = document.getElementById('pos-radar-ball');
+            const zoneRadarBall = document.getElementById('zone-radar-ball');
+            if (posRadarBall && zoneRadarBall) {
+                posRadarBall.innerText = `X: ${Math.round(physicalBall.x)} | Y: ${Math.round(physicalBall.y)}`;
+                zoneRadarBall.innerText = `📍 ${ballZone}`;
+            }
+
+            // Arrastre viscoso del aire del balón
+            physicalBall.vx *= (1 - 0.03 * dt);
+            physicalBall.vy *= (1 - 0.03 * dt);
+
+            // Límites del campo del balón y rebotes con restituciones
+            if (Math.abs(physicalBall.x) > 3950) {
+                physicalBall.x = Math.sign(physicalBall.x) * 3950;
+                physicalBall.vx *= -0.6; 
+                physicalBall.spin += physicalBall.vy * 0.1;
+            }
+            if (Math.abs(physicalBall.y) > 4950) {
+                if (Math.abs(physicalBall.x) < 800) {
+                    return; // Gol entrante
+                }
+                physicalBall.y = Math.sign(physicalBall.y) * 4950; 
+                physicalBall.vy *= -0.6; 
+                physicalBall.spin += physicalBall.vx * 0.1;
+            }
+
+            // --- INTEGRAR JUGADORES (HTML DINÁMICO) ---
+            let playersHtml = "";
+            let gamepadInputsToDraw = null;
+
+            Object.keys(physicalPlayers).forEach(name => {
+                const p = physicalPlayers[name];
+                
+                if (!isKickoffCountdown) {
+                    if (p.inputs) {
+                        let acceleration = 0;
+                        if (p.inputs.Throttle !== undefined) {
+                            let speedVal = p.speed || 0;
+                            let maxTh = speedVal < 1400 ? (1600 - 1.14 * speedVal) : (160 - 0.2 * (speedVal - 1400));
+                            acceleration += (p.inputs.Throttle / 100.0) * Math.max(0, maxTh);
+                        }
+                        if (p.inputs.BoostButton) {
+                            acceleration += 991.67;
+                        }
+                        if (p.inputs.Steer !== undefined) {
+                            p.yaw += (p.inputs.Steer / 100.0) * 2.5 * dt;
+                        }
+                        p.vx = Math.cos(p.yaw) * (p.speed + acceleration * dt);
+                        p.vy = Math.sin(p.yaw) * (p.speed + acceleration * dt);
+                    } else {
+                        let dx = physicalBall.x - p.x;
+                        let dy = physicalBall.y - p.y;
+                        let dist = Math.sqrt(dx*dx + dy*dy);
+
+                        if (dist > 150) {
+                            p.vx = (dx / dist) * p.speed;
+                            p.vy = (dy / dist) * p.speed;
+                            p.yaw = Math.atan2(dy, dx);
+                        } else {
+                            p.vx = 0;
+                            p.vy = 0;
+                        }
+                    }
+
+                    p.x += p.vx * dt;
+                    p.y += p.vy * dt;
+
+                    p.x = Math.max(-3950, Math.min(3950, p.x));
+                    p.y = Math.max(-5000, Math.min(5000, p.y));
+                }
+
+                // Si soy yo, actualizar la interfaz de geolocalización (Radar de Posición)
+                if (p.isMe) {
+                    const playerZone = getZoneName(p.x, p.y);
+                    const posRadarPlayer = document.getElementById('pos-radar-player');
+                    const zoneRadarPlayer = document.getElementById('zone-radar-player');
+                    if (posRadarPlayer && zoneRadarPlayer) {
+                        posRadarPlayer.innerText = `X: ${Math.round(p.x)} | Y: ${Math.round(p.y)}`;
+                        zoneRadarPlayer.innerText = `📍 ${playerZone}`;
+                    }
+                    if (p.inputs) {
+                        gamepadInputsToDraw = p.inputs;
+                    }
+                }
+
+                const px = mapX(p.x);
+                const py = mapY(p.y);
+
+                const preset = hitboxPresets[p.hitboxType] || hitboxPresets["octane"];
+                const l = (preset.length / 8192) * 220 * 0.8;
+                const w = (preset.width / 8192) * 220 * 0.8;
+
+                const teamColorClass = p.team === 0 ? "bg-blue-500 shadow-[0_0_6px_#3b82f6]" : "bg-orange-500 shadow-[0_0_6px_#f97316]";
+                const borderClass = p.isMe ? "border border-white scale-110" : "border border-white/20";
+                const textLabelColor = p.isMe ? "text-white" : (p.team === 0 ? "text-blue-300" : "text-orange-300");
+
+                playersHtml += `
+                    <div class="absolute -translate-x-1/2 -translate-y-1/2 flex flex-col items-center" style="left: ${px}px; top: ${py}px;">
+                        <!-- Etiqueta Flotante de Nombre y Coordenadas (HTML Puro) -->
+                        <div class="absolute -top-6 whitespace-nowrap flex flex-col items-center bg-slate-950/95 px-1.5 py-0.5 rounded border border-slate-800 text-center select-none shadow-md z-10 pointer-events-none">
+                            <span class="text-[6.5px] font-extrabold ${textLabelColor}">${name.substring(0, 8)}</span>
+                            <span class="text-[5.5px] font-mono text-slate-400 font-semibold leading-none">(${Math.round(p.x)},${Math.round(p.y)})</span>
+                        </div>
+                        
+                        <!-- Chasis del Coche con Orientación (Giro de CSS en base a p.yaw) -->
+                        <div class="rounded-sm flex items-center justify-end ${teamColorClass} ${borderClass}" 
+                             style="width: ${l}px; height: ${w}px; transform: rotate(${-p.yaw}rad);">
+                            <!-- Faros Delanteros -->
+                            <div class="flex flex-col justify-between h-full py-0.5 pr-0.5">
+                                <div class="w-0.5 h-0.5 bg-yellow-200 rounded-full"></div>
+                                <div class="w-0.5 h-0.5 bg-yellow-200 rounded-full"></div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            if (htmlPlayers) htmlPlayers.innerHTML = playersHtml;
+
+            // Dibujar/Actualizar el HUD del Control en HTML
+            drawGamepadHUD(gamepadInputsToDraw);
+        }
+
+        // Dibuja un widget de control dinámico en HTML Puro y CSS
+        function drawGamepadHUD(inp) {
+            const gpContainer = document.getElementById('minimap-gamepad');
+            if (!gpContainer) return;
+
+            if (!inp) {
+                gpContainer.style.opacity = "0";
+                return;
+            }
+
+            gpContainer.style.opacity = "1";
+
+            // Joystick Analógico (Steer)
+            const gpStick = document.getElementById('gp-stick');
+            if (gpStick) {
+                let lx = (inp.Steer / 100.0) * 3;
+                gpStick.style.transform = `translateX(${lx}px)`;
+                gpStick.className = inp.Handbrake 
+                    ? "absolute w-1.5 h-1.5 bg-emerald-400 rounded-full shadow-[0_0_4px_#34d399]" 
+                    : "absolute w-1.5 h-1.5 bg-cyan-400 rounded-full shadow-[0_0_4px_#22d3ee]";
+            }
+
+            // Botón Boost (B)
+            const gpBoost = document.getElementById('gp-boost');
+            if (gpBoost) {
+                if (inp.BoostButton) {
+                    gpBoost.className = "w-3.5 h-3.5 rounded-full bg-orange-600 border border-orange-500 flex items-center justify-center text-[5.5px] text-white font-extrabold shadow-[0_0_6px_#ea580c]";
+                } else {
+                    gpBoost.className = "w-3.5 h-3.5 rounded-full bg-slate-900 border border-slate-800 flex items-center justify-center text-[5.5px] text-slate-500 font-extrabold";
+                }
+            }
+
+            // Botón Jump (A)
+            const gpJump = document.getElementById('gp-jump');
+            if (gpJump) {
+                if (inp.JumpButton) {
+                    gpJump.className = "w-3.5 h-3.5 rounded-full bg-emerald-600 border border-emerald-500 flex items-center justify-center text-[5.5px] text-white font-extrabold shadow-[0_0_6px_#10b981]";
+                } else {
+                    gpJump.className = "w-3.5 h-3.5 rounded-full bg-slate-900 border border-slate-800 flex items-center justify-center text-[5.5px] text-slate-500 font-extrabold";
+                }
+            }
+
+            // Barra de Throttle (Acelerador)
+            const gpThrottle = document.getElementById('gp-throttle');
+            if (gpThrottle) {
+                if (inp.Throttle > 0) {
+                    gpThrottle.style.height = `${inp.Throttle}%`;
+                    gpThrottle.className = "w-full bg-emerald-500 transition-all duration-75";
+                } else if (inp.Throttle < 0) {
+                    gpThrottle.style.height = `${Math.abs(inp.Throttle)}%`;
+                    gpThrottle.className = "w-full bg-rose-500 transition-all duration-75";
+                } else {
+                    gpThrottle.style.height = "0%";
+                }
+            }
+        }
+
+        setInterval(drawMinimap, 33);
+
+
+
 
         sendRateInput.addEventListener('input', () => {
             rateVal.textContent = sendRateInput.value;
@@ -310,14 +821,24 @@
             try {
                 const state = await eel.get_current_state()();
                 if (state) {
-                    folderPathInput.value = state.path;
-                    apiPortInput.value = state.port;
-                    sendRateInput.value = state.send_rate;
-                    rateVal.textContent = state.send_rate;
+                    folderPathInput.value = state.path || '';
+                    apiPortInput.value = state.port || 49123;
+                    sendRateInput.value = state.send_rate || 30;
+                    rateVal.textContent = state.send_rate || 30;
                     toggleCapture.checked = state.capture_active;
-                    if (state.has_existing) {
-                        showSettingsStatus(`✓ Configuración existente leída: Puerto ${state.port} | Frecuencia ${state.send_rate} Hz. ¿Deseas modificarla o dejarla así para capturar datos?`, 'success');
+                    
+                    if (bannerPort) bannerPort.textContent = state.port || 49123;
+                    if (bannerHz) bannerHz.textContent = state.send_rate || 30;
+
+                    const hasPath = state.path && state.path.trim() !== '';
+                    if (hasPath || state.has_existing) {
+                        if (configBanner) configBanner.classList.remove('hidden');
+                        toggleSettingsPanel(false); // Colapsar por defecto si ya está configurado
+                    } else {
+                        if (configBanner) configBanner.classList.add('hidden');
+                        toggleSettingsPanel(true);  // Expandir de primeras si está vacío
                     }
+
                     if (state.capture_active) {
                         updateStatusUI('connected', 'Capturando datos');
                     } else {
@@ -372,6 +893,8 @@
                 const res = await eel.toggle_live_capture(active)();
                 if (res && res.active) {
                     addLog("Conexión del socket iniciada.");
+                    resetCoachStats();
+                    resetPhysicalMap();
                 } else {
                     addLog("Conexión del socket detenida.");
                 }
@@ -381,13 +904,38 @@
             }
         });
 
+        function resetCoachStats() {
+            userStats = {
+                totalFrames: 0,
+                lowBoostFrames: 0,
+                onGroundFrames: 0,
+                airFrames: 0,
+                lastScore: 0,
+                lastGoals: 0,
+                lastSaves: 0,
+                lastShots: 0,
+                lastTouches: 0,
+                
+                boostConsumed: 0,
+                boostConsumedNonSupersonic: 0,
+                boostPickedUp: 0,
+                supersonicFrames: 0,
+                totalSpeedSum: 0,
+                speedCount: 0,
+                demos: 0
+            };
+        }
+
         function addLog(message) {
+            console.log(message);
+            const logTerminal = document.getElementById('log-terminal');
+            if (!logTerminal) return;
+            
             const time = new Date().toLocaleTimeString();
             const logItem = document.createElement('div');
             logItem.innerHTML = `<span class="text-slate-500">[${time}]</span> ${message}`;
             logTerminal.appendChild(logItem);
             
-            // Limitar logs en el DOM a un máximo de 50 líneas para evitar lag y fugas de memoria
             while (logTerminal.children.length > 50) {
                 logTerminal.removeChild(logTerminal.firstChild);
             }
@@ -438,8 +986,31 @@
             addLog(message);
         }
 
-        // Variable para controlar la frecuencia de renderizado del JSON crudo en pantalla (evita saturar el navegador)
         let lastJsonUpdate = 0;
+
+        function triggerGoalReset(team) {
+            // Resetear mapa físico (pelota a 0,0 y velocidades nulas)
+            resetPhysicalMap();
+            
+            // Marcar que estamos en repetición/celebración
+            isReplayActive = true;
+            
+            // Regla oficial de Rocket League: Al haber un gol, TODOS los boost pads reaparecen al instante
+            bigBoostPads.forEach(p => { p.active = true; p.cooldown = 0; });
+            smallBoostPads.forEach(p => { p.active = true; p.cooldown = 0; });
+            
+            // Destello visual de gol en el contenedor del minimapa
+            if (htmlMinimap) {
+                const shadowColor = team === 0 ? "rgba(57, 120, 255, 0.85)" : "rgba(255, 138, 0, 0.85)";
+                htmlMinimap.style.transition = "box-shadow 0.2s ease, border-color 0.2s ease";
+                htmlMinimap.style.boxShadow = `0 0 35px ${shadowColor}`;
+                htmlMinimap.style.borderColor = team === 0 ? "#3b82f6" : "#f97316";
+                setTimeout(() => {
+                    htmlMinimap.style.boxShadow = '';
+                    htmlMinimap.style.borderColor = '';
+                }, 2000);
+            }
+        }
 
         eel.expose(on_telemetry_data);
         function on_telemetry_data(payload) {
@@ -447,7 +1018,6 @@
             let data = payload.Data || payload.data;
             if (!data) return;
 
-            // Procesar deserialización secundaria si el juego lo manda codificado como string
             if (typeof data === 'string') {
                 try {
                     data = JSON.parse(data);
@@ -457,14 +1027,16 @@
                 }
             }
 
-            // Actualizar el visualizador JSON de la pestaña
             const now = Date.now();
-            if (now - lastJsonUpdate > 500) { // Limitado a 2 actualizaciones por segundo para rendimiento óptimo
-                jsonTerminal.textContent = JSON.stringify({ Event: eventName, Data: data }, null, 2);
+            if (now - lastJsonUpdate > 500) { 
+                const jsonTerminal = document.getElementById('json-terminal');
+                if (jsonTerminal) {
+                    jsonTerminal.textContent = JSON.stringify({ Event: eventName, Data: data }, null, 2);
+                }
                 lastJsonUpdate = now;
             }
 
-            // Mostrar y registrar todos los eventos no periódicos para dar visibilidad
+            // CORRECCIÓN FÍSICA POR EVENTO: Al recibir toques o saques en vivo
             if (eventName && eventName !== 'UpdateState') {
                 let details = "";
                 if (eventName === 'StatfeedEvent') {
@@ -472,12 +1044,25 @@
                     details = `🌟 ${ev.PlayerName || 'Jugador'} obtuvo: ${ev.StatEvent || 'evento'}`;
                 } else if (eventName === 'BallHit') {
                     details = `⚽ Pelota golpeada`;
+                    
+                    const playerWhoHit = data.PlayerName || 'DanyelM855';
+                    if (physicalPlayers[playerWhoHit]) {
+                        const p = physicalPlayers[playerWhoHit];
+                        physicalBall.x = p.x;
+                        physicalBall.y = p.y;
+                        physicalBall.vx = p.team === 0 ? (Math.random() * 800 - 400) : (Math.random() * 800 - 400);
+                        physicalBall.vy = p.team === 0 ? 1800 : -1800; 
+                    }
                 } else if (eventName === 'BoostPickup') {
                     details = `⚡ Boost recogido`;
                 } else if (eventName === 'RoundStarted') {
                     details = `🏁 ¡Comienza la ronda!`;
+                    isReplayActive = false;
+                    resetPhysicalMap(); 
                 } else if (eventName === 'CountdownBegin') {
                     details = `⏱️ Cuenta regresiva iniciada`;
+                    isReplayActive = false;
+                    resetPhysicalMap();
                 } else {
                     details = `ℹ️ Evento: ${eventName}`;
                 }
@@ -497,11 +1082,11 @@
                         const name = t.Name || t.name;
                         if (teamNum === 0) {
                             blueScore = score;
-                            if (name) team0Name.textContent = name;
+                            if (name && team0Name) team0Name.textContent = name;
                         }
                         if (teamNum === 1) {
                             orangeScore = score;
-                            if (name) team1Name.textContent = name;
+                            if (name && team1Name) team1Name.textContent = name;
                         }
                     });
                 } else {
@@ -509,17 +1094,40 @@
                     orangeScore = game.orange_score !== undefined ? game.orange_score : 0;
                 }
 
+                // --- DETECCION EVENTO DE GOL ---
+                if (blueScore > lastBlueScore) {
+                    addLog("⚽ ¡GOOOOOL DEL EQUIPO AZUL! 🔵");
+                    triggerGoalReset(0);
+                }
+                if (orangeScore > lastOrangeScore) {
+                    addLog("⚽ ¡GOOOOOL DEL EQUIPO NARANJA! 🟠");
+                    triggerGoalReset(1);
+                }
+                lastBlueScore = blueScore;
+                lastOrangeScore = orangeScore;
+
                 const time = game.TimeSeconds !== undefined ? game.TimeSeconds : (game.time !== undefined ? game.time : 300);
+                
+                if (time < lastTimeSeconds) {
+                    isReplayActive = false;
+                }
+                lastTimeSeconds = time;
                 
                 let rawBallSpeed = 0;
                 if (game.Ball || game.ball) {
                     const ball = game.Ball || game.ball;
                     rawBallSpeed = ball.Speed !== undefined ? ball.Speed : (ball.speed !== undefined ? ball.speed : 0);
+                    
+                    const currentVelMagnitude = Math.sqrt(physicalBall.vx*physicalBall.vx + physicalBall.vy*physicalBall.vy);
+                    if (currentVelMagnitude > 0) {
+                        const scale = (rawBallSpeed * 1.5) / currentVelMagnitude;
+                        physicalBall.vx *= scale;
+                        physicalBall.vy *= scale;
+                    }
                 } else {
                     rawBallSpeed = game.ball_speed !== undefined ? game.ball_speed : 0;
                 }
                 
-                // Conversión de velocidad
                 let speedKmh = rawBallSpeed;
                 if (rawBallSpeed > 0 && rawBallSpeed < 10) {
                     speedKmh = Math.round(rawBallSpeed * 100); 
@@ -529,39 +1137,111 @@
                     speedKmh = Math.round(rawBallSpeed);
                 }
 
-                scoreBlue.textContent = blueScore;
-                scoreOrange.textContent = orangeScore;
-                matchTimer.textContent = formatTime(time);
-                ballSpeed.textContent = speedKmh;
+                if (scoreBlue) scoreBlue.textContent = blueScore;
+                if (scoreOrange) scoreOrange.textContent = orangeScore;
+                if (matchTimer) matchTimer.textContent = formatTime(time);
+                if (ballSpeed) ballSpeed.textContent = speedKmh;
 
-                // Capturar metadatos del partido
-                if (game.PlaylistId !== undefined) {
+                if (game.PlaylistId !== undefined && matchMode) {
                     matchMode.textContent = "Modo: " + (playlistNames[game.PlaylistId] || `ID ${game.PlaylistId}`);
                 }
-                if (game.Arena) {
+                if (game.Arena && matchArena) {
                     matchArena.textContent = "Arena: " + (arenaNames[game.Arena.toLowerCase()] || game.Arena);
                 }
-                if (game.bOvertime) {
+                if (game.bOvertime && overtimeBadge) {
                     overtimeBadge.classList.remove('hidden');
-                } else {
+                } else if (overtimeBadge) {
                     overtimeBadge.classList.add('hidden');
                 }
-                if (game.Target && game.Target.Name) {
+                if (game.Target && game.Target.Name && targetPlayer) {
                     targetPlayer.textContent = game.Target.Name;
-                } else if (game.Target && game.Target.name) {
+                } else if (game.Target && game.Target.name && targetPlayer) {
                     targetPlayer.textContent = game.Target.name;
-                } else {
+                } else if (targetPlayer) {
                     targetPlayer.textContent = "Cámara Libre / Ninguno";
                 }
             }
 
             const players = data.Players || data.players;
             if (players) {
-                playersList.innerHTML = '';
-                if (players.length === 0) {
-                    playersList.innerHTML = `<tr><td colspan="7" class="py-8 text-center text-slate-500 italic">Sin jugadores detectados</td></tr>`;
-                    return;
+                if (playersList) {
+                    playersList.innerHTML = '';
+                    if (players.length === 0) {
+                        playersList.innerHTML = `<tr><td colspan="7" class="py-8 text-center text-slate-500 italic">Sin jugadores detectados</td></tr>`;
+                        return;
+                    }
                 }
+                
+                let targetUser = players.find(p => (p.Name || p.name || '').toLowerCase().includes('danyelm855'));
+                if (!targetUser) targetUser = players[0]; 
+                
+                if (targetUser) {
+                    userStats.totalFrames++;
+                    const boost = targetUser.Boost !== undefined ? targetUser.Boost : 0;
+                    const bOnGround = targetUser.bOnGround !== undefined ? targetUser.bOnGround : true;
+                    const speedVal = targetUser.Speed !== undefined ? targetUser.Speed : (targetUser.speed !== undefined ? targetUser.speed : 0);
+                    
+                    // Conversión inteligente adaptativa a km/h según unidad de origen (UU/s, m/s, o km/h)
+                    let speedKmh = 0;
+                    if (speedVal > 300) {
+                        // Viene en Unreal Units por segundo (ej. 2300 UU/s)
+                        speedKmh = Math.round(speedVal * 0.036);
+                    } else if (speedVal > 0 && speedVal <= 24) {
+                        // Viene en m/s (ej. 22.5 m/s)
+                        speedKmh = Math.round(speedVal * 3.6);
+                    } else {
+                        // Ya viene en km/h o es 0
+                        speedKmh = Math.round(speedVal);
+                    }
+                    
+                    if (boost < 20) {
+                        userStats.lowBoostFrames++;
+                    }
+                    if (bOnGround) {
+                        userStats.onGroundFrames++;
+                    } else {
+                        userStats.airFrames++;
+                    }
+                    
+                    // Trackear consumo y recolección de boost
+                    if (userStats.lastBoostVal !== undefined) {
+                        const bDiff = boost - userStats.lastBoostVal;
+                        if (bDiff > 0) {
+                            userStats.boostPickedUp += bDiff;
+                        } else if (bDiff < 0) {
+                            const consumed = Math.abs(bDiff);
+                            userStats.boostConsumed += consumed;
+                            if (speedKmh < 79) {
+                                userStats.boostConsumedNonSupersonic += consumed;
+                            }
+                        }
+                    }
+                    userStats.lastBoostVal = boost;
+                    
+                    // Trackear cinemática de velocidad
+                    userStats.totalSpeedSum += speedKmh;
+                    userStats.speedCount++;
+                    if (speedKmh >= 79) {
+                        userStats.supersonicFrames++;
+                    }
+                    
+                    userStats.demos = targetUser.Demos !== undefined ? targetUser.Demos : (targetUser.demos !== undefined ? targetUser.demos : 0);
+                    
+                    userStats.lastScore = targetUser.Score !== undefined ? targetUser.Score : 0;
+                    userStats.lastGoals = targetUser.Goals !== undefined ? targetUser.Goals : 0;
+                    userStats.lastSaves = targetUser.Saves !== undefined ? targetUser.Saves : 0;
+                    userStats.lastShots = targetUser.Shots !== undefined ? targetUser.Shots : 0;
+                    userStats.lastTouches = targetUser.Touches !== undefined ? targetUser.Touches : 0;
+                    
+                    // Actualizar el nombre del target de enfoque
+                    const badge = document.getElementById('target-player-badge');
+                    if (badge) {
+                        badge.textContent = `TARGET FOCUS: ${targetUser.Name || 'DANYELM855'}`;
+                    }
+                    
+                    updateProStatsDashboard(targetUser, speedKmh);
+                }
+
                 players.forEach(p => {
                     const name = p.Name || p.name || 'Jugador';
                     const teamNum = p.TeamNum !== undefined ? p.TeamNum : (p.team !== undefined ? p.team : 0);
@@ -575,54 +1255,325 @@
                     const touches = p.Touches !== undefined ? p.Touches : 0;
                     const demos = p.Demos !== undefined ? p.Demos : 0;
                     const bOnGround = p.bOnGround !== undefined ? p.bOnGround : true;
+                    const rawSpeed = p.Speed !== undefined ? p.Speed : (p.speed !== undefined ? p.speed : 0);
                     
+                    // Detección de quién anotó gol para el registro de momentos importantes
+                    if (lastPlayersGoals[name] !== undefined && goals > lastPlayersGoals[name]) {
+                        recordImportantMoment(name, p, teamNum);
+                    }
+                    lastPlayersGoals[name] = goals;
+                    
+                    let speedCoeff = rawSpeed;
+                    if (rawSpeed > 0 && rawSpeed < 10) {
+                        speedCoeff = rawSpeed * 1000; 
+                    }
+
+                    // Inicializar jugador en el estimador de radar
+                    if (!physicalPlayers[name]) {
+                        physicalPlayers[name] = {
+                            x: teamNum === 0 ? -1500 : 1500,
+                            y: teamNum === 0 ? -3000 : 3000,
+                            vx: 0,
+                            vy: 0,
+                            team: teamNum,
+                            isMe: (name === (targetUser ? targetUser.Name : '')),
+                            lastBoost: boost
+                        };
+                    }
+                    
+                    const ph = physicalPlayers[name];
+                    ph.speed = speedCoeff;
+                    
+                    // --- AUTO-CALIBRACIÓN EN SAQUE DE CENTRO (KICKOFF SPAWN SNAP) ---
+                    // En el saque de centro, el balón está a (0,0) y los jugadores reaparecen con exactamente 33 o 34 de boost.
+                    if (Math.abs(physicalBall.x) < 20 && Math.abs(physicalBall.y) < 20 && (boost === 33 || boost === 34)) {
+                        const spawns = teamNum === 0 ? standardSpawns.blue : standardSpawns.orange;
+                        let closestSpawn = null;
+                        let minDist = Infinity;
+                        
+                        spawns.forEach(sp => {
+                            let dx = sp.x - ph.x;
+                            let dy = sp.y - ph.y;
+                            let dist = Math.sqrt(dx*dx + dy*dy);
+                            if (dist < minDist) {
+                                minDist = dist;
+                                closestSpawn = sp;
+                            }
+                        });
+                        
+                        if (closestSpawn && minDist < 2500) {
+                            ph.x = closestSpawn.x;
+                            ph.y = closestSpawn.y;
+                            ph.yaw = closestSpawn.yaw;
+                        }
+                    }
+                    
+                    // Extraemos y asignamos las entradas en tiempo real de tu mando (XInput de Windows)
+                    if (p.GamepadInput) {
+                        ph.inputs = p.GamepadInput;
+                    } else if (ph.isMe) {
+                        ph.inputs = null; // Limpiar si no se recibe para evitar colgado de botones
+                    }
+
+                    // --- SISTEMA LANDMARK: Calibración espacial al recoger Boost (Grandes y Pequeños) ---
+                    const boostDiff = boost - ph.lastBoost;
+                    if (boostDiff > 0 && !isReplayActive) {
+                        if (boost === 100 || boostDiff > 50) {
+                            // Boost grande recogido (solo considerar pads activos)
+                            let closestPad = null;
+                            let minDist = Infinity;
+                            
+                            bigBoostPads.forEach(pad => {
+                                if (pad.active) {
+                                    let dx = pad.x - ph.x;
+                                    let dy = pad.y - ph.y;
+                                    let dist = Math.sqrt(dx*dx + dy*dy);
+                                    
+                                    // FILTRO DIRECCIONAL (Física Avanzada): No permitir anclarse a pads que estén a espaldas de nuestro movimiento
+                                    const velMag = Math.sqrt(ph.vx*ph.vx + ph.vy*ph.vy);
+                                    if (velMag > 300 && dist > 100) {
+                                        const dot = (ph.vx / velMag) * (dx / dist) + (ph.vy / velMag) * (dy / dist);
+                                        if (dot < -0.2) {
+                                            return; // Ignorar hito que está detrás del movimiento del carro (evita jalar atrás en defensa)
+                                        }
+                                    }
+                                    
+                                    if (dist < minDist) {
+                                        minDist = dist;
+                                        closestPad = pad;
+                                    }
+                                }
+                            });
+
+                            if (closestPad) {
+                                if (minDist < 3500) { 
+                                    // Mezcla suave (LERP) en lugar de warp salto instantáneo: 65% hito, 35% actual
+                                    ph.x = ph.x * 0.35 + closestPad.x * 0.65;
+                                    ph.y = ph.y * 0.35 + closestPad.y * 0.65;
+                                    closestPad.active = false;
+                                    closestPad.cooldown = 10.0; // Se apaga por 10 segundos
+                                    addLog(`⚡ [RE-ANCLAJE SUAVE] ${name} calibrado en ${closestPad.name} (Mezcla LERP).`);
+                                } else {
+                                    // Hay una discrepancia espacial: ganó boost de 100 pero según la física estaba lejos del pad activo más cercano
+                                    addLog(`⚠️ [DISCREPANCIA] ${name} ganó Boost grande pero su posición física estimada difiere en ${Math.round(minDist)} unidades del hito activo más cercano. Manteniendo posición por Joystick.`);
+                                }
+                            }
+                        } else if (boostDiff >= 9 && boostDiff <= 15) {
+                            // Pad pequeño recogido (+12 de boost standard, solo considerar pads activos)
+                            let closestSmallPad = null;
+                            let minDist = Infinity;
+
+                            smallBoostPads.forEach(pad => {
+                                if (pad.active) {
+                                    let dx = pad.x - ph.x;
+                                    let dy = pad.y - ph.y;
+                                    let dist = Math.sqrt(dx*dx + dy*dy);
+                                    
+                                    // FILTRO DIRECCIONAL: No permitir anclarse a pads pequeños que queden detrás
+                                    const velMag = Math.sqrt(ph.vx*ph.vx + ph.vy*ph.vy);
+                                    if (velMag > 300 && dist > 100) {
+                                        const dot = (ph.vx / velMag) * (dx / dist) + (ph.vy / velMag) * (dy / dist);
+                                        if (dot < -0.2) {
+                                            return; // Ignorar hito
+                                        }
+                                    }
+                                    
+                                    if (dist < minDist) {
+                                        minDist = dist;
+                                        closestSmallPad = pad;
+                                    }
+                                }
+                            });
+
+                            if (closestSmallPad) {
+                                if (minDist < 1500) { 
+                                    // Mezcla suave en pequeños pads (50/50)
+                                    ph.x = ph.x * 0.5 + closestSmallPad.x * 0.5;
+                                    ph.y = ph.y * 0.5 + closestSmallPad.y * 0.5;
+                                    closestSmallPad.active = false;
+                                    closestSmallPad.cooldown = 4.0; // Se apaga por 4 segundos
+                                    addLog(`⚡ [RE-ANCLAJE MINI] ${name} corregido suavemente por hito (+12).`);
+                                } else {
+                                    // Discrepancia menor en mini pad
+                                    addLog(`⚠️ [DISCREPANCIA MINI] ${name} recogió pad pequeño pero su posición física difería en ${Math.round(minDist)} unidades. Priorizando telemetría analógica.`);
+                                }
+                            }
+                        }
+                    }
+                    ph.lastBoost = boost;
+
                     let carModel = "Octane"; 
+                    let hbType = "octane";
                     if (p.Loadout && p.Loadout.length > 0) {
                         const body = p.Loadout.find(item => item.startsWith("Body_") || item.startsWith("BODY_"));
                         if (body) {
                             carModel = body.split("_")[1] || body;
+                            // Normalizar modelo de hitbox
+                            const modelLower = carModel.toLowerCase();
+                            if (modelLower.includes("dominus")) hbType = "dominus";
+                            else if (modelLower.includes("breakout")) hbType = "breakout";
+                            else if (modelLower.includes("plank") || modelLower.includes("batmobile")) hbType = "plank";
+                            else if (modelLower.includes("hybrid") || modelLower.includes("skyline") || modelLower.includes("jager")) hbType = "hybrid";
+                            else if (modelLower.includes("merc") || modelLower.includes("roadhog")) hbType = "merc";
+                            else hbType = "octane";
                         }
                     }
+                    ph.hitboxType = hbType;
 
-                    const row = document.createElement('tr');
-                    row.className = "hover:bg-slate-900/40 transition-colors";
-                    const teamBadge = teamNum === 0 
-                        ? `<span class="bg-rlblue/10 text-rlblue border border-rlblue/30 px-2 py-0.5 rounded text-[10px] uppercase font-bold">Azul</span>`
-                        : `<span class="bg-rlorange/10 text-rlorange border border-rlorange/30 px-2 py-0.5 rounded text-[10px] uppercase font-bold">Naranja</span>`;
-                    
-                    const stateBadge = bOnGround 
-                        ? `<span class="bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-1.5 py-0.5 rounded text-[10px] font-bold"><i class="fa-solid fa-house text-[9px] mr-1"></i>Suelo</span>`
-                        : `<span class="bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 px-1.5 py-0.5 rounded text-[10px] font-bold"><i class="fa-solid fa-plane text-[9px] mr-1"></i>Aire</span>`;
+                    if (playersList) {
+                        const row = document.createElement('tr');
+                        row.className = "hover:bg-slate-900/40 transition-colors";
+                        const teamBadge = teamNum === 0 
+                            ? `<span class="bg-rlblue/10 text-rlblue border border-rlblue/30 px-2 py-0.5 rounded text-[10px] uppercase font-bold">Azul</span>`
+                            : `<span class="bg-rlorange/10 text-rlorange border border-rlorange/30 px-2 py-0.5 rounded text-[10px] uppercase font-bold">Naranja</span>`;
+                        
+                        const stateBadge = bOnGround 
+                            ? `<span class="bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-1.5 py-0.5 rounded text-[10px] font-bold"><i class="fa-solid fa-house text-[9px] mr-1"></i>Suelo</span>`
+                            : `<span class="bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 px-1.5 py-0.5 rounded text-[10px] font-bold"><i class="fa-solid fa-plane text-[9px] mr-1"></i>Aire</span>`;
 
-                    row.innerHTML = `
-                        <td class="py-3 pr-2">
-                            <div class="font-semibold text-slate-200">${name}</div>
-                            <div class="text-[9px] text-slate-500 flex items-center gap-1">
-                                <i class="fa-solid fa-car"></i> ${carModel}
-                            </div>
-                        </td>
-                        <td class="py-3">${teamBadge}</td>
-                        <td class="py-3">${stateBadge}</td>
-                        <td class="py-3 w-32">
-                            <div class="flex items-center gap-2">
-                                <div class="w-full bg-slate-950 rounded-full h-2 border border-slate-900 overflow-hidden">
-                                    <div class="h-full rounded-full transition-all duration-300 ${boost > 50 ? 'bg-emerald-500' : boost > 20 ? 'bg-amber-500' : 'bg-rose-500'}" style="width: ${boost}%"></div>
+                        row.innerHTML = `
+                            <td class="py-3 pr-2">
+                                <div class="font-semibold text-slate-200">${name}</div>
+                                <div class="text-[9px] text-slate-500 flex items-center gap-1">
+                                    <i class="fa-solid fa-car"></i> ${carModel}
                                 </div>
-                                <span class="font-mono text-slate-300 text-[10px] w-6">${boost}%</span>
-                            </div>
-                        </td>
-                        <td class="py-3 text-center text-slate-300">
-                            <div class="font-bold text-slate-200 font-mono">${shots} <span class="text-[9px] text-slate-500 font-normal">T</span></div>
-                            <div class="text-[9px] text-slate-500">${touches} Toques | ${demos} Dem</div>
-                        </td>
-                        <td class="py-3 text-center text-slate-300">
-                            <div class="font-bold text-slate-200 font-mono">${goals} <span class="text-[9px] text-slate-500 font-normal">G</span></div>
-                            <div class="text-[9px] text-slate-500">${assists} Asis | ${saves} Salv</div>
-                        </td>
-                        <td class="py-3 text-center text-brand-500 font-bold font-mono text-sm">${score}</td>
-                    `;
-                    playersList.appendChild(row);
+                            </td>
+                            <td class="py-3">${teamBadge}</td>
+                            <td class="py-3">${stateBadge}</td>
+                            <td class="py-3 w-32">
+                                <div class="flex items-center gap-2">
+                                    <div class="w-full bg-slate-950 rounded-full h-2 border border-slate-900 overflow-hidden">
+                                        <div class="h-full rounded-full transition-all duration-300 ${boost > 50 ? 'bg-emerald-500' : boost > 20 ? 'bg-amber-500' : 'bg-rose-500'}" style="width: ${boost}%"></div>
+                                    </div>
+                                    <span class="font-mono text-slate-300 text-[10px] w-6">${boost}%</span>
+                                </div>
+                            </td>
+                            <td class="py-3 text-center text-slate-300">
+                                <div class="font-bold text-slate-200 font-mono">${shots} <span class="text-[9px] text-slate-500 font-normal">T</span></div>
+                                <div class="text-[9px] text-slate-500">${touches} Toques | ${demos} Dem</div>
+                            </td>
+                            <td class="py-3 text-center text-slate-300">
+                                <div class="font-bold text-slate-200 font-mono">${goals} <span class="text-[9px] text-slate-500 font-normal">G</span></div>
+                                <div class="text-[9px] text-slate-500">${assists} Asis | ${saves} Salv</div>
+                            </td>
+                            <td class="py-3 text-center text-brand-500 font-bold font-mono text-sm">${score}</td>
+                        `;
+                        playersList.appendChild(row);
+                    }
                 });
+            }
+        }
+
+        // Lógica de cálculo de sugerencias tácticas
+
+
+        function updateProStatsDashboard(player, currentSpeedKmh) {
+            // Elementos del dashboard
+            const dbAirPct = document.getElementById('db-air-pct');
+            const dbGroundPct = document.getElementById('db-ground-pct');
+            const dbAirBar = document.getElementById('db-air-bar');
+            const dbGroundBar = document.getElementById('db-ground-bar');
+            
+            const dbAvgSpeed = document.getElementById('db-avg-speed');
+            const dbCurrentSpeed = document.getElementById('db-current-speed');
+            const dbSupersonicPct = document.getElementById('db-supersonic-pct');
+            const dbSupersonicBadge = document.getElementById('db-supersonic-badge');
+            
+            const dbBoostConsumed = document.getElementById('db-boost-consumed');
+            const dbBoostPickedUp = document.getElementById('db-boost-picked-up');
+            const dbBoostNonSupersonicPct = document.getElementById('db-boost-non-supersonic-pct');
+            const dbBoostEfficiency = document.getElementById('db-boost-efficiency');
+            
+            const dbTouches = document.getElementById('db-touches');
+            const dbScore = document.getElementById('db-score');
+            const dbDemos = document.getElementById('db-demos');
+            const dbGoals = document.getElementById('db-goals');
+            const dbShots = document.getElementById('db-shots');
+            const dbSaves = document.getElementById('db-saves');
+            const dbAssists = document.getElementById('db-assists');
+            
+            // Cálculos
+            const total = userStats.totalFrames || 1;
+            const airPct = Math.round((userStats.airFrames / total) * 100);
+            const groundPct = 100 - airPct;
+            
+            const avgSpeed = Math.round(userStats.totalSpeedSum / (userStats.speedCount || 1));
+            const supersonicPct = Math.round((userStats.supersonicFrames / total) * 100);
+            
+            const nonSupersonicBoostConsumedPct = userStats.boostConsumed > 0
+                ? Math.round((userStats.boostConsumedNonSupersonic / userStats.boostConsumed) * 100)
+                : 0;
+            
+            const touches = userStats.lastTouches;
+            const boostEfficiency = touches > 0 ? (userStats.boostConsumed / touches).toFixed(1) : 0;
+            
+            // Actualizar interfaz con animaciones y opacidades
+            if (dbAirPct) dbAirPct.textContent = `${airPct}%`;
+            if (dbGroundPct) dbGroundPct.textContent = `${groundPct}%`;
+            if (dbAirBar) dbAirBar.style.width = `${airPct}%`;
+            if (dbGroundBar) dbGroundBar.style.width = `${groundPct}%`;
+            
+            if (dbAvgSpeed) dbAvgSpeed.textContent = `${avgSpeed} km/h`;
+            if (dbCurrentSpeed) dbCurrentSpeed.textContent = `${currentSpeedKmh} km/h`;
+            if (dbSupersonicPct) dbSupersonicPct.textContent = `${supersonicPct}% del tiempo`;
+            
+            if (dbSupersonicBadge) {
+                if (currentSpeedKmh > 79) { // 80 km/h o más es supersónico (>2200 UU/s is 79.2 km/h)
+                    dbSupersonicBadge.className = "px-2 py-0.5 rounded-full text-[10px] font-black uppercase bg-cyan-500/20 text-cyan-400 border border-cyan-500/30 animate-pulse shadow-[0_0_8px_rgba(34,211,238,0.3)]";
+                    dbSupersonicBadge.textContent = "Supersónico";
+                } else {
+                    dbSupersonicBadge.className = "px-2 py-0.5 rounded-full text-[10px] font-bold uppercase bg-slate-900 text-slate-500 border border-slate-800";
+                    dbSupersonicBadge.textContent = "Crucero";
+                }
+            }
+            
+            if (dbBoostConsumed) dbBoostConsumed.textContent = userStats.boostConsumed;
+            if (dbBoostPickedUp) dbBoostPickedUp.textContent = userStats.boostPickedUp;
+            if (dbBoostNonSupersonicPct) dbBoostNonSupersonicPct.textContent = `${nonSupersonicBoostConsumedPct}%`;
+            if (dbBoostEfficiency) dbBoostEfficiency.textContent = `${boostEfficiency} turbo/toque`;
+            
+            if (dbTouches) dbTouches.textContent = touches;
+            if (dbScore) dbScore.textContent = userStats.lastScore;
+            if (dbDemos) dbDemos.textContent = userStats.demos;
+            
+            if (dbGoals) dbGoals.textContent = userStats.lastGoals;
+            if (dbShots) dbShots.textContent = userStats.lastShots;
+            if (dbSaves) dbSaves.textContent = userStats.lastSaves;
+            if (dbAssists) dbAssists.textContent = player.Assists !== undefined ? player.Assists : (player.assists !== undefined ? player.assists : 0);
+        }
+
+        function recordImportantMoment(scorerName, playerObj, teamNum) {
+            const rawSpeed = playerObj.Speed !== undefined ? playerObj.Speed : (playerObj.speed !== undefined ? playerObj.speed : 0);
+            const playerSpeedKmh = Math.round(rawSpeed * 0.036);
+            
+            // Buscar la velocidad del balón en la telemetría actual
+            const ballSpeedSpan = document.getElementById('ball-speed');
+            const ballSpeedKmh = ballSpeedSpan ? parseInt(ballSpeedSpan.textContent) || 0 : 0;
+            
+            const timerDiv = document.getElementById('match-timer');
+            const gameTime = timerDiv ? timerDiv.textContent : "05:00";
+            
+            const moment = {
+                timestamp: new Date().toLocaleTimeString(),
+                evento: "Gol",
+                equipo: teamNum === 0 ? "Azul" : "Naranja",
+                goleador: scorerName,
+                velocidad_goleador_kmh: playerSpeedKmh,
+                velocidad_balon_kmh: ballSpeedKmh,
+                tiempo_juego: gameTime
+            };
+            
+            importantMoments.push(moment);
+            
+            // Actualizar el panel visual del JSON
+            updateImportantMomentsUI();
+        }
+
+        function updateImportantMomentsUI() {
+            const momentsTerminal = document.getElementById('moments-terminal');
+            if (momentsTerminal) {
+                momentsTerminal.textContent = JSON.stringify(importantMoments, null, 2);
+                momentsTerminal.scrollTop = momentsTerminal.scrollHeight;
             }
         }
 
