@@ -105,6 +105,12 @@
         align-items: center;
         gap: 8px;
     }
+    #league-logo {
+        height: 22px;
+        width: 22px;
+        object-fit: contain;
+        filter: drop-shadow(0 1px 4px rgba(0,0,0,0.8));
+    }
     #league-badge::before, #league-badge::after {
         content: '';
         width: 16px;
@@ -643,7 +649,7 @@
     <!-- SCOREBUG CENTRAL -->
     <div id="scorebug-container">
         <div id="tournament-header">
-            <span id="league-badge">THE COMMUNITY LEAGUE</span>
+            <span id="league-badge"><img id="league-logo" src="/The_Comunity_League.webp" alt="The Community League">THE COMMUNITY LEAGUE</span>
             <div id="series-info">
                 <span id="series-phase">FINALES</span>
                 <div id="pips-blue" class="pip-container"></div>
