@@ -78,7 +78,7 @@
                         <div id="config-banner" class="hidden bg-emerald-500/10 border border-emerald-500/20 rounded-xl p-3.5 text-xs text-emerald-400 font-semibold leading-relaxed">
                             <span class="flex items-start gap-1.5">
                                 <i class="fa-solid fa-circle-check mt-0.5 text-emerald-400"></i>
-                                <span>✓ Configuración existente leída: Puerto <span id="banner-port" class="text-white font-mono">49123</span> | Frecuencia <span id="banner-hz" class="text-white font-mono">30</span> Hz. ¿Deseas modificarla o dejarla así para capturar datos?</span>
+                                <span>✓ Configuración existente leída: Puerto <span id="banner-port" class="text-white font-mono">49124</span> | Frecuencia <span id="banner-hz" class="text-white font-mono">30</span> Hz. ¿Deseas modificarla o dejarla así para capturar datos?</span>
                             </span>
                         </div>
 
@@ -95,7 +95,7 @@
                         <div class="grid grid-cols-2 gap-4">
                             <div class="flex flex-col gap-2">
                                 <label for="api-port" class="text-xs font-semibold text-slate-400">Puerto del Socket:</label>
-                                <input type="number" id="api-port" value="49123" class="bg-slate-950 border border-slate-800 focus:border-brand-500 focus:ring-1 focus:ring-brand-500 text-slate-200 rounded-xl px-3.5 py-2 text-xs outline-none transition-all">
+                                <input type="number" id="api-port" value="49124" class="bg-slate-950 border border-slate-800 focus:border-brand-500 focus:ring-1 focus:ring-brand-500 text-slate-200 rounded-xl px-3.5 py-2 text-xs outline-none transition-all">
                             </div>
                             <div class="flex flex-col gap-2">
                                 <label for="send-rate" class="text-xs font-semibold text-slate-400">Frecuencia (Hz): <span id="rate-val" class="text-brand-500">30</span></label>
@@ -488,12 +488,12 @@
                 const state = await eel.get_current_state()();
                 if (state) {
                     folderPathInput.value = state.path || '';
-                    apiPortInput.value = state.port || 49123;
+                    apiPortInput.value = state.port || 49124;
                     sendRateInput.value = state.send_rate || 30;
                     rateVal.textContent = state.send_rate || 30;
                     toggleCapture.checked = state.capture_active;
                     
-                    if (bannerPort) bannerPort.textContent = state.port || 49123;
+                    if (bannerPort) bannerPort.textContent = state.port || 49124;
                     if (bannerHz) bannerHz.textContent = state.send_rate || 30;
 
                     const hasPath = state.path && state.path.trim() !== '';
