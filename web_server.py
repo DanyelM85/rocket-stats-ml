@@ -278,8 +278,15 @@ def get_current_state():
 def save_and_apply_settings(path_str, port, send_rate):
     global _current_path, _current_port, _current_send_rate
     from config_manager import setup_stats_api, save_installation_path
+    port = int(port)
+    # Puerto 8000 es el que usa esta misma app para su panel web (ver
+    # run_config_ui). Si Rocket League usara el mismo, el listener termina
+    # conectándose a sí mismo en vez de al juego (así se rompió antes: el
+    # .ini de RL tenía Port=8000 y nunca llegaban goles/nombres reales).
+    if port == 8000:
+        return {"success": False, "error": "El puerto 8000 lo usa el panel de esta app — elegí otro puerto para Rocket League (ej: 49122)."}
     _current_path = path_str.strip('"\' ')
-    _current_port = int(port)
+    _current_port = port
     _current_send_rate = float(send_rate)
     is_valid, err = _validate_fn(_current_path)
     if not is_valid:
@@ -427,6 +434,16 @@ def kill_process_on_port(port: int):
         pass
 
 def _on_window_close(page, sockets):
+    # Eel llama esto cada vez que se cierra CUALQUIER socket conectado, no solo
+    # el panel principal: el iframe de "Ver Overlay" (que se desconecta a
+    # propósito al cerrar esa vista previa) o el propio overlay.html
+    # reconectando (su chequeo cada 5s hace location.reload() si ve el socket
+    # cerrado) también disparan este callback. Antes esto mataba TODO el
+    # backend (os._exit) con cualquiera de esos cierres normales, dejando el
+    # overlay real de OBS sin más actualizaciones. Solo debe cerrar la app
+    # cuando se cierra el panel principal (index.html).
+    if page != 'index.html':
+        return
     print("\n[i] Ventana del navegador cerrada por el usuario. Cerrando main.py...")
     global _capture_thread
     if _capture_thread:
@@ -445,12 +462,36 @@ def run_config_ui(validate_fn, submit_fn):
     try:
         eel.start(
             'index.html',
-            mode='chrome',
+            # Edge (WebView2/Chromium) trae Sleeping Tabs y modo de eficiencia
+            # activados por defecto en Windows, y no suma un runtime de Chrome
+            # aparte al que ya usa el propio Windows: menor RAM en reposo que
+            # forzar la apertura de Chrome como navegador embebido.
+            mode='edge',
             host='localhost',
             port=8000,
             size=(1080, 800),
             close_callback=_on_window_close,
-            block=True
+            block=True,
+            cmdline_args=[
+                '--disable-http-cache',
+                # El panel se queda abierto mientras se juega: sin esto, el
+                # blur/composición de su UI compite por GPU con Rocket League
+                # y le baja FPS al juego (y a todo el sistema) aunque el panel
+                # esté quieto en segundo plano. Se fuerza a render por software.
+                '--disable-gpu',
+                '--disable-gpu-compositing',
+                '--disable-gpu-rasterization',
+                # Apaga subsistemas de navegador normal que este panel-app
+                # nunca usa (sync, extensiones, traductor, actualizador de
+                # componentes, apps por defecto) para bajar el consumo base.
+                '--disable-extensions',
+                '--disable-sync',
+                '--disable-background-networking',
+                '--disable-translate',
+                '--disable-default-apps',
+                '--disable-component-update',
+                '--no-first-run',
+            ]
         )
     except (SystemExit, MemoryError, KeyboardInterrupt):
         pass

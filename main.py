@@ -1,3 +1,14 @@
+# Debe ir antes que cualquier otro import: eel corre su servidor (websocket
+# incluido) sobre gevent en un único hilo cooperativo. RLConnectionThread
+# usa threading.Thread + socket bloqueante real para no congelar ese hilo
+# mientras espera datos de Rocket League, pero sin parchear socket/threading
+# aquí, sus llamadas a eel.on_status_change()/on_telemetry_data() desde ese
+# hilo pelean por el mismo socket del websocket con el hilo de gevent y lo
+# pueden dejar cerrándose a medias justo al activar la captura (el error
+# "WebSocket is already in CLOSING or CLOSED state" que se ve en el navegador).
+from gevent import monkey
+monkey.patch_all()
+
 import ctypes
 import sys
 

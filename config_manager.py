@@ -148,7 +148,7 @@ PacketSendRate={send_rate}
             ini_path.parent.mkdir(parents=True, exist_ok=True)
             with open(ini_path, "w", encoding="utf-8") as f:
                 f.write(default_content)
-            print(f" [✓] Archivo creado con éxito en:\n    {ini_path}")
+            print(f" [OK] Archivo creado con exito en:\n    {ini_path}")
             return True
         except PermissionError:
             print(f"[X] Error de permisos al crear {ini_path}.")
@@ -191,7 +191,7 @@ PacketSendRate={send_rate}
             new_lines.append(f"PacketSendRate={val}\n")
         with open(ini_path, "w", encoding="utf-8") as f:
             f.writelines(new_lines)
-        print(f" [✓] Archivo configurado con éxito en:\n    {ini_path}")
+        print(f" [OK] Archivo configurado con exito en:\n    {ini_path}")
         return True
     except PermissionError:
         print(f"[X] Error de permisos al escribir en {ini_path}. Intenta ejecutar el script como Administrador.")

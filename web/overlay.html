@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Overlay OBS - The Community League</title>
+<link rel="icon" type="image/png" href="/logo_peri.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:ital,wght@0,600;0,700;1,700&family=Rajdhani:wght@600;700&family=Teko:wght@600;700&display=swap" rel="stylesheet">
@@ -153,7 +154,7 @@
         display: flex;
         align-items: stretch;
         height: 56px;
-        min-width: 580px;
+        min-width: 720px;
         border-radius: 8px;
         overflow: hidden;
         position: relative;
@@ -165,10 +166,10 @@
         flex: 1;
         display: flex;
         align-items: center;
-        padding: 0 20px;
-        gap: 14px;
+        padding: 0 28px;
+        gap: 16px;
         font-family: 'Chakra Petch', sans-serif;
-        font-size: 24px;
+        font-size: 30px;
         font-weight: 700;
         text-transform: uppercase;
         letter-spacing: 1.5px;
@@ -199,8 +200,8 @@
     }
 
     .team-logo {
-        width: 36px;
-        height: 36px;
+        width: 44px;
+        height: 44px;
         object-fit: contain;
         filter: drop-shadow(0 2px 8px rgba(0,0,0,0.7));
         display: none;
@@ -526,8 +527,8 @@
         position: absolute;
         bottom: 22px;
         right: 22px;
-        width: 126px;
-        height: 126px;
+        width: 170px;
+        height: 170px;
         opacity: 0;
         transform: scale(0.9);
         transition: opacity 0.35s ease, transform 0.35s ease;
@@ -549,13 +550,13 @@
     .ring-bg-track {
         fill: none;
         stroke: rgba(255, 255, 255, 0.08);
-        stroke-width: 10;
+        stroke-width: 13;
     }
 
     .ring-fill-bar {
         fill: none;
         stroke: #00f0ff;
-        stroke-width: 10;
+        stroke-width: 13;
         stroke-linecap: round;
         transition: stroke-dashoffset 0.15s ease, stroke 0.2s ease;
     }
@@ -565,8 +566,8 @@
         top: 50%;
         left: 50%;
         transform: translate(-50%, -50%);
-        width: 92px;
-        height: 92px;
+        width: 124px;
+        height: 124px;
         border-radius: 50%;
         background: rgba(6, 10, 18, 0.92);
         backdrop-filter: blur(10px);
@@ -581,7 +582,7 @@
 
     #boost-num-big {
         font-family: 'Teko', sans-serif;
-        font-size: 42px;
+        font-size: 56px;
         font-weight: 700;
         line-height: 0.85;
         color: #fff;
@@ -590,7 +591,7 @@
 
     #speed-text {
         font-family: 'Chakra Petch', sans-serif;
-        font-size: 11px;
+        font-size: 15px;
         font-weight: 700;
         color: #94a3b8;
         letter-spacing: 0.5px;
@@ -599,17 +600,17 @@
 
     #supersonic-badge {
         position: absolute;
-        bottom: -12px;
+        bottom: -16px;
         left: 50%;
         transform: translateX(-50%);
         font-family: 'Chakra Petch', sans-serif;
-        font-size: 8px;
+        font-size: 11px;
         font-weight: 700;
         letter-spacing: 1.5px;
         color: #00f0ff;
         background: rgba(0, 240, 255, 0.15);
         border: 1px solid #00f0ff;
-        padding: 2px 8px;
+        padding: 3px 11px;
         border-radius: 10px;
         white-space: nowrap;
         opacity: 0;
@@ -619,74 +620,6 @@
     #boost-meter-container.supersonic #supersonic-badge {
         opacity: 1;
         animation: supersonicRing 1.2s infinite ease-in-out;
-    }
-
-    /* ---------- BANNER DE GOL RLCS BROADCAST ---------- */
-    #goal-banner-overlay {
-        position: absolute;
-        top: 40%;
-        left: 50%;
-        transform: translate(-50%, -50%) scale(0.7);
-        width: 520px;
-        padding: 28px;
-        text-align: center;
-        border-radius: 10px;
-        opacity: 0;
-        pointer-events: none;
-        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        z-index: 200;
-        border: 2px solid var(--active-color, var(--team-blue));
-        box-shadow: 0 0 60px var(--active-glow, var(--team-blue-glow)), inset 0 0 25px rgba(0,0,0,0.85);
-        clip-path: polygon(24px 0, 100% 0, 100% calc(100% - 24px), calc(100% - 24px) 100%, 0 100%, 0 24px);
-    }
-
-    #goal-banner-overlay.show {
-        opacity: 1;
-        transform: translate(-50%, -50%) scale(1);
-    }
-
-    #goal-title {
-        font-family: 'Teko', sans-serif;
-        font-size: 72px;
-        font-weight: 700;
-        line-height: 0.85;
-        letter-spacing: 8px;
-        color: var(--active-color, var(--team-blue));
-        text-shadow: 0 0 25px var(--active-color, var(--team-blue));
-    }
-
-    #goal-scorer-name {
-        font-family: 'Chakra Petch', sans-serif;
-        font-size: 32px;
-        font-weight: 700;
-        text-transform: uppercase;
-        letter-spacing: 2px;
-        color: #fff;
-        margin-top: 4px;
-        text-shadow: 0 3px 10px rgba(0,0,0,0.9);
-    }
-
-    #goal-assist-name {
-        font-size: 14px;
-        font-weight: 700;
-        color: #cbd5e1;
-        text-transform: uppercase;
-        letter-spacing: 1px;
-        margin-top: 4px;
-    }
-
-    #goal-speed-val {
-        font-family: 'Chakra Petch', sans-serif;
-        font-size: 14px;
-        font-weight: 700;
-        color: #94a3b8;
-        letter-spacing: 1.5px;
-        margin-top: 10px;
-        background: rgba(0, 0, 0, 0.5);
-        display: inline-block;
-        padding: 3px 16px;
-        border-radius: 14px;
-        border: 1px solid rgba(255, 255, 255, 0.12);
     }
 
     /* Punto indicador de conexión */
@@ -789,23 +722,15 @@
 
     <!-- MEDIDOR DE BOOST CIRCULAR + VELOCIMETRO -->
     <div id="boost-meter-container">
-        <svg id="boost-meter-svg" viewBox="0 0 126 126">
-            <circle class="ring-bg-track" cx="63" cy="63" r="52"></circle>
-            <circle id="ring-fill" class="ring-fill-bar" cx="63" cy="63" r="52"></circle>
+        <svg id="boost-meter-svg" viewBox="0 0 170 170">
+            <circle class="ring-bg-track" cx="85" cy="85" r="70"></circle>
+            <circle id="ring-fill" class="ring-fill-bar" cx="85" cy="85" r="70"></circle>
         </svg>
         <div class="boost-center-content">
             <span id="boost-num-big">0</span>
             <span id="speed-text">0 KM/H</span>
         </div>
         <span id="supersonic-badge">SUPERSONIC</span>
-    </div>
-
-    <!-- BANNER DE GOL BROADCAST -->
-    <div id="goal-banner-overlay" class="glass-panel">
-        <div id="goal-title">¡GOL!</div>
-        <div id="goal-scorer-name">-</div>
-        <div id="goal-assist-name"></div>
-        <div id="goal-speed-val">0 KM/H</div>
     </div>
 
     <!-- PUNTO DE CONEXIÓN -->
@@ -854,14 +779,8 @@
         const boostNumBigEl = document.getElementById('boost-num-big');
         const speedTextEl = document.getElementById('speed-text');
 
-        const goalBannerEl = document.getElementById('goal-banner-overlay');
-        const goalScorerEl = document.getElementById('goal-scorer-name');
-        const goalAssistEl = document.getElementById('goal-assist-name');
-        const goalSpeedEl = document.getElementById('goal-speed-val');
-        let goalBannerTimeout = null;
-
         // Configuración de anillo SVG Boost
-        const RING_RADIUS = 52;
+        const RING_RADIUS = 70;
         const RING_CIRCUMFERENCE = 2 * Math.PI * RING_RADIUS;
         ringFillEl.style.strokeDasharray = `${RING_CIRCUMFERENCE}`;
         ringFillEl.style.strokeDashoffset = `${RING_CIRCUMFERENCE}`;
@@ -1007,84 +926,26 @@
             const eventName = payload.Event || payload.event;
 
             if (eventName === 'GoalScored') {
+                // Sin banner de gol: solo se usa este evento para el color
+                // activo del equipo que anotó (marcador/rosters/HUD).
                 let data = payload.Data || payload.data;
                 if (typeof data === 'string') { try { data = JSON.parse(data); } catch (e) { return; } }
                 if (!data) return;
 
                 const scorer = data.Scorer || data.scorer || data.GoalScorer || data.player || {};
                 const scorerPlayerObj = scorer.Player || scorer.player || scorer;
-
                 const ballLastTouch = data.BallLastTouch || data.ball_last_touch || data.last_touch || {};
                 const lastTouchPlayerObj = ballLastTouch.Player || ballLastTouch.player || ballLastTouch || {};
-
-                let scorerName = scorerPlayerObj.Name || scorerPlayerObj.name || (typeof scorerPlayerObj.id === 'string' ? scorerPlayerObj.id : '');
-
-                if (!scorerName && (scorer.id || scorer.Id || scorer.Shortcut !== undefined || scorer.pri)) {
-                    const matched = latestPlayers.find(p => 
-                        (scorer.id && (p.id === scorer.id || p.Id === scorer.id)) ||
-                        (scorer.Shortcut !== undefined && (p.Shortcut === scorer.Shortcut || p.shortcut === scorer.Shortcut)) ||
-                        (scorer.pri && (p.pri === scorer.pri || p.PRI === scorer.pri))
-                    );
-                    if (matched) {
-                        scorerName = matched.Name || matched.name || '';
-                    }
-                }
-
-                let lastTouchName = lastTouchPlayerObj.Name || lastTouchPlayerObj.name || '';
-                let lastTouchTeam = lastTouchPlayerObj.TeamNum !== undefined ? lastTouchPlayerObj.TeamNum : lastTouchPlayerObj.team;
+                const lastTouchTeam = lastTouchPlayerObj.TeamNum !== undefined ? lastTouchPlayerObj.TeamNum : lastTouchPlayerObj.team;
 
                 let scoringTeamNum = scorer.TeamNum !== undefined ? scorer.TeamNum : (scorerPlayerObj.TeamNum !== undefined ? scorerPlayerObj.TeamNum : undefined);
                 if (scoringTeamNum === undefined) {
-                    if (lastTouchTeam !== undefined) scoringTeamNum = lastTouchTeam;
-                    else scoringTeamNum = 0;
+                    scoringTeamNum = lastTouchTeam !== undefined ? lastTouchTeam : 0;
                 }
-
                 const scoringTeam = scoringTeamNum === 1 ? 'orange' : 'blue';
-
-                let isOwnGoal = false;
-
-                if (!scorerName) {
-                    if (lastTouchName) {
-                        scorerName = lastTouchName;
-                        if (lastTouchTeam !== undefined && lastTouchTeam !== scoringTeamNum) {
-                            isOwnGoal = true;
-                        }
-                    } else {
-                        const teamNameVal = scoringTeamNum === 1 
-                            ? (currentTeamConfig.orange_name || 'NARANJA') 
-                            : (currentTeamConfig.blue_name || 'AZUL');
-                        scorerName = `GOL ${teamNameVal}`;
-                    }
-                } else {
-                    const scorerTeamNum = scorerPlayerObj.TeamNum !== undefined ? scorerPlayerObj.TeamNum : scorer.TeamNum;
-                    if (scorerTeamNum !== undefined && scorerTeamNum !== scoringTeamNum) {
-                        isOwnGoal = true;
-                    }
-                }
 
                 document.documentElement.style.setProperty('--active-color', `var(--team-${scoringTeam})`);
                 document.documentElement.style.setProperty('--active-glow', `var(--team-${scoringTeam}-glow)`);
-
-                if (isOwnGoal) {
-                    goalScorerEl.textContent = `${scorerName.toUpperCase()} (AUTOGOL)`;
-                    goalAssistEl.style.display = 'none';
-                } else {
-                    goalScorerEl.textContent = scorerName.toUpperCase();
-                    
-                    if (lastTouchName && lastTouchName.toUpperCase() !== scorerName.toUpperCase() && (lastTouchTeam === undefined || lastTouchTeam === scoringTeamNum)) {
-                        goalAssistEl.textContent = `ASISTENCIA: ${lastTouchName.toUpperCase()}`;
-                        goalAssistEl.style.display = 'block';
-                    } else {
-                        goalAssistEl.style.display = 'none';
-                    }
-                }
-
-                const speedKmh = toSpeedKmh(data.GoalSpeed || data.goal_speed || 0);
-                goalSpeedEl.textContent = `DISPARO A ${speedKmh} KM/H`;
-
-                if (goalBannerTimeout) clearTimeout(goalBannerTimeout);
-                goalBannerEl.classList.add('show');
-                goalBannerTimeout = setTimeout(() => goalBannerEl.classList.remove('show'), 4200);
                 return;
             }
 

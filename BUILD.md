@@ -36,8 +36,9 @@ El primer build tarda ~1-2 minutos; los siguientes son más rápidos gracias a l
 |---|---|
 | Agregaste una nueva carpeta/archivo de datos (no solo dentro de `web/`) | Agrega otra entrada en `datas=[...]` dentro de `RocketStatsML.spec`, ej: `('mi_carpeta', 'mi_carpeta')` |
 | Agregaste una nueva dependencia de Python (`pip install algo-nuevo`) | Agrégala a `requirements.txt` y corre `pip install -r requirements.txt` antes de rebuildear |
-| Quieres que NO se vea la ventana de consola negra detrás de la app | Cambia `console=True` a `console=False` en `RocketStatsML.spec` (perderás los mensajes de conexión/errores en texto) |
+| Quieres volver a ver la ventana de consola (para depurar mensajes de conexión/errores en texto) | El `.spec` ya trae `console=False` por defecto. Cámbialo a `console=True` si la necesitas de vuelta |
 | El build falla con "Hidden import X not found" | Casi siempre es una advertencia inofensiva (ya pasa con `pycparser`/`importlib_resources` en este proyecto y no afecta nada). Si el `.exe` no arranca por eso, agrega el nombre del módulo a `hiddenimports=[...]` en el `.spec` |
+| Quieres cambiar el ícono del `.exe` | Reemplaza `app_icon.ico` (raíz del proyecto) y vuelve a generarlo desde el logo con Pillow: `python -c "from PIL import Image; Image.open('web/logo_peri.png').convert('RGBA').save('app_icon.ico', sizes=[(16,16),(24,24),(32,32),(48,48),(64,64),(128,128),(256,256)])"`. El `.spec` ya lo referencia vía `icon=['app_icon.ico']` |
 
 ## 5. Distribuir el .exe
 
@@ -49,5 +50,5 @@ El primer build tarda ~1-2 minutos; los siguientes son más rápidos gracias a l
 ## Comando de referencia (equivalente a correr el .spec, por si se pierde)
 
 ```powershell
-python -m PyInstaller --name RocketStatsML --onefile --add-data "web;web" --clean --noconfirm main.py
+python -m PyInstaller --name RocketStatsML --onefile --add-data "web;web" --icon app_icon.ico --clean --noconfirm main.py
 ```

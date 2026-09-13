@@ -4,23 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Panel de Control & Telemetría - Rocket League Stats ML</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/png" href="/logo_peri.png">
+    <link rel="stylesheet" href="/tailwind.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script>
-        tailwind.config={
-            theme:{
-                extend:{
-                    fontFamily:{sans:['Inter','sans-serif']},
-                    colors:{
-                        brand:{50:'#e0fbfd',100:'#baf4fa',500:'#00adb5',600:'#008f95',700:'#007176',800:'#00585c',900:'#004043'},
-                        rlblue:'#0088ff',
-                        rlorange:'#ff6600'
-                    }
-                }
-            }
-        }
-    </script>
     <style>
         body {
             background-color: #0b0f19;
@@ -81,15 +68,20 @@
                     <span>Ver RAW JSON Live</span>
                 </button>
 
+                <button id="btn-preview-overlay" type="button" class="flex items-center gap-2 bg-slate-900 hover:bg-slate-800 text-cyan-400 hover:text-white border border-cyan-500/30 rounded-full px-4 py-2 text-xs font-bold transition-all shadow-md">
+                    <i class="fa-solid fa-eye text-xs"></i>
+                    <span>Ver Overlay</span>
+                </button>
+
                 <a href="/overlay.html" target="_blank" class="flex items-center gap-2 bg-slate-900 hover:bg-slate-800 text-brand-500 hover:text-white border border-brand-500/30 rounded-full px-4 py-2 text-xs font-bold transition-all shadow-md">
                     <i class="fa-solid fa-up-right-from-square text-xs"></i>
-                    <span>Abrir Overlay OBS</span>
+                    <span>Abrir en Ventana (OBS)</span>
                 </a>
 
                 <div class="flex items-center gap-3 bg-slate-950/80 border border-slate-800 rounded-full px-4 py-2 shadow-inner">
                     <span class="text-xs font-semibold text-slate-400">Estado API:</span>
                     <div class="flex items-center gap-2">
-                        <span id="status-dot" class="w-2.5 h-2.5 rounded-full bg-rose-500 pulse-indicator"></span>
+                        <span id="status-dot" class="w-2.5 h-2.5 rounded-full bg-rose-500"></span>
                         <span id="status-text" class="text-xs font-bold text-rose-400 uppercase tracking-wide">Desconectado</span>
                     </div>
                 </div>
@@ -481,6 +473,28 @@
         </div>
     </div>
 
+    <!-- MODAL VISTA PREVIA DEL OVERLAY -->
+    <div id="overlay-preview-modal" class="hidden fixed inset-0 bg-slate-950/85 backdrop-blur-md z-50 flex items-center justify-center p-4">
+        <div class="glass-card rounded-2xl border border-slate-800 w-full max-w-5xl flex flex-col max-h-[90vh] shadow-2xl overflow-hidden">
+            <div class="flex items-center justify-between p-3.5 border-b border-slate-800/80 bg-slate-900/60">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-lg bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center text-cyan-400">
+                        <i class="fa-solid fa-eye text-sm"></i>
+                    </div>
+                    <h3 class="font-extrabold text-sm text-white">Vista Previa del Overlay</h3>
+                </div>
+                <button id="btn-close-overlay-preview" type="button" class="w-8 h-8 rounded-xl bg-slate-800 hover:bg-rose-600 text-slate-400 hover:text-white flex items-center justify-center transition-all">
+                    <i class="fa-solid fa-xmark text-sm"></i>
+                </button>
+            </div>
+            <div class="p-4 bg-[repeating-conic-gradient(#1e293b_0%_25%,#0f172a_0%_50%)] bg-[length:24px_24px]">
+                <div class="relative w-full aspect-video rounded-xl overflow-hidden border border-slate-800 shadow-inner">
+                    <iframe id="overlay-preview-frame" class="absolute inset-0 w-full h-full border-0" title="Vista previa del overlay"></iframe>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- MODAL VISOR DE JSON -->
     <div id="json-modal" class="hidden fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 flex items-center justify-center p-4">
         <div class="glass-card rounded-2xl border border-slate-800 w-full max-w-3xl flex flex-col max-h-[85vh] shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200">
@@ -530,6 +544,33 @@
         const matchArena = document.getElementById('match-arena');
         const overtimeBadge = document.getElementById('overtime-badge');
         const targetPlayerBadge = document.getElementById('target-player-badge');
+
+        const btnPreviewOverlay = document.getElementById('btn-preview-overlay');
+        const overlayPreviewModal = document.getElementById('overlay-preview-modal');
+        const overlayPreviewFrame = document.getElementById('overlay-preview-frame');
+        const btnCloseOverlayPreview = document.getElementById('btn-close-overlay-preview');
+
+        function openOverlayPreview() {
+            if (!overlayPreviewModal || !overlayPreviewFrame) return;
+            overlayPreviewFrame.src = '/overlay.html';
+            overlayPreviewModal.classList.remove('hidden');
+        }
+
+        function closeOverlayPreview() {
+            if (!overlayPreviewModal || !overlayPreviewFrame) return;
+            overlayPreviewModal.classList.add('hidden');
+            // Libera la conexión eel y el loop de telemetría del iframe al cerrarlo,
+            // en vez de dejarlo corriendo en segundo plano consumiendo CPU/RAM.
+            overlayPreviewFrame.src = 'about:blank';
+        }
+
+        if (btnPreviewOverlay) btnPreviewOverlay.addEventListener('click', openOverlayPreview);
+        if (btnCloseOverlayPreview) btnCloseOverlayPreview.addEventListener('click', closeOverlayPreview);
+        if (overlayPreviewModal) {
+            overlayPreviewModal.addEventListener('click', (e) => {
+                if (e.target === overlayPreviewModal) closeOverlayPreview();
+            });
+        }
 
         const btnInspectLiveJson = document.getElementById('btn-inspect-live-json');
         const jsonModal = document.getElementById('json-modal');
@@ -892,7 +933,13 @@
         function updateStatusUI(status, label) {
             if (!statusText || !statusDot) return;
             statusText.textContent = label;
-            statusDot.className = "w-2.5 h-2.5 rounded-full pulse-indicator";
+            // La animación infinita solo corre mientras "conectando": dejarla
+            // siempre activa fuerza al compositor a recalcular el blur del
+            // glass-card contenedor en cada frame, para siempre, incluso con
+            // la app inactiva (esto competía por GPU con Rocket League).
+            statusDot.className = status === 'connecting'
+                ? "w-2.5 h-2.5 rounded-full pulse-indicator"
+                : "w-2.5 h-2.5 rounded-full";
             statusText.className = "text-xs font-bold uppercase tracking-wide";
             if (status === 'connected') {
                 statusDot.classList.add('bg-emerald-500');
@@ -962,6 +1009,11 @@
                     details = `🏁 ¡Comienza la ronda!`;
                 } else if (eventName === 'CountdownBegin') {
                     details = `⏱️ Cuenta regresiva iniciada`;
+                } else if (eventName === 'GoalScored') {
+                    // Redundante: el gol ya se loguea abajo al detectar el
+                    // cambio de marcador ("¡GOL DEL EQUIPO...!"), con el
+                    // equipo correcto en vez del nombre crudo del evento.
+                    return;
                 } else {
                     details = `ℹ️ Evento: ${eventName}`;
                 }
@@ -1017,20 +1069,8 @@
                     speedKmh = Math.round(rawBallSpeed);
                 }
 
-                if (matchTimer) matchTimer.textContent = formatTime(time);
-                if (ballSpeed) ballSpeed.textContent = speedKmh;
-
-                if (game.PlaylistId !== undefined && matchMode) {
-                    matchMode.textContent = playlistNames[game.PlaylistId] || `Playlist ID ${game.PlaylistId}`;
-                }
-                if (game.Arena && matchArena) {
-                    matchArena.textContent = arenaNames[game.Arena.toLowerCase()] || game.Arena;
-                }
-                if (game.bOvertime && overtimeBadge) {
-                    overtimeBadge.classList.remove('hidden');
-                } else if (overtimeBadge) {
-                    overtimeBadge.classList.add('hidden');
-                }
+                latestGameSnapshot = { time, speedKmh, playlistId: game.PlaylistId, arena: game.Arena, overtime: !!game.bOvertime };
+                scheduleUIFlush();
             }
 
             const players = data.Players || data.players;
@@ -1086,39 +1126,80 @@
                     userStats.lastShots = targetUser.Shots !== undefined ? targetUser.Shots : 0;
                     userStats.lastTouches = targetUser.Touches !== undefined ? targetUser.Touches : 0;
                     
-                    if (targetPlayerBadge) {
-                        targetPlayerBadge.textContent = `TARGET FOCUS: ${(targetUser.Name || targetUser.name || 'JUGADOR').toUpperCase()}`;
-                    }
-                    
-                    updateProStatsDashboard(targetUser, speedKmh);
+                    latestTargetSnapshot = targetUser;
+                    latestTargetSpeedKmh = speedKmh;
+                    scheduleUIFlush();
                 }
             }
         }
 
+        // La telemetría puede llegar hasta a 120 Hz (según el slider de frecuencia),
+        // muy por encima de lo que la pantalla puede pintar. Las lecturas se acumulan
+        // en userStats en cada paquete (arriba) para no perder precisión estadística,
+        // pero las ~20 escrituras al DOM del dashboard se agrupan y aplican como
+        // máximo una vez por frame de pantalla, evitando reflow/paint innecesarios.
+        let pendingUIFlush = false;
+        let latestGameSnapshot = null;
+        let latestTargetSnapshot = null;
+        let latestTargetSpeedKmh = 0;
+
+        function scheduleUIFlush() {
+            if (pendingUIFlush) return;
+            pendingUIFlush = true;
+            requestAnimationFrame(flushUIUpdate);
+        }
+
+        function flushUIUpdate() {
+            pendingUIFlush = false;
+
+            if (latestGameSnapshot) {
+                const g = latestGameSnapshot;
+                if (matchTimer) matchTimer.textContent = formatTime(g.time);
+                if (ballSpeed) ballSpeed.textContent = g.speedKmh;
+                if (g.playlistId !== undefined && matchMode) {
+                    matchMode.textContent = playlistNames[g.playlistId] || `Playlist ID ${g.playlistId}`;
+                }
+                if (g.arena && matchArena) {
+                    matchArena.textContent = arenaNames[g.arena.toLowerCase()] || g.arena;
+                }
+                if (overtimeBadge) overtimeBadge.classList.toggle('hidden', !g.overtime);
+            }
+
+            if (latestTargetSnapshot) {
+                if (targetPlayerBadge) {
+                    targetPlayerBadge.textContent = `TARGET FOCUS: ${(latestTargetSnapshot.Name || latestTargetSnapshot.name || 'JUGADOR').toUpperCase()}`;
+                }
+                updateProStatsDashboard(latestTargetSnapshot, latestTargetSpeedKmh);
+            }
+        }
+
+        // Cacheadas una sola vez: antes se re-consultaban con getElementById en
+        // cada paquete de telemetría (hasta 120 veces por segundo).
+        const dbAirPct = document.getElementById('db-air-pct');
+        const dbGroundPct = document.getElementById('db-ground-pct');
+        const dbAirBar = document.getElementById('db-air-bar');
+        const dbGroundBar = document.getElementById('db-ground-bar');
+
+        const dbAvgSpeed = document.getElementById('db-avg-speed');
+        const dbCurrentSpeed = document.getElementById('db-current-speed');
+        const dbSupersonicPct = document.getElementById('db-supersonic-pct');
+        const dbSupersonicBadge = document.getElementById('db-supersonic-badge');
+
+        const dbBoostConsumed = document.getElementById('db-boost-consumed');
+        const dbBoostPickedUp = document.getElementById('db-boost-picked-up');
+        const dbBoostNonSupersonicPct = document.getElementById('db-boost-non-supersonic-pct');
+        const dbBoostEfficiency = document.getElementById('db-boost-efficiency');
+
+        const dbTouches = document.getElementById('db-touches');
+        const dbScore = document.getElementById('db-score');
+        const dbDemos = document.getElementById('db-demos');
+        const dbGoals = document.getElementById('db-goals');
+        const dbShots = document.getElementById('db-shots');
+        const dbSaves = document.getElementById('db-saves');
+        const dbAssists = document.getElementById('db-assists');
+        let isSupersonicBadgeOn = false;
+
         function updateProStatsDashboard(player, currentSpeedKmh) {
-            const dbAirPct = document.getElementById('db-air-pct');
-            const dbGroundPct = document.getElementById('db-ground-pct');
-            const dbAirBar = document.getElementById('db-air-bar');
-            const dbGroundBar = document.getElementById('db-ground-bar');
-            
-            const dbAvgSpeed = document.getElementById('db-avg-speed');
-            const dbCurrentSpeed = document.getElementById('db-current-speed');
-            const dbSupersonicPct = document.getElementById('db-supersonic-pct');
-            const dbSupersonicBadge = document.getElementById('db-supersonic-badge');
-            
-            const dbBoostConsumed = document.getElementById('db-boost-consumed');
-            const dbBoostPickedUp = document.getElementById('db-boost-picked-up');
-            const dbBoostNonSupersonicPct = document.getElementById('db-boost-non-supersonic-pct');
-            const dbBoostEfficiency = document.getElementById('db-boost-efficiency');
-            
-            const dbTouches = document.getElementById('db-touches');
-            const dbScore = document.getElementById('db-score');
-            const dbDemos = document.getElementById('db-demos');
-            const dbGoals = document.getElementById('db-goals');
-            const dbShots = document.getElementById('db-shots');
-            const dbSaves = document.getElementById('db-saves');
-            const dbAssists = document.getElementById('db-assists');
-            
             const total = userStats.totalFrames || 1;
             const airPct = Math.round((userStats.airFrames / total) * 100);
             const groundPct = 100 - airPct;
@@ -1142,8 +1223,9 @@
             if (dbCurrentSpeed) dbCurrentSpeed.textContent = `${currentSpeedKmh} km/h`;
             if (dbSupersonicPct) dbSupersonicPct.textContent = `${supersonicPct}%`;
             
-            if (dbSupersonicBadge) {
-                if (currentSpeedKmh >= 80) {
+            if (dbSupersonicBadge && (currentSpeedKmh >= 80) !== isSupersonicBadgeOn) {
+                isSupersonicBadgeOn = currentSpeedKmh >= 80;
+                if (isSupersonicBadgeOn) {
                     dbSupersonicBadge.className = "px-2.5 py-1 rounded-full text-[10px] font-black uppercase bg-cyan-500/20 text-cyan-400 border border-cyan-500/30 animate-pulse shadow-[0_0_8px_rgba(34,211,238,0.3)]";
                     dbSupersonicBadge.textContent = "Supersónico";
                 } else {
@@ -1303,7 +1385,10 @@
 
         async function loadTeamConfig() {
             if (overlayUrlInput) {
-                overlayUrlInput.value = 'http://localhost:8000/overlay.html';
+                // Usa el origen real de la página (host:puerto donde corre
+                // este panel) en vez de un "8000" fijo, para que la URL de
+                // OBS quede siempre correcta si ese puerto cambia.
+                overlayUrlInput.value = `${window.location.origin}/overlay.html`;
             }
             try {
                 const cfg = await eel.get_team_config()();
