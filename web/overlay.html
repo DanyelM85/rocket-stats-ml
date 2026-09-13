@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Overlay OBS - Rocket League Stats</title>
+<style>
+    :root {
+        --blue: #3978ff;
+        --orange: #ff8a00;
+    }
+    html, body {
+        margin: 0;
+        padding: 0;
+        background: transparent;
+        font-family: 'Segoe UI', system-ui, -apple-system, Arial, sans-serif;
+        overflow: hidden;
+    }
+    #scorebug {
+        position: absolute;
+        top: 18px;
+        left: 50%;
+        transform: translateX(-50%);
+        display: flex;
+        align-items: stretch;
+        background: rgba(10, 12, 20, 0.82);
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 4px 18px rgba(0,0,0,0.45);
+        border: 1px solid rgba(255,255,255,0.08);
+        min-width: 460px;
+    }
+    .team-block {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 16px;
+        font-weight: 800;
+        font-size: 18px;
+        color: #fff;
+        letter-spacing: 0.5px;
+        min-width: 140px;
+    }
+    .team-block.blue { background: linear-gradient(90deg, rgba(57,120,255,0.35), rgba(57,120,255,0.12)); justify-content: flex-end; text-align: right; }
+    .team-block.orange { background: linear-gradient(270deg, rgba(255,138,0,0.35), rgba(255,138,0,0.12)); justify-content: flex-start; }
+    .team-logo {
+        width: 26px;
+        height: 26px;
+        object-fit: contain;
+        border-radius: 4px;
+        display: none;
+    }
+    .score-center {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 8px 14px;
+        background: rgba(255,255,255,0.04);
+        font-family: 'Consolas', monospace;
+    }
+    .score-num {
+        font-size: 26px;
+        font-weight: 900;
+        color: #fff;
+        min-width: 28px;
+        text-align: center;
+    }
+    .score-sep { color: rgba(255,255,255,0.35); font-size: 20px; font-weight: 700; }
+    #meta-row {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 6px 12px;
+        border-left: 1px solid rgba(255,255,255,0.08);
+        gap: 2px;
+    }
+    #timer {
+        font-family: 'Consolas', monospace;
+        font-size: 15px;
+        font-weight: 700;
+        color: #e2e8f0;
+    }
+    #overtime-tag {
+        font-size: 9px;
+        font-weight: 800;
+        color: #fbbf24;
+        letter-spacing: 1px;
+        display: none;
+    }
+    #stats-strip {
+        position: absolute;
+        top: 74px;
+        left: 50%;
+        transform: translateX(-50%);
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        background: rgba(10, 12, 20, 0.78);
+        border: 1px solid rgba(255,255,255,0.08);
+        border-radius: 8px;
+        padding: 6px 14px;
+        font-size: 12px;
+        font-weight: 700;
+        color: #cbd5e1;
+        opacity: 0;
+        transition: opacity 0.4s ease;
+        white-space: nowrap;
+    }
+    #stats-strip.visible { opacity: 1; }
+    #stats-strip .stat-value { color: #fff; font-family: 'Consolas', monospace; }
+    #stats-strip .boost-bar-track {
+        width: 46px;
+        height: 6px;
+        background: rgba(255,255,255,0.1);
+        border-radius: 3px;
+        overflow: hidden;
+        display: inline-block;
+        vertical-align: middle;
+        margin-left: 4px;
+    }
+    #stats-strip .boost-bar-fill {
+        height: 100%;
+        background: #22d3ee;
+        border-radius: 3px;
+        transition: width 0.2s ease;
+    }
+    #conn-dot {
+        position: absolute;
+        top: 8px;
+        right: 8px;
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: #64748b;
+        box-shadow: 0 0 6px rgba(0,0,0,0.6);
+    }
+    #conn-dot.connected { background: #10b981; }
+    #conn-dot.disconnected { background: #ef4444; }
+</style>
+</head>
+<body>
+    <div id="scorebug">
+        <div class="team-block blue">
+            <span id="blue-name">AZUL</span>
+            <img id="blue-logo" class="team-logo" alt="">
+        </div>
+        <div class="score-center">
+            <span id="blue-score" class="score-num">0</span>
+            <span class="score-sep">:</span>
+            <span id="orange-score" class="score-num">0</span>
+        </div>
+        <div class="team-block orange">
+            <img id="orange-logo" class="team-logo" alt="">
+            <span id="orange-name">NARANJA</span>
+        </div>
+        <div id="meta-row">
+            <span id="timer">05:00</span>
+            <span id="overtime-tag">PRÓRROGA</span>
+        </div>
+    </div>
+
+    <div id="stats-strip">
+        <span id="target-name">-</span>
+        <span>BOOST <span id="target-boost" class="stat-value">0%</span><span class="boost-bar-track"><span id="target-boost-bar" class="boost-bar-fill" style="width:0%"></span></span></span>
+        <span>VEL <span id="target-speed" class="stat-value">0</span> km/h</span>
+        <span>SCORE <span id="target-score" class="stat-value">0</span></span>
+    </div>
+
+    <div id="conn-dot"></div>
+
+    <script type="text/javascript" src="/eel.js"></script>
+    <script>
+        const blueNameEl = document.getElementById('blue-name');
+        const orangeNameEl = document.getElementById('orange-name');
+        const blueLogoEl = document.getElementById('blue-logo');
+        const orangeLogoEl = document.getElementById('orange-logo');
+        const blueScoreEl = document.getElementById('blue-score');
+        const orangeScoreEl = document.getElementById('orange-score');
+        const timerEl = document.getElementById('timer');
+        const overtimeTagEl = document.getElementById('overtime-tag');
+        const connDotEl = document.getElementById('conn-dot');
+
+        const statsStripEl = document.getElementById('stats-strip');
+        const targetNameEl = document.getElementById('target-name');
+        const targetBoostEl = document.getElementById('target-boost');
+        const targetBoostBarEl = document.getElementById('target-boost-bar');
+        const targetSpeedEl = document.getElementById('target-speed');
+        const targetScoreEl = document.getElementById('target-score');
+
+        let defaultBlueName = "Azul";
+        let defaultOrangeName = "Naranja";
+
+        function applyTeamConfig(cfg) {
+            if (!cfg) return;
+            const blueName = cfg.blue_name || defaultBlueName;
+            const orangeName = cfg.orange_name || defaultOrangeName;
+            if (blueNameEl) blueNameEl.textContent = blueName.toUpperCase();
+            if (orangeNameEl) orangeNameEl.textContent = orangeName.toUpperCase();
+            if (blueLogoEl) {
+                if (cfg.blue_logo) {
+                    blueLogoEl.src = cfg.blue_logo;
+                    blueLogoEl.style.display = 'inline-block';
+                } else {
+                    blueLogoEl.style.display = 'none';
+                }
+            }
+            if (orangeLogoEl) {
+                if (cfg.orange_logo) {
+                    orangeLogoEl.src = cfg.orange_logo;
+                    orangeLogoEl.style.display = 'inline-block';
+                } else {
+                    orangeLogoEl.style.display = 'none';
+                }
+            }
+        }
+
+        eel.expose(on_team_config_update);
+        function on_team_config_update(cfg) {
+            applyTeamConfig(cfg);
+        }
+
+        eel.expose(on_status_change);
+        function on_status_change(status) {
+            if (!connDotEl) return;
+            connDotEl.className = status === 'connected' ? 'connected' : (status === 'connecting' ? '' : 'disconnected');
+        }
+
+        function formatTime(seconds) {
+            const m = Math.floor(seconds / 60);
+            const s = Math.floor(seconds % 60);
+            return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+        }
+
+        eel.expose(on_telemetry_data);
+        function on_telemetry_data(payload) {
+            const eventName = payload.Event || payload.event;
+            if (eventName && eventName !== 'UpdateState') return;
+
+            let data = payload.Data || payload.data;
+            if (!data) return;
+            if (typeof data === 'string') {
+                try { data = JSON.parse(data); } catch (e) { return; }
+            }
+
+            const game = data.Game || data.game;
+            if (game) {
+                let blueScoreVal = 0;
+                let orangeScoreVal = 0;
+                if (game.Teams || game.teams) {
+                    (game.Teams || game.teams).forEach(t => {
+                        const teamNum = t.TeamNum !== undefined ? t.TeamNum : t.team;
+                        const score = t.Score !== undefined ? t.Score : t.score;
+                        if (teamNum === 0) blueScoreVal = score;
+                        if (teamNum === 1) orangeScoreVal = score;
+                    });
+                } else {
+                    blueScoreVal = game.blue_score !== undefined ? game.blue_score : 0;
+                    orangeScoreVal = game.orange_score !== undefined ? game.orange_score : 0;
+                }
+                if (blueScoreEl) blueScoreEl.textContent = blueScoreVal;
+                if (orangeScoreEl) orangeScoreEl.textContent = orangeScoreVal;
+
+                const time = game.TimeSeconds !== undefined ? game.TimeSeconds : (game.time !== undefined ? game.time : 300);
+                if (timerEl) timerEl.textContent = formatTime(time);
+
+                if (overtimeTagEl) overtimeTagEl.style.display = game.bOvertime ? 'block' : 'none';
+            }
+
+            const players = data.Players || data.players;
+            if (players && players.length > 0) {
+                let targetUser = players.find(p => (p.Name || p.name || '').toLowerCase().includes('danyelm855'));
+                if (!targetUser) targetUser = players[0];
+
+                const boost = targetUser.Boost !== undefined ? targetUser.Boost : 0;
+                const speedVal = targetUser.Speed !== undefined ? targetUser.Speed : (targetUser.speed !== undefined ? targetUser.speed : 0);
+                let speedKmh;
+                if (speedVal > 300) speedKmh = Math.round(speedVal * 0.036);
+                else if (speedVal > 0 && speedVal <= 24) speedKmh = Math.round(speedVal * 3.6);
+                else speedKmh = Math.round(speedVal);
+
+                const score = targetUser.Score !== undefined ? targetUser.Score : 0;
+
+                if (targetNameEl) targetNameEl.textContent = (targetUser.Name || targetUser.name || '-').toUpperCase();
+                if (targetBoostEl) targetBoostEl.textContent = `${boost}%`;
+                if (targetBoostBarEl) targetBoostBarEl.style.width = `${boost}%`;
+                if (targetSpeedEl) targetSpeedEl.textContent = speedKmh;
+                if (targetScoreEl) targetScoreEl.textContent = score;
+                if (statsStripEl) statsStripEl.classList.add('visible');
+            }
+        }
+
+        (async () => {
+            try {
+                const cfg = await eel.get_team_config()();
+                applyTeamConfig(cfg);
+            } catch (err) {
+                console.error("Error al cargar configuración del marcador:", err);
+            }
+        })();
+    </script>
+</body>
+</html>

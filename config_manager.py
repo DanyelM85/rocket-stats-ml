@@ -11,22 +11,45 @@ DEFAULT_PATHS = [
 RELATIVE_INI_PATH = Path("TAGame/Config/DefaultStatsAPI.ini")
 CONFIG_JSON_PATH = Path("app_config.json")
 
-def load_saved_path() -> str | None:
+DEFAULT_TEAM_CONFIG = {
+    "blue_name": "Azul",
+    "orange_name": "Naranja",
+    "blue_logo": "",
+    "orange_logo": ""
+}
+
+def _load_app_config() -> dict:
     if CONFIG_JSON_PATH.exists():
         try:
             with open(CONFIG_JSON_PATH, "r", encoding="utf-8") as f:
-                data = json.load(f)
-                return data.get("rl_installation_path")
+                return json.load(f)
         except:
             pass
-    return None
+    return {}
+
+def _save_app_config(data: dict):
+    with open(CONFIG_JSON_PATH, "w", encoding="utf-8") as f:
+        json.dump(data, f, indent=4, ensure_ascii=False)
+
+def load_saved_path() -> str | None:
+    return _load_app_config().get("rl_installation_path")
 
 def save_installation_path(path_str: str):
     try:
-        with open(CONFIG_JSON_PATH, "w", encoding="utf-8") as f:
-            json.dump({"rl_installation_path": path_str}, f, indent=4, ensure_ascii=False)
+        data = _load_app_config()
+        data["rl_installation_path"] = path_str
+        _save_app_config(data)
     except Exception as e:
         print(f"Error al guardar la ruta de instalación en JSON: {e}")
+
+def load_team_config() -> dict:
+    cfg = _load_app_config().get("team_config", {})
+    return {**DEFAULT_TEAM_CONFIG, **cfg}
+
+def save_team_config(team_config: dict):
+    data = _load_app_config()
+    data["team_config"] = team_config
+    _save_app_config(data)
 
 def find_rl_installation() -> Path | None:
     saved = load_saved_path()

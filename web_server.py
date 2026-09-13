@@ -212,6 +212,24 @@ def save_and_apply_settings(path_str, port, send_rate):
     return {"success": True}
 
 @eel.expose
+def get_team_config():
+    from config_manager import load_team_config
+    return load_team_config()
+
+@eel.expose
+def set_team_config(blue_name, orange_name, blue_logo, orange_logo):
+    from config_manager import save_team_config, DEFAULT_TEAM_CONFIG
+    cfg = {
+        "blue_name": (blue_name or "").strip()[:24] or DEFAULT_TEAM_CONFIG["blue_name"],
+        "orange_name": (orange_name or "").strip()[:24] or DEFAULT_TEAM_CONFIG["orange_name"],
+        "blue_logo": blue_logo or "",
+        "orange_logo": orange_logo or ""
+    }
+    save_team_config(cfg)
+    eel.on_team_config_update(cfg)
+    return {"success": True}
+
+@eel.expose
 def toggle_live_capture(active):
     global _capture_thread, _current_port
     if active:
