@@ -538,7 +538,7 @@
 
         btnApplySettings.addEventListener('click', async () => {
             const path = folderPathInput.value.trim();
-            const port = parseInt(apiPortInput.value) || 49123;
+            const port = parseInt(apiPortInput.value) || 49124;
             const rate = parseFloat(sendRateInput.value) || 30.0;
             showSettingsStatus('Guardando ajustes y modificando archivo .ini...', 'loading');
             try {

@@ -101,6 +101,9 @@ class RLConnectionThread(threading.Thread):
                 while self.running:
                     data = self.socket.recv(8192)
                     if not data:
+                        if self.running:
+                            _fire(eel.on_status_change("disconnected", "Rocket League cerró la conexión. Reintentando en 3 segundos..."))
+                            time.sleep(3)
                         break
                     
                     decoded = data.decode('utf-8', errors='ignore')
@@ -181,6 +184,13 @@ def get_current_state():
     if ini_path and ini_path.exists():
         port, send_rate = read_ini_values(ini_path)
         has_existing = True
+        # Sincronizar con el .ini real: si no se hace, "Escuchar Socket Local" se
+        # conecta con el puerto por defecto en memoria en vez del que ya está
+        # configurado en el juego, y la conexión se cae apenas se abre.
+        _current_port = port
+        _current_send_rate = send_rate
+        if detected_path:
+            _current_path = detected_path
     return {
         "path": detected_path or "",
         "port": port,
