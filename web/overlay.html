@@ -5,9 +5,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Overlay OBS - The Community League</title>
 <link rel="icon" type="image/png" href="/logo_peri.png">
+<link rel="stylesheet" href="/tailwind.min.css">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:ital,wght@0,600;0,700;1,700&family=Rajdhani:wght@600;700&family=Teko:wght@600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <style>
     :root {
         --team-blue: #0088ff;
@@ -644,13 +646,16 @@
     #conn-dot.disconnected { background: #ef4444; box-shadow: 0 0 8px #ef4444; }
 </style>
 </head>
-<body>
+<body class="bg-transparent text-white font-sans overflow-hidden select-none">
 
     <!-- SCOREBUG CENTRAL -->
     <div id="scorebug-container">
-        <div id="tournament-header">
-            <span id="league-badge"><img id="league-logo" src="/The_Comunity_League.webp" alt="The Community League">THE COMMUNITY LEAGUE</span>
-            <div id="series-info">
+        <div id="tournament-header" class="flex items-center gap-3 bg.slate-950/90 px-5 py-1 rounded-t border border-slate-700/50 shadow-lg">
+            <span id="league-badge" class="flex items-center gap-2 text-xs font-bold tracking-widest text-slate-100 uppercase">
+                <img id="league-logo" src="/The_Comunity_League.webp" alt="The Community League" class="w-5 h-5 object-contain filter drop-shadow">
+                THE COMMUNITY LEAGUE
+            </span>
+            <div id="series-info" class="flex items-center gap-2 text-xs font-bold tracking-wider text-slate-300 border-l border-slate-700/60 pl-3">
                 <span id="series-phase">FINALES</span>
                 <div id="pips-blue" class="pip-container"></div>
                 <span>-</span>
@@ -659,26 +664,26 @@
             </div>
         </div>
 
-        <div id="scorebug" class="glass-panel">
-            <div class="team-block blue">
-                <span id="blue-name" class="team-name">AZUL</span>
-                <img id="blue-logo" class="team-logo" alt="Logo Azul">
+        <div id="scorebug" class="glass-panel flex items-stretch h-14 min-w-[720px] rounded-lg overflow-hidden relative">
+            <div class="team-block blue flex-1 flex items-center justify-end px-7 gap-4 uppercase font-bold tracking-wider relative overflow-hidden">
+                <span id="blue-name" class="team-name truncate">AZUL</span>
+                <img id="blue-logo" class="team-logo w-11 h-11 object-contain hidden" alt="Logo Azul">
             </div>
 
-            <div class="score-center">
-                <span id="blue-score" class="score-num">0</span>
-                <span class="score-divider">:</span>
-                <span id="orange-score" class="score-num">0</span>
+            <div class="score-center flex items-center justify-center bg-slate-950/95 px-4 min-w-[150px] gap-3 border-x border-slate-800/80">
+                <span id="blue-score" class="score-num font-mono text-4xl font-bold text-white text-center min-w-[32px]">0</span>
+                <span class="score-divider text-2xl text-slate-500 font-mono">-</span>
+                <span id="orange-score" class="score-num font-mono text-4xl font-bold text-white text-center min-w-[32px]">0</span>
             </div>
 
-            <div id="timer-block">
-                <span id="timer">05:00</span>
-                <span id="overtime-tag">PRÓRROGA</span>
+            <div id="timer-block" class="flex flex-col items-center justify-center min-w-[78px] bg-slate-900/90 px-3 border-l border-slate-800/80">
+                <span id="timer" class="font-mono text-3xl font-bold text-slate-100 leading-none tracking-wider">05:00</span>
+                <span id="overtime-tag" class="text-[9px] font-bold text-rose-500 tracking-widest uppercase hidden mt-0.5">PRÓRROGA</span>
             </div>
 
-            <div class="team-block orange">
-                <img id="orange-logo" class="team-logo" alt="Logo Naranja">
-                <span id="orange-name" class="team-name">NARANJA</span>
+            <div class="team-block orange flex-1 flex items-center justify-start px-7 gap-4 uppercase font-bold tracking-wider relative overflow-hidden">
+                <img id="orange-logo" class="team-logo w-11 h-11 object-contain hidden" alt="Logo Naranja">
+                <span id="orange-name" class="team-name truncate">NARANJA</span>
             </div>
         </div>
     </div>
@@ -932,8 +937,6 @@
             const eventName = payload.Event || payload.event;
 
             if (eventName === 'GoalScored') {
-                // Sin banner de gol: solo se usa este evento para el color
-                // activo del equipo que anotó (marcador/rosters/HUD).
                 let data = payload.Data || payload.data;
                 if (typeof data === 'string') { try { data = JSON.parse(data); } catch (e) { return; } }
                 if (!data) return;
