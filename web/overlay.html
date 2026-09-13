@@ -3,127 +3,256 @@
 <head>
 <meta charset="UTF-8">
 <title>Overlay OBS - Rocket League Stats</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@600;700&display=swap" rel="stylesheet">
 <style>
     :root {
-        --blue: #3978ff;
-        --orange: #ff8a00;
+        --team-blue: #3978ff;
+        --team-orange: #ff8a00;
+        --panel-bg: rgba(8, 10, 16, 0.75);
+        --panel-border: rgba(255,255,255,0.10);
     }
     html, body {
         margin: 0;
         padding: 0;
         background: transparent;
-        font-family: 'Segoe UI', system-ui, -apple-system, Arial, sans-serif;
+        font-family: 'Rajdhani', 'Arial Narrow', Arial, sans-serif;
         overflow: hidden;
+        color: #fff;
     }
-    #scorebug {
+    * { box-sizing: border-box; }
+
+    .glass {
+        background: var(--panel-bg);
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+        border: 1px solid var(--panel-border);
+    }
+
+    /* ---------- MARCADOR CENTRAL ---------- */
+    #scorebug-wrap {
         position: absolute;
-        top: 18px;
+        top: 14px;
         left: 50%;
         transform: translateX(-50%);
         display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+    #series-row {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        color: #cbd5e1;
+        margin-bottom: 4px;
+        opacity: 0.9;
+    }
+    #series-phase-tag { color: #94a3b8; }
+    #series-pips { display: flex; align-items: center; gap: 8px; }
+    .series-score { font-weight: 700; }
+    .series-score.blue { color: var(--team-blue); }
+    .series-score.orange { color: var(--team-orange); }
+
+    #scorebug {
+        display: flex;
         align-items: stretch;
-        background: rgba(10, 12, 20, 0.82);
-        border-radius: 10px;
         overflow: hidden;
-        box-shadow: 0 4px 18px rgba(0,0,0,0.45);
-        border: 1px solid rgba(255,255,255,0.08);
+        box-shadow: 0 6px 22px rgba(0,0,0,0.5);
+        clip-path: polygon(14px 0, 100% 0, 100% 100%, 0 100%, 0 14px);
         min-width: 460px;
     }
     .team-block {
         display: flex;
         align-items: center;
         gap: 8px;
-        padding: 8px 16px;
-        font-weight: 800;
-        font-size: 18px;
-        color: #fff;
+        padding: 9px 18px;
+        font-weight: 700;
+        font-size: 20px;
+        text-transform: uppercase;
         letter-spacing: 0.5px;
-        min-width: 140px;
+        color: #fff;
+        min-width: 150px;
     }
-    .team-block.blue { background: linear-gradient(90deg, rgba(57,120,255,0.35), rgba(57,120,255,0.12)); justify-content: flex-end; text-align: right; }
-    .team-block.orange { background: linear-gradient(270deg, rgba(255,138,0,0.35), rgba(255,138,0,0.12)); justify-content: flex-start; }
-    .team-logo {
-        width: 26px;
-        height: 26px;
-        object-fit: contain;
-        border-radius: 4px;
-        display: none;
-    }
+    .team-block.blue { background: linear-gradient(90deg, color-mix(in srgb, var(--team-blue) 45%, transparent), color-mix(in srgb, var(--team-blue) 12%, transparent)); justify-content: flex-end; text-align: right; }
+    .team-block.orange { background: linear-gradient(270deg, color-mix(in srgb, var(--team-orange) 45%, transparent), color-mix(in srgb, var(--team-orange) 12%, transparent)); justify-content: flex-start; }
+    .team-logo { width: 26px; height: 26px; object-fit: contain; border-radius: 4px; display: none; }
+
     .score-center {
         display: flex;
         align-items: center;
         gap: 10px;
-        padding: 8px 14px;
-        background: rgba(255,255,255,0.04);
-        font-family: 'Consolas', monospace;
+        padding: 8px 16px;
+        background: rgba(255,255,255,0.05);
+        font-variant-numeric: tabular-nums;
     }
-    .score-num {
-        font-size: 26px;
-        font-weight: 900;
-        color: #fff;
-        min-width: 28px;
-        text-align: center;
-    }
-    .score-sep { color: rgba(255,255,255,0.35); font-size: 20px; font-weight: 700; }
+    .score-num { font-size: 28px; font-weight: 700; min-width: 30px; text-align: center; }
+    .score-sep { color: rgba(255,255,255,0.35); font-size: 22px; font-weight: 700; }
+
     #meta-row {
         display: flex;
         flex-direction: column;
         align-items: center;
         justify-content: center;
-        padding: 6px 12px;
+        padding: 6px 14px;
         border-left: 1px solid rgba(255,255,255,0.08);
         gap: 2px;
     }
-    #timer {
-        font-family: 'Consolas', monospace;
-        font-size: 15px;
-        font-weight: 700;
-        color: #e2e8f0;
-    }
-    #overtime-tag {
-        font-size: 9px;
-        font-weight: 800;
-        color: #fbbf24;
-        letter-spacing: 1px;
-        display: none;
-    }
-    #stats-strip {
+    #timer { font-size: 17px; font-weight: 700; color: #e2e8f0; font-variant-numeric: tabular-nums; }
+    #overtime-tag { font-size: 10px; font-weight: 700; color: #fbbf24; letter-spacing: 1px; display: none; }
+
+    /* ---------- ROSTERS LATERALES ---------- */
+    .roster {
         position: absolute;
-        top: 74px;
-        left: 50%;
-        transform: translateX(-50%);
+        top: 90px;
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+        min-width: 190px;
+        padding: 8px;
+        border-radius: 6px;
+    }
+    #roster-blue { left: 14px; border-left: 3px solid var(--team-blue); clip-path: polygon(0 0, 100% 0, 100% 100%, 10px 100%, 0 calc(100% - 10px)); }
+    #roster-orange { right: 14px; border-right: 3px solid var(--team-orange); clip-path: polygon(0 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%); }
+
+    .roster-row {
         display: flex;
         align-items: center;
-        gap: 14px;
-        background: rgba(10, 12, 20, 0.78);
-        border: 1px solid rgba(255,255,255,0.08);
-        border-radius: 8px;
-        padding: 6px 14px;
+        gap: 6px;
+        padding: 3px 6px;
         font-size: 12px;
-        font-weight: 700;
-        color: #cbd5e1;
-        opacity: 0;
-        transition: opacity 0.4s ease;
-        white-space: nowrap;
+        font-weight: 600;
+        transition: opacity 0.25s ease;
     }
-    #stats-strip.visible { opacity: 1; }
-    #stats-strip .stat-value { color: #fff; font-family: 'Consolas', monospace; }
-    #stats-strip .boost-bar-track {
+    .roster-row.demoed { opacity: 0.45; }
+    .roster-row-name {
+        flex: 1;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        text-transform: uppercase;
+    }
+    .roster-row-boost-track {
         width: 46px;
         height: 6px;
         background: rgba(255,255,255,0.1);
         border-radius: 3px;
         overflow: hidden;
-        display: inline-block;
-        vertical-align: middle;
-        margin-left: 4px;
     }
-    #stats-strip .boost-bar-fill {
+    .roster-row-boost-fill {
         height: 100%;
         background: #22d3ee;
-        border-radius: 3px;
-        transition: width 0.2s ease;
+        transition: width 0.2s ease, background 0.2s ease;
     }
+    .roster-row-boost-num {
+        font-size: 10px;
+        color: #cbd5e1;
+        width: 26px;
+        text-align: right;
+        font-variant-numeric: tabular-nums;
+    }
+    .roster-row-demo-badge {
+        display: none;
+        font-size: 8px;
+        font-weight: 700;
+        color: #ef4444;
+        border: 1px solid #ef4444;
+        border-radius: 3px;
+        padding: 0 3px;
+        letter-spacing: 0.5px;
+    }
+    .roster-row.demoed .roster-row-demo-badge { display: inline-block; }
+
+    /* ---------- HUD INFERIOR: JUGADOR EN CAMARA ---------- */
+    #active-player-panel {
+        position: absolute;
+        bottom: 18px;
+        left: 14px;
+        min-width: 240px;
+        padding: 10px 16px;
+        border-radius: 6px;
+        clip-path: polygon(10px 0, 100% 0, 100% 100%, 0 100%, 0 10px);
+        opacity: 0;
+        transition: opacity 0.4s ease;
+        border-left: 3px solid var(--active-color, var(--team-blue));
+    }
+    #active-player-panel.visible { opacity: 1; }
+    #active-player-name {
+        font-size: 16px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 4px;
+    }
+    #active-player-stats {
+        display: flex;
+        gap: 14px;
+        font-size: 11px;
+        font-weight: 600;
+        color: #cbd5e1;
+        text-transform: uppercase;
+    }
+    #active-player-stats b { color: #fff; font-size: 13px; display: block; font-variant-numeric: tabular-nums; }
+
+    /* ---------- MEDIDOR DE BOOST + VELOCIMETRO ---------- */
+    #boost-meter {
+        position: absolute;
+        bottom: 18px;
+        right: 14px;
+        width: 96px;
+        height: 96px;
+        border-radius: 50%;
+        opacity: 0;
+        transition: opacity 0.4s ease;
+    }
+    #boost-meter.visible { opacity: 1; }
+    #boost-meter svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+    .ring-bg { fill: none; stroke: rgba(255,255,255,0.12); stroke-width: 8; }
+    .ring-fill { fill: none; stroke: #22d3ee; stroke-width: 8; stroke-linecap: round; transition: stroke-dashoffset 0.25s ease, stroke 0.25s ease; }
+    .boost-meter-center {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        line-height: 1.1;
+    }
+    #boost-meter-pct { font-size: 20px; font-weight: 700; font-variant-numeric: tabular-nums; }
+    #boost-meter-speed { font-size: 10px; font-weight: 600; color: #94a3b8; text-transform: uppercase; }
+
+    /* ---------- BANNER DE GOL ---------- */
+    #goal-banner {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%) scale(0.85);
+        text-align: center;
+        padding: 22px 46px;
+        border-radius: 8px;
+        clip-path: polygon(18px 0, 100% 0, 100% calc(100% - 18px), calc(100% - 18px) 100%, 0 100%, 0 18px);
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.35s ease, transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+        box-shadow: 0 0 40px var(--active-color, var(--team-blue));
+        border: 1px solid var(--active-color, var(--team-blue));
+    }
+    #goal-banner.show { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+    #goal-banner-title {
+        font-size: 42px;
+        font-weight: 700;
+        letter-spacing: 4px;
+        color: var(--active-color, var(--team-blue));
+        text-shadow: 0 0 18px var(--active-color, var(--team-blue));
+    }
+    #goal-scorer { font-size: 22px; font-weight: 700; text-transform: uppercase; margin-top: 4px; }
+    #goal-assist { font-size: 13px; font-weight: 600; color: #cbd5e1; margin-top: 2px; text-transform: uppercase; }
+    #goal-speed { font-size: 13px; font-weight: 600; color: #94a3b8; margin-top: 6px; }
+
     #conn-dot {
         position: absolute;
         top: 8px;
@@ -132,38 +261,67 @@
         height: 8px;
         border-radius: 50%;
         background: #64748b;
-        box-shadow: 0 0 6px rgba(0,0,0,0.6);
     }
     #conn-dot.connected { background: #10b981; }
     #conn-dot.disconnected { background: #ef4444; }
 </style>
 </head>
 <body>
-    <div id="scorebug">
-        <div class="team-block blue">
-            <span id="blue-name">AZUL</span>
-            <img id="blue-logo" class="team-logo" alt="">
+    <div id="scorebug-wrap">
+        <div id="series-row">
+            <span id="series-phase-tag"></span>
+            <span id="series-pips"><span id="series-blue-pip" class="series-score blue">0</span><span>-</span><span id="series-orange-pip" class="series-score orange">0</span> <span id="series-format-tag"></span></span>
         </div>
-        <div class="score-center">
-            <span id="blue-score" class="score-num">0</span>
-            <span class="score-sep">:</span>
-            <span id="orange-score" class="score-num">0</span>
-        </div>
-        <div class="team-block orange">
-            <img id="orange-logo" class="team-logo" alt="">
-            <span id="orange-name">NARANJA</span>
-        </div>
-        <div id="meta-row">
-            <span id="timer">05:00</span>
-            <span id="overtime-tag">PRÓRROGA</span>
+        <div id="scorebug" class="glass">
+            <div class="team-block blue">
+                <span id="blue-name">AZUL</span>
+                <img id="blue-logo" class="team-logo" alt="">
+            </div>
+            <div class="score-center">
+                <span id="blue-score" class="score-num">0</span>
+                <span class="score-sep">:</span>
+                <span id="orange-score" class="score-num">0</span>
+            </div>
+            <div class="team-block orange">
+                <img id="orange-logo" class="team-logo" alt="">
+                <span id="orange-name">NARANJA</span>
+            </div>
+            <div id="meta-row">
+                <span id="timer">05:00</span>
+                <span id="overtime-tag">PRÓRROGA</span>
+            </div>
         </div>
     </div>
 
-    <div id="stats-strip">
-        <span id="target-name">-</span>
-        <span>BOOST <span id="target-boost" class="stat-value">0%</span><span class="boost-bar-track"><span id="target-boost-bar" class="boost-bar-fill" style="width:0%"></span></span></span>
-        <span>VEL <span id="target-speed" class="stat-value">0</span> km/h</span>
-        <span>SCORE <span id="target-score" class="stat-value">0</span></span>
+    <div id="roster-blue" class="roster glass"></div>
+    <div id="roster-orange" class="roster glass"></div>
+
+    <div id="active-player-panel" class="glass">
+        <div id="active-player-name">-</div>
+        <div id="active-player-stats">
+            <span>Score <b id="ap-score">0</b></span>
+            <span>Goles <b id="ap-goals">0</b></span>
+            <span>Asist. <b id="ap-assists">0</b></span>
+            <span>Salv. <b id="ap-saves">0</b></span>
+        </div>
+    </div>
+
+    <div id="boost-meter">
+        <svg viewBox="0 0 100 100">
+            <circle class="ring-bg" cx="50" cy="50" r="42"></circle>
+            <circle id="ring-fill" class="ring-fill" cx="50" cy="50" r="42"></circle>
+        </svg>
+        <div class="boost-meter-center">
+            <span id="boost-meter-pct">0%</span>
+            <span id="boost-meter-speed">0 km/h</span>
+        </div>
+    </div>
+
+    <div id="goal-banner" class="glass">
+        <div id="goal-banner-title">¡GOL!</div>
+        <div id="goal-scorer">-</div>
+        <div id="goal-assist"></div>
+        <div id="goal-speed"></div>
     </div>
 
     <div id="conn-dot"></div>
@@ -180,12 +338,38 @@
         const overtimeTagEl = document.getElementById('overtime-tag');
         const connDotEl = document.getElementById('conn-dot');
 
-        const statsStripEl = document.getElementById('stats-strip');
-        const targetNameEl = document.getElementById('target-name');
-        const targetBoostEl = document.getElementById('target-boost');
-        const targetBoostBarEl = document.getElementById('target-boost-bar');
-        const targetSpeedEl = document.getElementById('target-speed');
-        const targetScoreEl = document.getElementById('target-score');
+        const seriesPhaseTagEl = document.getElementById('series-phase-tag');
+        const seriesFormatTagEl = document.getElementById('series-format-tag');
+        const seriesBluePipEl = document.getElementById('series-blue-pip');
+        const seriesOrangePipEl = document.getElementById('series-orange-pip');
+
+        const rosterBlueEl = document.getElementById('roster-blue');
+        const rosterOrangeEl = document.getElementById('roster-orange');
+        const rosterRowCache = { blue: new Map(), orange: new Map() };
+        let lastRosterKey = { blue: '', orange: '' };
+
+        const activePlayerPanelEl = document.getElementById('active-player-panel');
+        const activePlayerNameEl = document.getElementById('active-player-name');
+        const apScoreEl = document.getElementById('ap-score');
+        const apGoalsEl = document.getElementById('ap-goals');
+        const apAssistsEl = document.getElementById('ap-assists');
+        const apSavesEl = document.getElementById('ap-saves');
+
+        const boostMeterEl = document.getElementById('boost-meter');
+        const ringFillEl = document.getElementById('ring-fill');
+        const boostMeterPctEl = document.getElementById('boost-meter-pct');
+        const boostMeterSpeedEl = document.getElementById('boost-meter-speed');
+
+        const goalBannerEl = document.getElementById('goal-banner');
+        const goalScorerEl = document.getElementById('goal-scorer');
+        const goalAssistEl = document.getElementById('goal-assist');
+        const goalSpeedEl = document.getElementById('goal-speed');
+        let goalBannerTimeout = null;
+
+        const RING_RADIUS = 42;
+        const RING_CIRCUMFERENCE = 2 * Math.PI * RING_RADIUS;
+        ringFillEl.style.strokeDasharray = `${RING_CIRCUMFERENCE}`;
+        ringFillEl.style.strokeDashoffset = `${RING_CIRCUMFERENCE}`;
 
         let defaultBlueName = "Azul";
         let defaultOrangeName = "Naranja";
@@ -197,27 +381,28 @@
             if (blueNameEl) blueNameEl.textContent = blueName.toUpperCase();
             if (orangeNameEl) orangeNameEl.textContent = orangeName.toUpperCase();
             if (blueLogoEl) {
-                if (cfg.blue_logo) {
-                    blueLogoEl.src = cfg.blue_logo;
-                    blueLogoEl.style.display = 'inline-block';
-                } else {
-                    blueLogoEl.style.display = 'none';
-                }
+                if (cfg.blue_logo) { blueLogoEl.src = cfg.blue_logo; blueLogoEl.style.display = 'inline-block'; }
+                else { blueLogoEl.style.display = 'none'; }
             }
             if (orangeLogoEl) {
-                if (cfg.orange_logo) {
-                    orangeLogoEl.src = cfg.orange_logo;
-                    orangeLogoEl.style.display = 'inline-block';
-                } else {
-                    orangeLogoEl.style.display = 'none';
-                }
+                if (cfg.orange_logo) { orangeLogoEl.src = cfg.orange_logo; orangeLogoEl.style.display = 'inline-block'; }
+                else { orangeLogoEl.style.display = 'none'; }
             }
         }
 
-        eel.expose(on_team_config_update);
-        function on_team_config_update(cfg) {
-            applyTeamConfig(cfg);
+        function applySeriesConfig(cfg) {
+            if (!cfg) return;
+            if (seriesPhaseTagEl) seriesPhaseTagEl.textContent = cfg.phase ? cfg.phase.toUpperCase() : '';
+            if (seriesFormatTagEl) seriesFormatTagEl.textContent = (cfg.format || 'bo3').toUpperCase();
+            if (seriesBluePipEl) seriesBluePipEl.textContent = cfg.blue_series_score || 0;
+            if (seriesOrangePipEl) seriesOrangePipEl.textContent = cfg.orange_series_score || 0;
         }
+
+        eel.expose(on_team_config_update);
+        function on_team_config_update(cfg) { applyTeamConfig(cfg); }
+
+        eel.expose(on_series_config_update);
+        function on_series_config_update(cfg) { applySeriesConfig(cfg); }
 
         eel.expose(on_status_change);
         function on_status_change(status) {
@@ -231,9 +416,87 @@
             return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
         }
 
+        function toSpeedKmh(raw) {
+            if (raw > 300) return Math.round(raw * 0.036);
+            if (raw > 0 && raw <= 24) return Math.round(raw * 3.6);
+            return Math.round(raw);
+        }
+
+        function hexToCss(hex) {
+            if (!hex) return null;
+            const clean = hex.replace('#', '');
+            return /^[0-9a-fA-F]{6}$/.test(clean) ? `#${clean}` : null;
+        }
+
+        function updateRoster(side, players) {
+            const container = side === 'blue' ? rosterBlueEl : rosterOrangeEl;
+            const cache = rosterRowCache[side];
+            const key = players.map(p => p.Name || p.name || '').join('|');
+
+            if (key !== lastRosterKey[side]) {
+                container.innerHTML = '';
+                cache.clear();
+                players.forEach(p => {
+                    const name = p.Name || p.name || 'Jugador';
+                    const row = document.createElement('div');
+                    row.className = 'roster-row';
+                    row.innerHTML = `
+                        <span class="roster-row-name"></span>
+                        <span class="roster-row-boost-track"><span class="roster-row-boost-fill"></span></span>
+                        <span class="roster-row-boost-num"></span>
+                        <span class="roster-row-demo-badge">DEMO</span>
+                    `;
+                    row.querySelector('.roster-row-name').textContent = name;
+                    container.appendChild(row);
+                    cache.set(name, {
+                        row,
+                        fill: row.querySelector('.roster-row-boost-fill'),
+                        num: row.querySelector('.roster-row-boost-num')
+                    });
+                });
+                lastRosterKey[side] = key;
+            }
+
+            players.forEach(p => {
+                const name = p.Name || p.name || 'Jugador';
+                const entry = cache.get(name);
+                if (!entry) return;
+                const boost = p.Boost !== undefined ? p.Boost : (p.boost !== undefined ? p.boost : 0);
+                const demoed = p.bHasCar === false;
+                entry.fill.style.width = `${boost}%`;
+                entry.num.textContent = `${boost}%`;
+                entry.row.classList.toggle('demoed', demoed);
+            });
+        }
+
         eel.expose(on_telemetry_data);
         function on_telemetry_data(payload) {
             const eventName = payload.Event || payload.event;
+
+            if (eventName === 'GoalScored') {
+                let data = payload.Data || payload.data;
+                if (typeof data === 'string') { try { data = JSON.parse(data); } catch (e) { return; } }
+                if (!data) return;
+                const scorer = data.Scorer || {};
+                const lastTouch = data.BallLastTouch && data.BallLastTouch.Player;
+                const scoringTeam = scorer.TeamNum === 1 ? 'orange' : 'blue';
+                document.documentElement.style.setProperty('--active-color', `var(--team-${scoringTeam})`);
+                goalScorerEl.textContent = scorer.Name || '-';
+                if (lastTouch && lastTouch.Name && lastTouch.Name !== scorer.Name) {
+                    goalAssistEl.textContent = `Asistencia: ${lastTouch.Name}`;
+                    goalAssistEl.style.display = 'block';
+                } else {
+                    goalAssistEl.style.display = 'none';
+                }
+                const speedKmh = toSpeedKmh(data.GoalSpeed || 0);
+                goalSpeedEl.textContent = `Disparo a ${speedKmh} km/h`;
+
+                if (goalBannerTimeout) clearTimeout(goalBannerTimeout);
+                goalBannerEl.classList.add('show');
+                goalBannerTimeout = setTimeout(() => goalBannerEl.classList.remove('show'), 4200);
+                return;
+            }
+
             if (eventName && eventName !== 'UpdateState') return;
 
             let data = payload.Data || payload.data;
@@ -250,8 +513,15 @@
                     (game.Teams || game.teams).forEach(t => {
                         const teamNum = t.TeamNum !== undefined ? t.TeamNum : t.team;
                         const score = t.Score !== undefined ? t.Score : t.score;
-                        if (teamNum === 0) blueScoreVal = score;
-                        if (teamNum === 1) orangeScoreVal = score;
+                        const color = hexToCss(t.ColorPrimary);
+                        if (teamNum === 0) {
+                            blueScoreVal = score;
+                            if (color) document.documentElement.style.setProperty('--team-blue', color);
+                        }
+                        if (teamNum === 1) {
+                            orangeScoreVal = score;
+                            if (color) document.documentElement.style.setProperty('--team-orange', color);
+                        }
                     });
                 } else {
                     blueScoreVal = game.blue_score !== undefined ? game.blue_score : 0;
@@ -262,30 +532,44 @@
 
                 const time = game.TimeSeconds !== undefined ? game.TimeSeconds : (game.time !== undefined ? game.time : 300);
                 if (timerEl) timerEl.textContent = formatTime(time);
-
                 if (overtimeTagEl) overtimeTagEl.style.display = game.bOvertime ? 'block' : 'none';
             }
 
             const players = data.Players || data.players;
             if (players && players.length > 0) {
-                let targetUser = players.find(p => (p.Name || p.name || '').toLowerCase().includes('danyelm855'));
-                if (!targetUser) targetUser = players[0];
+                const bluePlayers = players.filter(p => (p.TeamNum !== undefined ? p.TeamNum : p.team) === 0);
+                const orangePlayers = players.filter(p => (p.TeamNum !== undefined ? p.TeamNum : p.team) === 1);
+                updateRoster('blue', bluePlayers);
+                updateRoster('orange', orangePlayers);
 
-                const boost = targetUser.Boost !== undefined ? targetUser.Boost : 0;
-                const speedVal = targetUser.Speed !== undefined ? targetUser.Speed : (targetUser.speed !== undefined ? targetUser.speed : 0);
-                let speedKmh;
-                if (speedVal > 300) speedKmh = Math.round(speedVal * 0.036);
-                else if (speedVal > 0 && speedVal <= 24) speedKmh = Math.round(speedVal * 3.6);
-                else speedKmh = Math.round(speedVal);
+                const target = game && (game.Target || game.target);
+                let activePlayer = null;
+                if (target && target.Name) {
+                    activePlayer = players.find(p => (p.Name || p.name) === target.Name);
+                }
+                if (!activePlayer) activePlayer = players[0];
 
-                const score = targetUser.Score !== undefined ? targetUser.Score : 0;
+                if (activePlayer) {
+                    const teamNum = activePlayer.TeamNum !== undefined ? activePlayer.TeamNum : activePlayer.team;
+                    const boost = activePlayer.Boost !== undefined ? activePlayer.Boost : 0;
+                    const speedVal = activePlayer.Speed !== undefined ? activePlayer.Speed : (activePlayer.speed !== undefined ? activePlayer.speed : 0);
+                    const speedKmh = toSpeedKmh(speedVal);
 
-                if (targetNameEl) targetNameEl.textContent = (targetUser.Name || targetUser.name || '-').toUpperCase();
-                if (targetBoostEl) targetBoostEl.textContent = `${boost}%`;
-                if (targetBoostBarEl) targetBoostBarEl.style.width = `${boost}%`;
-                if (targetSpeedEl) targetSpeedEl.textContent = speedKmh;
-                if (targetScoreEl) targetScoreEl.textContent = score;
-                if (statsStripEl) statsStripEl.classList.add('visible');
+                    activePlayerPanelEl.style.setProperty('--active-color', teamNum === 1 ? 'var(--team-orange)' : 'var(--team-blue)');
+                    activePlayerNameEl.textContent = (activePlayer.Name || activePlayer.name || '-').toUpperCase();
+                    apScoreEl.textContent = activePlayer.Score !== undefined ? activePlayer.Score : 0;
+                    apGoalsEl.textContent = activePlayer.Goals !== undefined ? activePlayer.Goals : 0;
+                    apAssistsEl.textContent = activePlayer.Assists !== undefined ? activePlayer.Assists : 0;
+                    apSavesEl.textContent = activePlayer.Saves !== undefined ? activePlayer.Saves : 0;
+                    activePlayerPanelEl.classList.add('visible');
+
+                    boostMeterPctEl.textContent = `${boost}%`;
+                    boostMeterSpeedEl.textContent = `${speedKmh} km/h`;
+                    const offset = RING_CIRCUMFERENCE * (1 - boost / 100);
+                    ringFillEl.style.strokeDashoffset = `${offset}`;
+                    ringFillEl.style.stroke = boost < 20 ? '#ef4444' : (boost >= 100 ? '#facc15' : '#22d3ee');
+                    boostMeterEl.classList.add('visible');
+                }
             }
         }
 
@@ -295,6 +579,12 @@
                 applyTeamConfig(cfg);
             } catch (err) {
                 console.error("Error al cargar configuración del marcador:", err);
+            }
+            try {
+                const seriesCfg = await eel.get_series_config()();
+                applySeriesConfig(seriesCfg);
+            } catch (err) {
+                console.error("Error al cargar configuración de la serie:", err);
             }
         })();
     </script>

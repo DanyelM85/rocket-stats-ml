@@ -51,6 +51,22 @@ def save_team_config(team_config: dict):
     data["team_config"] = team_config
     _save_app_config(data)
 
+DEFAULT_SERIES_CONFIG = {
+    "phase": "",
+    "format": "bo3",
+    "blue_series_score": 0,
+    "orange_series_score": 0
+}
+
+def load_series_config() -> dict:
+    cfg = _load_app_config().get("series_config", {})
+    return {**DEFAULT_SERIES_CONFIG, **cfg}
+
+def save_series_config(series_config: dict):
+    data = _load_app_config()
+    data["series_config"] = series_config
+    _save_app_config(data)
+
 def find_rl_installation() -> Path | None:
     saved = load_saved_path()
     if saved and Path(saved).exists():

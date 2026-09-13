@@ -236,6 +236,24 @@ def set_team_config(blue_name, orange_name, blue_logo, orange_logo):
     return {"success": True}
 
 @eel.expose
+def get_series_config():
+    from config_manager import load_series_config
+    return load_series_config()
+
+@eel.expose
+def set_series_config(phase, series_format, blue_series_score, orange_series_score):
+    from config_manager import save_series_config, DEFAULT_SERIES_CONFIG
+    cfg = {
+        "phase": (phase or "").strip()[:40],
+        "format": series_format if series_format in ("bo1", "bo3", "bo5", "bo7") else DEFAULT_SERIES_CONFIG["format"],
+        "blue_series_score": max(0, int(blue_series_score or 0)),
+        "orange_series_score": max(0, int(orange_series_score or 0))
+    }
+    save_series_config(cfg)
+    _fire(eel.on_series_config_update(cfg))
+    return {"success": True, "config": cfg}
+
+@eel.expose
 def toggle_live_capture(active):
     global _capture_thread, _current_port
     if active:
