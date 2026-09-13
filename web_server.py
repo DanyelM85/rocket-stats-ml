@@ -11,6 +11,12 @@ from ctypes import wintypes
 
 eel.init('web')
 
+def _fire(js_call):
+    # eel solo libera la entrada en _call_return_values cuando alguien consume
+    # el retorno de la llamada; sin esto, cada eel.on_xxx(...) sin ()() deja una
+    # entrada huérfana para siempre y la RAM crece sin límite en sesiones largas.
+    js_call(lambda *_: None)
+
 _capture_thread = None
 _validate_fn = None
 
@@ -85,12 +91,12 @@ class RLConnectionThread(threading.Thread):
         self.running = True
         while self.running:
             try:
-                eel.on_status_change("connecting", f"Intentando conectar a 127.0.0.1:{self.port}...")
+                _fire(eel.on_status_change("connecting", f"Intentando conectar a 127.0.0.1:{self.port}..."))
                 self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
                 self.socket.settimeout(3.0)
                 self.socket.connect(("127.0.0.1", self.port))
                 self.socket.settimeout(None)
-                eel.on_status_change("connected", f"¡Conectado al socket de Rocket League en el puerto {self.port}!")
+                _fire(eel.on_status_change("connected", f"¡Conectado al socket de Rocket League en el puerto {self.port}!"))
                 buffer = ""
                 while self.running:
                     data = self.socket.recv(8192)
@@ -121,13 +127,13 @@ class RLConnectionThread(threading.Thread):
                                     except:
                                         pass
                             
-                            eel.on_telemetry_data(payload)
+                            _fire(eel.on_telemetry_data(payload))
                             buffer = buffer[idx:].strip()
                         except json.JSONDecodeError:
                             break
             except Exception as e:
                 if self.running:
-                    eel.on_status_change("disconnected", f"Sin conexión: {str(e)}. Reintentando en 3 segundos...")
+                    _fire(eel.on_status_change("disconnected", f"Sin conexión: {str(e)}. Reintentando en 3 segundos..."))
                     time.sleep(3)
             finally:
                 if self.socket:
@@ -226,7 +232,7 @@ def set_team_config(blue_name, orange_name, blue_logo, orange_logo):
         "orange_logo": orange_logo or ""
     }
     save_team_config(cfg)
-    eel.on_team_config_update(cfg)
+    _fire(eel.on_team_config_update(cfg))
     return {"success": True}
 
 @eel.expose
@@ -242,7 +248,7 @@ def toggle_live_capture(active):
         if _capture_thread:
             _capture_thread.stop()
             _capture_thread = None
-        eel.on_status_change("disconnected", "Captura de datos en vivo detenida.")
+        _fire(eel.on_status_change("disconnected", "Captura de datos en vivo detenida."))
         return {"active": False}
 
 def run_config_ui(validate_fn, submit_fn):
