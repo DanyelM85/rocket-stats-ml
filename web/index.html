@@ -211,19 +211,15 @@
 
                     <div class="grid grid-cols-2 gap-3">
                         <div class="flex flex-col gap-2 bg-slate-950/40 p-3 rounded-xl border border-slate-800/60">
-                            <label for="team-blue-name" class="text-xs font-extrabold text-rlblue uppercase tracking-wider flex items-center gap-1.5">
-                                <i class="fa-solid fa-shield text-xs"></i> Equipo Azul
-                            </label>
-                            <input type="text" id="team-blue-name" placeholder="Nombre (Ej: Dragones)" maxlength="32" class="bg-slate-950 border border-slate-800 focus:border-rlblue focus:ring-1 focus:ring-rlblue text-slate-200 rounded-lg px-3 py-1.5 text-xs outline-none transition-all">
-                            <label class="text-[10px] font-semibold text-slate-400">Escudo / Logo:</label>
+                            <span class="text-xs font-extrabold text-rlblue uppercase tracking-wider flex items-center gap-1.5">
+                                <i class="fa-solid fa-shield text-xs"></i> Escudo Equipo Azul
+                            </span>
                             <input type="file" id="team-blue-logo" accept="image/*" class="text-[10px] text-slate-400 file:mr-2 file:py-1 file:px-2.5 file:rounded-md file:border-0 file:text-[10px] file:font-bold file:bg-slate-800 file:text-slate-300 hover:file:bg-slate-700 cursor-pointer">
                         </div>
                         <div class="flex flex-col gap-2 bg-slate-950/40 p-3 rounded-xl border border-slate-800/60">
-                            <label for="team-orange-name" class="text-xs font-extrabold text-rlorange uppercase tracking-wider flex items-center gap-1.5">
-                                <i class="fa-solid fa-shield text-xs"></i> Equipo Naranja
-                            </label>
-                            <input type="text" id="team-orange-name" placeholder="Nombre (Ej: Phoenix)" maxlength="32" class="bg-slate-950 border border-slate-800 focus:border-rlorange focus:ring-1 focus:ring-rlorange text-slate-200 rounded-lg px-3 py-1.5 text-xs outline-none transition-all">
-                            <label class="text-[10px] font-semibold text-slate-400">Escudo / Logo:</label>
+                            <span class="text-xs font-extrabold text-rlorange uppercase tracking-wider flex items-center gap-1.5">
+                                <i class="fa-solid fa-shield text-xs"></i> Escudo Equipo Naranja
+                            </span>
                             <input type="file" id="team-orange-logo" accept="image/*" class="text-[10px] text-slate-400 file:mr-2 file:py-1 file:px-2.5 file:rounded-md file:border-0 file:text-[10px] file:font-bold file:bg-slate-800 file:text-slate-300 hover:file:bg-slate-700 cursor-pointer">
                         </div>
                     </div>
@@ -232,7 +228,7 @@
 
                     <button id="btn-save-team-config" type="button" class="w-full bg-slate-800 hover:bg-slate-700 text-brand-500 hover:text-white border border-brand-500/30 font-bold py-2.5 px-4 rounded-xl shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer">
                         <i class="fa-solid fa-arrows-rotate text-sm"></i>
-                        <span>Actualizar Nombres y Escudos en Pantalla</span>
+                        <span>Actualizar Escudos de Equipos</span>
                     </button>
                 </section>
 
@@ -1296,8 +1292,6 @@
 
         // --- MARCADOR Y OVERLAY DE EQUIPOS ---
         const overlayUrlInput = document.getElementById('overlay-url');
-        const teamBlueNameInput = document.getElementById('team-blue-name');
-        const teamOrangeNameInput = document.getElementById('team-orange-name');
         const teamBlueLogoInput = document.getElementById('team-blue-logo');
         const teamOrangeLogoInput = document.getElementById('team-orange-logo');
         const overlaySettingsStatus = document.getElementById('overlay-settings-status');
@@ -1344,15 +1338,15 @@
             btnSaveTeamConfig.addEventListener('click', async () => {
                 try {
                     const res = await eel.set_team_config(
-                        teamBlueNameInput.value.trim(),
-                        teamOrangeNameInput.value.trim(),
+                        "AZUL",
+                        "NARANJA",
                         pendingBlueLogo,
                         pendingOrangeLogo
                     )();
                     if (res && res.success) {
-                        showOverlaySettingsStatus('✓ Marcador y escudos actualizados en el overlay.', 'success');
+                        showOverlaySettingsStatus('✓ Escudos actualizados en el overlay.', 'success');
                     } else {
-                        showOverlaySettingsStatus('Error al guardar la configuración.', 'error');
+                        showOverlaySettingsStatus('Error al guardar los escudos.', 'error');
                     }
                 } catch (err) {
                     showOverlaySettingsStatus('Error de comunicación con el backend.', 'error');
@@ -1431,15 +1425,6 @@
         async function loadTeamConfig() {
             if (overlayUrlInput) {
                 overlayUrlInput.value = `${window.location.origin}/overlay.html`;
-            }
-            try {
-                const cfg = await eel.get_team_config()();
-                if (cfg) {
-                    if (teamBlueNameInput) teamBlueNameInput.value = cfg.blue_name === 'Azul' ? '' : (cfg.blue_name || '');
-                    if (teamOrangeNameInput) teamOrangeNameInput.value = cfg.orange_name === 'Naranja' ? '' : (cfg.orange_name || '');
-                }
-            } catch (err) {
-                console.error("Error al cargar configuración del marcador:", err);
             }
         }
 
