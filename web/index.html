@@ -23,12 +23,12 @@
         .pulse-indicator{animation:pulse-slow 2s infinite ease-in-out}
     </style>
 </head>
-<body class="bg-slate-950 text-slate-100 min-h-screen font-sans bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-slate-900 via-slate-950 to-black p-6">
+<body class="bg-white text-slate-100 min-h-screen font-sans p-6">
     <div class="max-w-7xl mx-auto space-y-6">
         <header class="glass-card rounded-2xl p-5 flex flex-col md:flex-row items-center justify-between gap-4 border-b border-brand-500/10">
             <div class="flex items-center gap-4">
-                <div class="w-12 h-12 rounded-xl bg-brand-500/10 border border-brand-500/30 flex items-center justify-center glow-cyan">
-                    <i class="fa-solid fa-gauge-high text-2xl text-brand-500"></i>
+                <div class="w-14 h-14 rounded-xl bg-brand-500/10 border border-brand-500/30 flex items-center justify-center glow-cyan shrink-0">
+                    <i class="fa-solid fa-gauge-high text-3xl text-brand-500"></i>
                 </div>
                 <div>
                     <h1 class="text-xl font-bold tracking-tight text-white flex items-center gap-2">
@@ -38,6 +38,7 @@
                 </div>
             </div>
             <div class="flex items-center gap-4">
+                <!--
                 <div class="hidden sm:flex items-center gap-3 bg-slate-900/60 border border-slate-800 rounded-xl px-4 py-2 text-xs">
                     <div class="text-right">
                         <div class="font-bold text-slate-300" id="match-mode">Modo: Esperando...</div>
@@ -48,6 +49,7 @@
                         <span id="overtime-badge" class="hidden bg-amber-500/10 border border-amber-500/20 px-2 py-0.5 rounded text-[10px] uppercase">Prorroga</span>
                     </div>
                 </div>
+                -->
                 <div class="flex items-center gap-3 bg-slate-900 border border-slate-800 rounded-full px-4 py-2">
                     <span class="text-xs font-semibold text-slate-400">Estado API:</span>
                     <div class="flex items-center gap-2">
@@ -62,8 +64,10 @@
                 <!-- CONFIGURACIÓN DE LA API (MODULAR, COLAPSABLE) -->
                 <section class="glass-card rounded-2xl p-6 flex flex-col gap-5">
                     <button id="btn-toggle-settings" class="w-full flex items-center justify-between pb-3 border-b border-slate-800 text-left outline-none cursor-pointer">
-                        <div class="flex items-center gap-2">
-                            <i class="fa-solid fa-sliders text-brand-500"></i>
+                        <div class="flex items-center gap-3">
+                            <div class="w-9 h-9 rounded-lg bg-brand-500/10 border border-brand-500/20 flex items-center justify-center shrink-0">
+                                <i class="fa-solid fa-sliders text-brand-500 text-base"></i>
+                            </div>
                             <h2 class="font-bold text-sm text-slate-200">Configuración de la API</h2>
                         </div>
                         <i id="settings-chevron" class="fa-solid fa-chevron-up text-xs text-slate-400 transition-transform duration-300"></i>
@@ -82,8 +86,8 @@
                             <label for="folder-path" class="text-xs font-semibold text-slate-400">Ruta Raíz de Rocket League:</label>
                             <div class="flex gap-2">
                                 <input type="text" id="folder-path" class="flex-1 bg-slate-950 border border-slate-800 focus:border-brand-500 focus:ring-1 focus:ring-brand-500 text-slate-200 rounded-xl px-3.5 py-2 text-xs outline-none transition-all" placeholder="Ej: C:\Program Files\Epic Games\rocketleague">
-                                <button id="btn-browse" class="bg-slate-800 hover:bg-slate-700 text-brand-500 hover:text-white border border-slate-700 rounded-xl px-4 py-2 text-xs font-semibold flex items-center gap-1.5 transition-all">
-                                    <i class="fa-regular fa-folder-open"></i>
+                                <button id="btn-browse" class="bg-slate-800 hover:bg-slate-700 text-brand-500 hover:text-white border border-slate-700 rounded-xl px-4 py-2 text-xs font-semibold flex items-center gap-2 transition-all">
+                                    <i class="fa-regular fa-folder-open text-sm"></i>
                                     <span>Buscar</span>
                                 </button>
                             </div>
@@ -100,14 +104,16 @@
                         </div>
                         <div id="settings-status" class="hidden text-xs rounded-xl p-3.5 border font-medium"></div>
                         <button id="btn-apply-settings" class="w-full bg-brand-500 hover:bg-brand-600 active:scale-[0.98] text-slate-950 font-bold py-2.5 px-4 rounded-xl shadow-lg hover:shadow-brand-500/20 flex items-center justify-center gap-2 transition-all">
-                            <i class="fa-solid fa-floppy-disk"></i>
+                            <i class="fa-solid fa-floppy-disk text-sm"></i>
                             <span>Aplicar y Guardar Cambios</span>
                         </button>
                     </div>
                 </section>
                 <section class="glass-card rounded-2xl p-6 flex flex-col gap-4">
-                    <div class="flex items-center gap-2 pb-3 border-b border-slate-800">
-                        <i class="fa-solid fa-wifi text-brand-500"></i>
+                    <div class="flex items-center gap-3 pb-3 border-b border-slate-800">
+                        <div class="w-9 h-9 rounded-lg bg-brand-500/10 border border-brand-500/20 flex items-center justify-center shrink-0">
+                            <i class="fa-solid fa-wifi text-brand-500 text-base"></i>
+                        </div>
                         <h2 class="font-bold text-sm text-slate-200">Control de Captura</h2>
                     </div>
                     <p class="text-xs text-slate-400 leading-relaxed">
@@ -116,8 +122,8 @@
                     <div class="flex flex-col gap-3 mt-2">
                         <div class="flex items-center justify-between bg-slate-950/60 border border-slate-900 rounded-xl p-3.5">
                             <div class="flex items-center gap-3">
-                                <div class="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center border border-emerald-500/20">
-                                    <i class="fa-solid fa-network-wired text-emerald-400 text-sm"></i>
+                                <div class="w-9 h-9 rounded-lg bg-emerald-500/10 flex items-center justify-center border border-emerald-500/20 shrink-0">
+                                    <i class="fa-solid fa-network-wired text-emerald-400 text-base"></i>
                                 </div>
                                 <div>
                                     <h4 class="text-xs font-semibold text-slate-200">Escuchar Socket Local</h4>
@@ -131,9 +137,12 @@
                         </div>
                     </div>
                 </section>
+                <!--
                 <section class="glass-card rounded-2xl p-6 flex flex-col gap-4">
-                    <div class="flex items-center gap-2 pb-3 border-b border-slate-800">
-                        <i class="fa-solid fa-tv text-brand-500"></i>
+                    <div class="flex items-center gap-3 pb-3 border-b border-slate-800">
+                        <div class="w-9 h-9 rounded-lg bg-brand-500/10 border border-brand-500/20 flex items-center justify-center shrink-0">
+                            <i class="fa-solid fa-tv text-brand-500 text-base"></i>
+                        </div>
                         <h2 class="font-bold text-sm text-slate-200">Marcador para OBS (Overlay)</h2>
                     </div>
                     <p class="text-xs text-slate-400 leading-relaxed -mt-1">
@@ -142,7 +151,7 @@
                     <div class="flex gap-2">
                         <input type="text" id="overlay-url" readonly class="flex-1 bg-slate-950 border border-slate-800 text-slate-400 rounded-xl px-3.5 py-2 text-xs outline-none font-mono">
                         <button id="btn-copy-overlay-url" type="button" class="bg-slate-800 hover:bg-slate-700 text-brand-500 hover:text-white border border-slate-700 rounded-xl px-3 py-2 text-xs font-semibold transition-all">
-                            <i class="fa-regular fa-copy"></i>
+                            <i class="fa-regular fa-copy text-sm"></i>
                         </button>
                     </div>
                     <div class="grid grid-cols-2 gap-4">
@@ -159,13 +168,15 @@
                     </div>
                     <div id="overlay-settings-status" class="hidden text-xs rounded-xl p-3.5 border font-medium"></div>
                     <button id="btn-save-team-config" class="w-full bg-brand-500 hover:bg-brand-600 active:scale-[0.98] text-slate-950 font-bold py-2.5 px-4 rounded-xl shadow-lg hover:shadow-brand-500/20 flex items-center justify-center gap-2 transition-all">
-                        <i class="fa-solid fa-floppy-disk"></i>
+                        <i class="fa-solid fa-floppy-disk text-sm"></i>
                         <span>Guardar Marcador</span>
                     </button>
                 </section>
                 <section class="glass-card rounded-2xl p-6 flex flex-col gap-4">
-                    <div class="flex items-center gap-2 pb-3 border-b border-slate-800">
-                        <i class="fa-solid fa-trophy text-brand-500"></i>
+                    <div class="flex items-center gap-3 pb-3 border-b border-slate-800">
+                        <div class="w-9 h-9 rounded-lg bg-amber-500/10 border border-amber-500/20 flex items-center justify-center shrink-0">
+                            <i class="fa-solid fa-trophy text-amber-500 text-base"></i>
+                        </div>
                         <h2 class="font-bold text-sm text-slate-200">Serie / Torneo</h2>
                     </div>
                     <p class="text-xs text-slate-400 leading-relaxed -mt-1">
@@ -190,24 +201,26 @@
                         <div class="flex flex-col items-center gap-2 bg-slate-950/40 p-3 rounded-xl border border-slate-900">
                             <span class="text-[10px] font-bold text-rlblue uppercase">Serie Azul</span>
                             <div class="flex items-center gap-3">
-                                <button id="btn-series-blue-minus" type="button" class="w-7 h-7 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold">-</button>
-                                <span id="series-blue-score" class="text-xl font-black text-white w-6 text-center">0</span>
-                                <button id="btn-series-blue-plus" type="button" class="w-7 h-7 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold">+</button>
+                                <button id="btn-series-blue-minus" type="button" class="w-8 h-8 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-base flex items-center justify-center transition-all">-</button>
+                                <span id="series-blue-score" class="text-2xl font-black text-white w-7 text-center">0</span>
+                                <button id="btn-series-blue-plus" type="button" class="w-8 h-8 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-base flex items-center justify-center transition-all">+</button>
                             </div>
                         </div>
                         <div class="flex flex-col items-center gap-2 bg-slate-950/40 p-3 rounded-xl border border-slate-900">
                             <span class="text-[10px] font-bold text-rlorange uppercase">Serie Naranja</span>
                             <div class="flex items-center gap-3">
-                                <button id="btn-series-orange-minus" type="button" class="w-7 h-7 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold">-</button>
-                                <span id="series-orange-score" class="text-xl font-black text-white w-6 text-center">0</span>
-                                <button id="btn-series-orange-plus" type="button" class="w-7 h-7 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold">+</button>
+                                <button id="btn-series-orange-minus" type="button" class="w-8 h-8 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-base flex items-center justify-center transition-all">-</button>
+                                <span id="series-orange-score" class="text-2xl font-black text-white w-7 text-center">0</span>
+                                <button id="btn-series-orange-plus" type="button" class="w-8 h-8 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-base flex items-center justify-center transition-all">+</button>
                             </div>
                         </div>
                     </div>
                 </section>
                 <section class="glass-card rounded-2xl p-5 text-xs text-slate-400 flex flex-col gap-3">
-                    <div class="flex items-center gap-2 font-bold text-slate-200 pb-2 border-b border-slate-800">
-                        <i class="fa-solid fa-bullseye text-amber-500"></i>
+                    <div class="flex items-center gap-3 font-bold text-slate-200 pb-2 border-b border-slate-800">
+                        <div class="w-9 h-9 rounded-lg bg-amber-500/10 border border-amber-500/20 flex items-center justify-center shrink-0">
+                            <i class="fa-solid fa-bullseye text-amber-500 text-base"></i>
+                        </div>
                         <span>Cámara Espectador / Objetivo</span>
                     </div>
                     <div class="flex items-center justify-between bg-slate-950/40 p-2.5 rounded-xl border border-slate-900">
@@ -215,7 +228,9 @@
                         <span id="target-player" class="font-extrabold text-brand-500 text-xs">Ninguno</span>
                     </div>
                 </section>
+                -->
             </div>
+            <template id="disabled-dashboard-column">
             <div class="lg:col-span-8 flex flex-col gap-6">
                 <!-- HEADER SUPER-SIMPLIFICADO DE PARTIDA EN VIVO -->
                 <div class="glass-card rounded-2xl p-4 flex flex-wrap items-center justify-between gap-4 relative overflow-hidden">
@@ -229,8 +244,8 @@
                         </div>
                     </div>
                     <div class="flex items-center gap-4">
-                        <div class="flex items-center gap-1.5 bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 rounded-lg px-3 py-1 text-xs font-extrabold">
-                            <i class="fa-solid fa-gauge-high"></i>
+                        <div class="flex items-center gap-2 bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 rounded-lg px-3 py-1.5 text-xs font-extrabold">
+                            <i class="fa-solid fa-gauge-high text-sm"></i>
                             <span>Vel. Balón: <span id="ball-speed" class="text-white">0</span> km/h</span>
                         </div>
                     </div>
@@ -243,8 +258,8 @@
                         <!-- PANEL DE CONTROL TÁCTICO: AIRE VS SUELO -->
                         <div class="glass-card rounded-2xl p-5 flex flex-col gap-3">
                             <div class="flex items-center justify-between border-b border-slate-800 pb-2">
-                                <span class="text-xs font-black text-slate-200 tracking-wider flex items-center gap-1.5">
-                                    <i class="fa-solid fa-angles-up text-indigo-400"></i> DISTRIBUCIÓN DE ALTURA / ACROBACIA
+                                <span class="text-xs font-black text-slate-200 tracking-wider flex items-center gap-2">
+                                    <i class="fa-solid fa-angles-up text-indigo-400 text-sm"></i> DISTRIBUCIÓN DE ALTURA / ACROBACIA
                                 </span>
                                 <span class="text-[9px] bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 px-1.5 py-0.5 rounded-md font-bold uppercase">Aéreo vs Suelo</span>
                             </div>
@@ -353,6 +368,7 @@
                     </section>
                 </div>
             </div>
+            </template>
         </div>
     </div>
     <script type="text/javascript" src="/eel.js"></script>

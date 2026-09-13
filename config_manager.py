@@ -102,7 +102,7 @@ def get_valid_ini_path() -> Path:
     return Path("")
 
 def read_ini_values(ini_path: Path) -> tuple[int, float]:
-    port = 49123
+    port = 49124
     send_rate = 30.0
     if not ini_path.exists():
         return port, send_rate
@@ -200,7 +200,7 @@ PacketSendRate={send_rate}
         print(f"[X] Error inesperado: {e}")
         return False
 
-def setup_stats_api(send_rate: float = 30.0, port: int = 49123) -> bool:
+def setup_stats_api(send_rate: float = 30.0, port: int = 49124) -> bool:
     success = False
     ini_path = get_valid_ini_path()
     if ini_path and ini_path != Path(""):

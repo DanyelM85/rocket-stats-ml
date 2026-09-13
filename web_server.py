@@ -20,7 +20,7 @@ def _fire(js_call):
 _capture_thread = None
 _validate_fn = None
 
-_current_port = 49123
+_current_port = 49124
 _current_send_rate = 30.0
 _current_path = ""
 
