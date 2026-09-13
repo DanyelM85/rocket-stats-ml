@@ -31,11 +31,10 @@ def main():
 
     print("=== Iniciando Panel de Control de Estadísticas de Rocket League ===")
     
-    # Liberar puertos para evitar conflictos con procesos huérfanos o colgados
+    # Liberar puerto web para evitar conflictos con instancias huérfanas de Python
     from web_server import kill_process_on_port
-    print("[i] Verificando y liberando puertos (8000, 49124)...")
+    print("[i] Verificando y liberando puerto web (8000)...")
     kill_process_on_port(8000)
-    kill_process_on_port(49124)
 
     print("[i] Abriendo ventana de la interfaz web...")
 

@@ -354,6 +354,9 @@ def toggle_live_capture(active):
         if _capture_thread:
             _capture_thread.stop()
             _capture_thread = None
+        _fire(eel.on_status_change("disconnected", "Captura de datos en vivo detenida."))
+        return {"active": False}
+
 @eel.expose
 def get_saved_matches():
     """Retorna la lista de archivos JSON de partidas guardadas en data/matches."""
@@ -393,7 +396,8 @@ def get_match_json_content(filename):
     return None
 
 def kill_process_on_port(port: int):
-    """Mata cualquier proceso huérfano que esté ocupando el puerto en Windows."""
+    """Mata cualquier proceso huérfano de Python/Eel que esté ocupando el puerto en Windows.
+    PROTECCIÓN: Nunca mata el proceso de Rocket League."""
     import subprocess
     import os
     try:
@@ -410,7 +414,15 @@ def kill_process_on_port(port: int):
                 except ValueError:
                     pass
         for pid in pids_to_kill:
-            subprocess.run(f'taskkill /F /PID {pid}', shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            try:
+                task_out = subprocess.check_output(f'tasklist /FI "PID eq {pid}" /FO CSV /NH', shell=True, text=True, errors='ignore')
+                proc_name = task_out.split(',')[0].replace('"', '').lower()
+                if any(rl in proc_name for rl in ["rocketleague", "tagame"]):
+                    print(f"[i] Ignorando PID {pid} ({proc_name}) porque es el juego Rocket League.")
+                    continue
+                subprocess.run(f'taskkill /F /PID {pid}', shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            except Exception:
+                pass
     except Exception:
         pass
 

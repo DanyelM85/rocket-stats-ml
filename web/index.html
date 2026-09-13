@@ -1303,7 +1303,7 @@
 
         async function loadTeamConfig() {
             if (overlayUrlInput) {
-                overlayUrlInput.value = window.location.origin + '/overlay.html';
+                overlayUrlInput.value = 'http://localhost:8000/overlay.html';
             }
             try {
                 const cfg = await eel.get_team_config()();

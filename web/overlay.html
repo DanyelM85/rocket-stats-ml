@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Overlay OBS - Rocket League Championship Series (RLCS)</title>
+<title>Overlay OBS - The Community League</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:ital,wght@0,600;0,700;1,700&family=Rajdhani:wght@600;700&family=Teko:wght@600;700&display=swap" rel="stylesheet">
@@ -710,7 +710,7 @@
     <!-- SCOREBUG CENTRAL -->
     <div id="scorebug-container">
         <div id="tournament-header">
-            <span id="league-badge">RLCS 2024 WORLD CHAMPIONSHIP</span>
+            <span id="league-badge">THE COMMUNITY LEAGUE</span>
             <div id="series-info">
                 <span id="series-phase">FINALES</span>
                 <div id="pips-blue" class="pip-container"></div>
@@ -869,6 +869,7 @@
         let currentSeriesConfig = { format: 'bo5', blue_series_score: 0, orange_series_score: 0, phase: 'FINALES' };
         let currentTeamConfig = { blue_name: 'AZUL', orange_name: 'NARANJA', blue_logo: '', orange_logo: '' };
         let lastScores = { blue: 0, orange: 0 };
+        let latestPlayers = [];
 
         function formatTime(seconds) {
             const m = Math.floor(seconds / 60);
@@ -1009,22 +1010,76 @@
                 let data = payload.Data || payload.data;
                 if (typeof data === 'string') { try { data = JSON.parse(data); } catch (e) { return; } }
                 if (!data) return;
-                const scorer = data.Scorer || {};
-                const lastTouch = data.BallLastTouch && data.BallLastTouch.Player;
-                const scoringTeam = scorer.TeamNum === 1 ? 'orange' : 'blue';
+
+                const scorer = data.Scorer || data.scorer || data.GoalScorer || data.player || {};
+                const scorerPlayerObj = scorer.Player || scorer.player || scorer;
+
+                const ballLastTouch = data.BallLastTouch || data.ball_last_touch || data.last_touch || {};
+                const lastTouchPlayerObj = ballLastTouch.Player || ballLastTouch.player || ballLastTouch || {};
+
+                let scorerName = scorerPlayerObj.Name || scorerPlayerObj.name || (typeof scorerPlayerObj.id === 'string' ? scorerPlayerObj.id : '');
+
+                if (!scorerName && (scorer.id || scorer.Id || scorer.Shortcut !== undefined || scorer.pri)) {
+                    const matched = latestPlayers.find(p => 
+                        (scorer.id && (p.id === scorer.id || p.Id === scorer.id)) ||
+                        (scorer.Shortcut !== undefined && (p.Shortcut === scorer.Shortcut || p.shortcut === scorer.Shortcut)) ||
+                        (scorer.pri && (p.pri === scorer.pri || p.PRI === scorer.pri))
+                    );
+                    if (matched) {
+                        scorerName = matched.Name || matched.name || '';
+                    }
+                }
+
+                let lastTouchName = lastTouchPlayerObj.Name || lastTouchPlayerObj.name || '';
+                let lastTouchTeam = lastTouchPlayerObj.TeamNum !== undefined ? lastTouchPlayerObj.TeamNum : lastTouchPlayerObj.team;
+
+                let scoringTeamNum = scorer.TeamNum !== undefined ? scorer.TeamNum : (scorerPlayerObj.TeamNum !== undefined ? scorerPlayerObj.TeamNum : undefined);
+                if (scoringTeamNum === undefined) {
+                    if (lastTouchTeam !== undefined) scoringTeamNum = lastTouchTeam;
+                    else scoringTeamNum = 0;
+                }
+
+                const scoringTeam = scoringTeamNum === 1 ? 'orange' : 'blue';
+
+                let isOwnGoal = false;
+
+                if (!scorerName) {
+                    if (lastTouchName) {
+                        scorerName = lastTouchName;
+                        if (lastTouchTeam !== undefined && lastTouchTeam !== scoringTeamNum) {
+                            isOwnGoal = true;
+                        }
+                    } else {
+                        const teamNameVal = scoringTeamNum === 1 
+                            ? (currentTeamConfig.orange_name || 'NARANJA') 
+                            : (currentTeamConfig.blue_name || 'AZUL');
+                        scorerName = `GOL ${teamNameVal}`;
+                    }
+                } else {
+                    const scorerTeamNum = scorerPlayerObj.TeamNum !== undefined ? scorerPlayerObj.TeamNum : scorer.TeamNum;
+                    if (scorerTeamNum !== undefined && scorerTeamNum !== scoringTeamNum) {
+                        isOwnGoal = true;
+                    }
+                }
 
                 document.documentElement.style.setProperty('--active-color', `var(--team-${scoringTeam})`);
                 document.documentElement.style.setProperty('--active-glow', `var(--team-${scoringTeam}-glow)`);
 
-                goalScorerEl.textContent = (scorer.Name || 'DESCONOCIDO').toUpperCase();
-                if (lastTouch && lastTouch.Name && lastTouch.Name !== scorer.Name) {
-                    goalAssistEl.textContent = `ASISTENCIA: ${lastTouch.Name.toUpperCase()}`;
-                    goalAssistEl.style.display = 'block';
-                } else {
+                if (isOwnGoal) {
+                    goalScorerEl.textContent = `${scorerName.toUpperCase()} (AUTOGOL)`;
                     goalAssistEl.style.display = 'none';
+                } else {
+                    goalScorerEl.textContent = scorerName.toUpperCase();
+                    
+                    if (lastTouchName && lastTouchName.toUpperCase() !== scorerName.toUpperCase() && (lastTouchTeam === undefined || lastTouchTeam === scoringTeamNum)) {
+                        goalAssistEl.textContent = `ASISTENCIA: ${lastTouchName.toUpperCase()}`;
+                        goalAssistEl.style.display = 'block';
+                    } else {
+                        goalAssistEl.style.display = 'none';
+                    }
                 }
 
-                const speedKmh = toSpeedKmh(data.GoalSpeed || 0);
+                const speedKmh = toSpeedKmh(data.GoalSpeed || data.goal_speed || 0);
                 goalSpeedEl.textContent = `DISPARO A ${speedKmh} KM/H`;
 
                 if (goalBannerTimeout) clearTimeout(goalBannerTimeout);
@@ -1093,6 +1148,7 @@
 
             const players = data.Players || data.players;
             if (players && players.length > 0) {
+                latestPlayers = players;
                 const bluePlayers = players.filter(p => (p.TeamNum !== undefined ? p.TeamNum : p.team) === 0);
                 const orangePlayers = players.filter(p => (p.TeamNum !== undefined ? p.TeamNum : p.team) === 1);
 
