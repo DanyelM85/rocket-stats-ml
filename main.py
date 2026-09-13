@@ -21,18 +21,36 @@ def main():
         from tkinter import messagebox
         root = tk.Tk()
         root.withdraw()
+        root.attributes('-topmost', True)
         messagebox.showwarning(
-            "Rocket League Stats",
-            "La aplicación ya está abierta.\nBúscala en tus ventanas o en la barra de tareas."
+            "Rocket League Stats ML",
+            "La aplicación ya está ejecutándose.\nSolo se permite una instancia activa a la vez."
         )
         root.destroy()
         sys.exit(0)
 
     print("=== Iniciando Panel de Control de Estadísticas de Rocket League ===")
+    
+    # Liberar puertos para evitar conflictos con procesos huérfanos o colgados
+    from web_server import kill_process_on_port
+    print("[i] Verificando y liberando puertos (8000, 49124)...")
+    kill_process_on_port(8000)
+    kill_process_on_port(49124)
+
     print("[i] Abriendo ventana de la interfaz web...")
 
-    # Iniciar la interfaz web que permite configurar, simular y monitorear la API
-    run_config_ui(validate_rl_path, lambda p: None)
+    try:
+        run_config_ui(validate_rl_path, lambda p: None)
+    except (KeyboardInterrupt, SystemExit):
+        print("\n[i] Aplicación cerrada por el usuario.")
+    finally:
+        if _instance_lock_handle:
+            try:
+                ctypes.windll.kernel32.CloseHandle(_instance_lock_handle)
+            except Exception:
+                pass
+        import os
+        os._exit(0)
 
 if __name__ == "__main__":
     main()

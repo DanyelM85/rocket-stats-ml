@@ -1,0 +1,98 @@
+{
+  "match_guid": "0F45E6C211F1AF37702D78823A52CFAC",
+  "ended_at": "2026-09-13T00:58:27",
+  "arena": "UtopiaStadium_Lux_P",
+  "playlist_id": 6,
+  "overtime": false,
+  "winner_team_num": 0,
+  "teams": [
+    {
+      "team_num": 0,
+      "name": "P*TAS DE CABARET",
+      "score": 6,
+      "color_primary": "1873FF",
+      "color_secondary": "E5E5E5"
+    },
+    {
+      "team_num": 1,
+      "name": "ABUELAS TROPICAL",
+      "score": 2,
+      "color_primary": "C26418",
+      "color_secondary": "E5E5E5"
+    }
+  ],
+  "players": [
+    {
+      "name": "DanyelM855",
+      "team_num": 1,
+      "score": 445,
+      "goals": 1,
+      "assists": 1,
+      "saves": 4,
+      "shots": 1,
+      "touches": 29,
+      "demos": 1,
+      "boost_at_end": 93
+    },
+    {
+      "name": "Goku-RL",
+      "team_num": 0,
+      "score": 360,
+      "goals": 1,
+      "assists": 1,
+      "saves": 0,
+      "shots": 5,
+      "touches": 51,
+      "demos": 0,
+      "boost_at_end": null
+    },
+    {
+      "name": "Perilink20",
+      "team_num": 1,
+      "score": 320,
+      "goals": 0,
+      "assists": 1,
+      "saves": 1,
+      "shots": 2,
+      "touches": 50,
+      "demos": 1,
+      "boost_at_end": null
+    },
+    {
+      "name": "Neto5412",
+      "team_num": 1,
+      "score": 293,
+      "goals": 1,
+      "assists": 0,
+      "saves": 2,
+      "shots": 2,
+      "touches": 36,
+      "demos": 1,
+      "boost_at_end": 23
+    },
+    {
+      "name": "Karl .Schneider",
+      "team_num": 0,
+      "score": 765,
+      "goals": 4,
+      "assists": 1,
+      "saves": 0,
+      "shots": 8,
+      "touches": 56,
+      "demos": 2,
+      "boost_at_end": 23
+    },
+    {
+      "name": "Bubu_v12_",
+      "team_num": 0,
+      "score": 296,
+      "goals": 1,
+      "assists": 0,
+      "saves": 2,
+      "shots": 1,
+      "touches": 43,
+      "demos": 0,
+      "boost_at_end": 82
+    }
+  ]
+}

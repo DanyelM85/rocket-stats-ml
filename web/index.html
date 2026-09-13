@@ -3,376 +3,516 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Panel de Estadísticas - Rocket League API</title>
+    <title>Panel de Control & Telemetría - Rocket League Stats ML</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script>
-        tailwind.config={theme:{extend:{fontFamily:{sans:['Inter','sans-serif']},colors:{brand:{50:'#e0fbfd',100:'#baf4fa',500:'#00adb5',600:'#008f95',700:'#007176',800:'#00585c'},rlblue:'#3978ff',rlorange:'#ff8a00'}}}}
+        tailwind.config={
+            theme:{
+                extend:{
+                    fontFamily:{sans:['Inter','sans-serif']},
+                    colors:{
+                        brand:{50:'#e0fbfd',100:'#baf4fa',500:'#00adb5',600:'#008f95',700:'#007176',800:'#00585c',900:'#004043'},
+                        rlblue:'#0088ff',
+                        rlorange:'#ff6600'
+                    }
+                }
+            }
+        }
     </script>
     <style>
-        .glass-card{background:rgba(15,23,42,0.75);backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,0.05)}
-        .glow-cyan{box-shadow:0 0 20px rgba(0,173,181,0.2)}
-        .glow-rlblue{box-shadow:0 0 20px rgba(57,120,255,0.25)}
-        .glow-rlorange{box-shadow:0 0 20px rgba(255,138,0,0.25)}
-        ::-webkit-scrollbar{width:6px}
-        ::-webkit-scrollbar-track{background:rgba(15,23,42,0.5)}
-        ::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.1);border-radius:4px}
-        ::-webkit-scrollbar-thumb:hover{background:rgba(0,173,181,0.4)}
-        @keyframes pulse-slow{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.6;transform:scale(1.05)}}
-        .pulse-indicator{animation:pulse-slow 2s infinite ease-in-out}
+        body {
+            background-color: #0b0f19;
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(0, 173, 181, 0.12) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(0, 136, 255, 0.08) 0px, transparent 50%);
+        }
+        .glass-card {
+            background: rgba(15, 23, 42, 0.75);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+        }
+        .glass-card-hover {
+            transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+        .glass-card-hover:hover {
+            border-color: rgba(0, 173, 181, 0.3);
+            box-shadow: 0 12px 35px -10px rgba(0, 173, 181, 0.15);
+        }
+        .glow-cyan { box-shadow: 0 0 25px rgba(0, 173, 181, 0.25); }
+        .glow-rlblue { box-shadow: 0 0 25px rgba(0, 136, 255, 0.3); }
+        .glow-rlorange { box-shadow: 0 0 25px rgba(255, 102, 0, 0.3); }
+        
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: rgba(15, 23, 42, 0.6); }
+        ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.15); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(0, 173, 181, 0.5); }
+        
+        @keyframes pulse-slow {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(1.08); }
+        }
+        .pulse-indicator { animation: pulse-slow 2s infinite ease-in-out; }
     </style>
 </head>
-<body class="bg-white text-slate-100 min-h-screen font-sans p-6">
+<body class="text-slate-100 min-h-screen font-sans p-4 md:p-6">
     <div class="max-w-7xl mx-auto space-y-6">
-        <header class="glass-card rounded-2xl p-5 flex flex-col md:flex-row items-center justify-between gap-4 border-b border-brand-500/10">
+        
+        <!-- HEADER PRINCIPAL -->
+        <header class="glass-card rounded-2xl p-5 flex flex-col md:flex-row items-center justify-between gap-4 border-b border-brand-500/20">
             <div class="flex items-center gap-4">
-                <div class="w-14 h-14 rounded-xl bg-brand-500/10 border border-brand-500/30 flex items-center justify-center glow-cyan shrink-0">
+                <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-brand-500/20 to-brand-700/10 border border-brand-500/30 flex items-center justify-center glow-cyan shrink-0">
                     <i class="fa-solid fa-gauge-high text-3xl text-brand-500"></i>
                 </div>
                 <div>
-                    <h1 class="text-xl font-bold tracking-tight text-white flex items-center gap-2">
-                        Rocket League Stats <span class="text-xs bg-brand-500/10 text-brand-500 border border-brand-500/30 px-2 py-0.5 rounded-full uppercase">ML Ready</span>
+                    <h1 class="text-2xl font-black tracking-tight text-white flex items-center gap-3">
+                        Rocket Stats ML <span class="text-[10px] font-extrabold bg-brand-500/15 text-brand-500 border border-brand-500/30 px-2.5 py-0.5 rounded-full uppercase tracking-wider">Cockpit V2</span>
                     </h1>
-                    <p class="text-slate-400 text-xs">Monitoreo de Telemetría e Ingesta de Datos en Tiempo Real</p>
+                    <p class="text-slate-400 text-xs mt-0.5">Control de Transmisión, Ingesta Telemétrica y Métricas Pro en Tiempo Real</p>
                 </div>
             </div>
-            <div class="flex items-center gap-4">
-                <!--
-                <div class="hidden sm:flex items-center gap-3 bg-slate-900/60 border border-slate-800 rounded-xl px-4 py-2 text-xs">
-                    <div class="text-right">
-                        <div class="font-bold text-slate-300" id="match-mode">Modo: Esperando...</div>
-                        <div class="text-[10px] text-slate-500" id="match-arena">Arena: Esperando...</div>
-                    </div>
-                    <div class="w-px h-8 bg-slate-800"></div>
-                    <div class="flex items-center gap-1 text-amber-500 font-semibold" id="match-overtime">
-                        <span id="overtime-badge" class="hidden bg-amber-500/10 border border-amber-500/20 px-2 py-0.5 rounded text-[10px] uppercase">Prorroga</span>
-                    </div>
-                </div>
-                -->
-                <div class="flex items-center gap-3 bg-slate-900 border border-slate-800 rounded-full px-4 py-2">
+
+            <div class="flex flex-wrap items-center gap-3">
+                <button id="btn-inspect-live-json" type="button" class="flex items-center gap-2 bg-slate-900 hover:bg-slate-800 text-amber-400 hover:text-white border border-amber-500/30 rounded-full px-4 py-2 text-xs font-bold transition-all shadow-md">
+                    <i class="fa-solid fa-code text-xs"></i>
+                    <span>Ver RAW JSON Live</span>
+                </button>
+
+                <a href="/overlay.html" target="_blank" class="flex items-center gap-2 bg-slate-900 hover:bg-slate-800 text-brand-500 hover:text-white border border-brand-500/30 rounded-full px-4 py-2 text-xs font-bold transition-all shadow-md">
+                    <i class="fa-solid fa-up-right-from-square text-xs"></i>
+                    <span>Abrir Overlay OBS</span>
+                </a>
+
+                <div class="flex items-center gap-3 bg-slate-950/80 border border-slate-800 rounded-full px-4 py-2 shadow-inner">
                     <span class="text-xs font-semibold text-slate-400">Estado API:</span>
                     <div class="flex items-center gap-2">
                         <span id="status-dot" class="w-2.5 h-2.5 rounded-full bg-rose-500 pulse-indicator"></span>
-                        <span id="status-text" class="text-xs font-bold text-rose-400 uppercase">Desconectado</span>
+                        <span id="status-text" class="text-xs font-bold text-rose-400 uppercase tracking-wide">Desconectado</span>
                     </div>
                 </div>
             </div>
         </header>
+
+        <!-- CONTENIDO EN DOS COLUMNAS -->
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
-            <div class="lg:col-span-4 flex flex-col gap-6">
-                <!-- CONFIGURACIÓN DE LA API (MODULAR, COLAPSABLE) -->
-                <section class="glass-card rounded-2xl p-6 flex flex-col gap-5">
-                    <button id="btn-toggle-settings" class="w-full flex items-center justify-between pb-3 border-b border-slate-800 text-left outline-none cursor-pointer">
+            
+            <!-- COLUMNA IZQUIERDA: CONFIGURACIÓN Y OPERADOR (5 COLS) -->
+            <div class="lg:col-span-5 flex flex-col gap-6">
+                
+                <!-- CONFIGURACIÓN DE LA API -->
+                <section class="glass-card glass-card-hover rounded-2xl p-5 flex flex-col gap-4">
+                    <button id="btn-toggle-settings" class="w-full flex items-center justify-between pb-3 border-b border-slate-800/80 text-left outline-none cursor-pointer group">
                         <div class="flex items-center gap-3">
-                            <div class="w-9 h-9 rounded-lg bg-brand-500/10 border border-brand-500/20 flex items-center justify-center shrink-0">
+                            <div class="w-9 h-9 rounded-xl bg-brand-500/10 border border-brand-500/20 flex items-center justify-center shrink-0 group-hover:border-brand-500/40 transition-all">
                                 <i class="fa-solid fa-sliders text-brand-500 text-base"></i>
                             </div>
-                            <h2 class="font-bold text-sm text-slate-200">Configuración de la API</h2>
+                            <div>
+                                <h2 class="font-bold text-sm text-slate-200">Configuración de la API Socket</h2>
+                                <p class="text-[10px] text-slate-400">Ruta de instalación y puerto</p>
+                            </div>
                         </div>
                         <i id="settings-chevron" class="fa-solid fa-chevron-up text-xs text-slate-400 transition-transform duration-300"></i>
                     </button>
                     
-                    <div id="settings-content" class="flex flex-col gap-5 transition-all duration-300 overflow-hidden">
-                        <!-- Banner de Configuración Existente Leída -->
-                        <div id="config-banner" class="hidden bg-emerald-500/10 border border-emerald-500/20 rounded-xl p-3.5 text-xs text-emerald-400 font-semibold leading-relaxed">
-                            <span class="flex items-start gap-1.5">
+                    <div id="settings-content" class="flex flex-col gap-4 transition-all duration-300">
+                        <div id="config-banner" class="hidden bg-emerald-500/10 border border-emerald-500/25 rounded-xl p-3.5 text-xs text-emerald-400 font-semibold leading-relaxed">
+                            <span class="flex items-start gap-2">
                                 <i class="fa-solid fa-circle-check mt-0.5 text-emerald-400"></i>
-                                <span>✓ Configuración existente leída: Puerto <span id="banner-port" class="text-white font-mono">49124</span> | Frecuencia <span id="banner-hz" class="text-white font-mono">30</span> Hz. ¿Deseas modificarla o dejarla así para capturar datos?</span>
+                                <span>Configuración detectada: Puerto <span id="banner-port" class="text-white font-mono font-bold">49124</span> | Frecuencia <span id="banner-hz" class="text-white font-mono font-bold">30</span> Hz.</span>
                             </span>
                         </div>
 
-                        <div class="flex flex-col gap-2">
-                            <label for="folder-path" class="text-xs font-semibold text-slate-400">Ruta Raíz de Rocket League:</label>
+                        <div class="flex flex-col gap-1.5">
+                            <label for="folder-path" class="text-xs font-semibold text-slate-300">Ruta Raíz de Rocket League:</label>
                             <div class="flex gap-2">
-                                <input type="text" id="folder-path" class="flex-1 bg-slate-950 border border-slate-800 focus:border-brand-500 focus:ring-1 focus:ring-brand-500 text-slate-200 rounded-xl px-3.5 py-2 text-xs outline-none transition-all" placeholder="Ej: C:\Program Files\Epic Games\rocketleague">
-                                <button id="btn-browse" class="bg-slate-800 hover:bg-slate-700 text-brand-500 hover:text-white border border-slate-700 rounded-xl px-4 py-2 text-xs font-semibold flex items-center gap-2 transition-all">
-                                    <i class="fa-regular fa-folder-open text-sm"></i>
+                                <input type="text" id="folder-path" class="flex-1 bg-slate-950/90 border border-slate-800 focus:border-brand-500 focus:ring-1 focus:ring-brand-500 text-slate-200 rounded-xl px-3.5 py-2 text-xs outline-none transition-all" placeholder="Ej: C:\Program Files\Epic Games\rocketleague">
+                                <button id="btn-browse" type="button" class="bg-slate-800 hover:bg-slate-700 text-brand-500 hover:text-white border border-slate-700 rounded-xl px-3.5 py-2 text-xs font-bold flex items-center gap-1.5 transition-all">
+                                    <i class="fa-regular fa-folder-open"></i>
                                     <span>Buscar</span>
                                 </button>
                             </div>
                         </div>
-                        <div class="grid grid-cols-2 gap-4">
-                            <div class="flex flex-col gap-2">
-                                <label for="api-port" class="text-xs font-semibold text-slate-400">Puerto del Socket:</label>
-                                <input type="number" id="api-port" value="49124" class="bg-slate-950 border border-slate-800 focus:border-brand-500 focus:ring-1 focus:ring-brand-500 text-slate-200 rounded-xl px-3.5 py-2 text-xs outline-none transition-all">
+
+                        <div class="grid grid-cols-2 gap-3">
+                            <div class="flex flex-col gap-1.5">
+                                <label for="api-port" class="text-xs font-semibold text-slate-300">Puerto Socket:</label>
+                                <input type="number" id="api-port" value="49124" class="bg-slate-950/90 border border-slate-800 focus:border-brand-500 focus:ring-1 focus:ring-brand-500 text-slate-200 rounded-xl px-3.5 py-2 text-xs outline-none transition-all font-mono">
                             </div>
-                            <div class="flex flex-col gap-2">
-                                <label for="send-rate" class="text-xs font-semibold text-slate-400">Frecuencia (Hz): <span id="rate-val" class="text-brand-500">30</span></label>
+                            <div class="flex flex-col gap-1.5">
+                                <label for="send-rate" class="text-xs font-semibold text-slate-300 flex justify-between">
+                                    <span>Frecuencia:</span>
+                                    <span id="rate-val" class="text-brand-500 font-bold">30 Hz</span>
+                                </label>
                                 <input type="range" id="send-rate" min="1" max="120" value="30" class="h-2 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-brand-500 mt-2">
                             </div>
                         </div>
-                        <div id="settings-status" class="hidden text-xs rounded-xl p-3.5 border font-medium"></div>
-                        <button id="btn-apply-settings" class="w-full bg-brand-500 hover:bg-brand-600 active:scale-[0.98] text-slate-950 font-bold py-2.5 px-4 rounded-xl shadow-lg hover:shadow-brand-500/20 flex items-center justify-center gap-2 transition-all">
+
+                        <div id="settings-status" class="hidden text-xs rounded-xl p-3 border font-medium"></div>
+
+                        <button id="btn-apply-settings" type="button" class="w-full bg-brand-500 hover:bg-brand-600 active:scale-[0.98] text-slate-950 font-bold py-2.5 px-4 rounded-xl shadow-lg hover:shadow-brand-500/20 flex items-center justify-center gap-2 transition-all">
                             <i class="fa-solid fa-floppy-disk text-sm"></i>
-                            <span>Aplicar y Guardar Cambios</span>
+                            <span>Aplicar y Guardar Ajustes</span>
                         </button>
                     </div>
                 </section>
-                <section class="glass-card rounded-2xl p-6 flex flex-col gap-4">
-                    <div class="flex items-center gap-3 pb-3 border-b border-slate-800">
-                        <div class="w-9 h-9 rounded-lg bg-brand-500/10 border border-brand-500/20 flex items-center justify-center shrink-0">
-                            <i class="fa-solid fa-wifi text-brand-500 text-base"></i>
+
+                <!-- CONTROL DE CAPTURA EN VIVO -->
+                <section class="glass-card glass-card-hover rounded-2xl p-5 flex flex-col gap-3">
+                    <div class="flex items-center gap-3 pb-3 border-b border-slate-800/80">
+                        <div class="w-9 h-9 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center shrink-0">
+                            <i class="fa-solid fa-network-wired text-emerald-400 text-base"></i>
                         </div>
-                        <h2 class="font-bold text-sm text-slate-200">Control de Captura</h2>
+                        <div>
+                            <h2 class="font-bold text-sm text-slate-200">Captura de Telemetría</h2>
+                            <p class="text-[10px] text-slate-400">Escucha activa en tiempo real</p>
+                        </div>
                     </div>
-                    <p class="text-xs text-slate-400 leading-relaxed">
-                        Habilita el listener para capturar datos de Rocket League en tiempo real.
-                    </p>
-                    <div class="flex flex-col gap-3 mt-2">
-                        <div class="flex items-center justify-between bg-slate-950/60 border border-slate-900 rounded-xl p-3.5">
-                            <div class="flex items-center gap-3">
-                                <div class="w-9 h-9 rounded-lg bg-emerald-500/10 flex items-center justify-center border border-emerald-500/20 shrink-0">
-                                    <i class="fa-solid fa-network-wired text-emerald-400 text-base"></i>
-                                </div>
-                                <div>
-                                    <h4 class="text-xs font-semibold text-slate-200">Escuchar Socket Local</h4>
-                                    <p class="text-[10px] text-slate-500">Conectar al juego en vivo</p>
-                                </div>
+                    <div class="flex items-center justify-between bg-slate-950/80 border border-slate-800 rounded-xl p-3.5 mt-1">
+                        <div class="flex items-center gap-3">
+                            <div class="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-400 shrink-0">
+                                <i class="fa-solid fa-wifi text-sm"></i>
                             </div>
-                            <label class="relative inline-flex items-center cursor-pointer">
-                                <input type="checkbox" id="toggle-capture" class="sr-only peer">
-                                <div class="w-11 h-6 bg-slate-800 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-slate-400 after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-500 peer-checked:after:bg-white"></div>
-                            </label>
+                            <div>
+                                <h4 class="text-xs font-bold text-slate-200">Listener Local</h4>
+                                <p class="text-[10px] text-slate-400">Recibir datos de Rocket League</p>
+                            </div>
                         </div>
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input type="checkbox" id="toggle-capture" class="sr-only peer">
+                            <div class="w-11 h-6 bg-slate-800 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-slate-400 after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-500 peer-checked:after:bg-white shadow-inner"></div>
+                        </label>
                     </div>
                 </section>
-                <!--
-                <section class="glass-card rounded-2xl p-6 flex flex-col gap-4">
-                    <div class="flex items-center gap-3 pb-3 border-b border-slate-800">
-                        <div class="w-9 h-9 rounded-lg bg-brand-500/10 border border-brand-500/20 flex items-center justify-center shrink-0">
-                            <i class="fa-solid fa-tv text-brand-500 text-base"></i>
+
+                <!-- OPERADOR DE TRANSMISIÓN: OVERLAY OBS Y EQUIPOS -->
+                <section class="glass-card glass-card-hover rounded-2xl p-5 flex flex-col gap-4">
+                    <div class="flex items-center gap-3 pb-3 border-b border-slate-800/80">
+                        <div class="w-9 h-9 rounded-xl bg-rlblue/10 border border-rlblue/20 flex items-center justify-center shrink-0">
+                            <i class="fa-solid fa-tv text-rlblue text-base"></i>
                         </div>
-                        <h2 class="font-bold text-sm text-slate-200">Marcador para OBS (Overlay)</h2>
-                    </div>
-                    <p class="text-xs text-slate-400 leading-relaxed -mt-1">
-                        Agrega la URL de abajo como <b>Fuente de Navegador</b> en OBS para mostrar el marcador sobre tu partida.
-                    </p>
-                    <div class="flex gap-2">
-                        <input type="text" id="overlay-url" readonly class="flex-1 bg-slate-950 border border-slate-800 text-slate-400 rounded-xl px-3.5 py-2 text-xs outline-none font-mono">
-                        <button id="btn-copy-overlay-url" type="button" class="bg-slate-800 hover:bg-slate-700 text-brand-500 hover:text-white border border-slate-700 rounded-xl px-3 py-2 text-xs font-semibold transition-all">
-                            <i class="fa-regular fa-copy text-sm"></i>
-                        </button>
-                    </div>
-                    <div class="grid grid-cols-2 gap-4">
-                        <div class="flex flex-col gap-2">
-                            <label for="team-blue-name" class="text-xs font-semibold text-rlblue">Nombre Equipo Azul:</label>
-                            <input type="text" id="team-blue-name" placeholder="Azul" maxlength="24" class="bg-slate-950 border border-slate-800 focus:border-rlblue focus:ring-1 focus:ring-rlblue text-slate-200 rounded-xl px-3.5 py-2 text-xs outline-none transition-all">
-                            <input type="file" id="team-blue-logo" accept="image/*" class="text-[10px] text-slate-500 file:mr-2 file:py-1 file:px-2 file:rounded-lg file:border-0 file:text-[10px] file:font-semibold file:bg-slate-800 file:text-slate-300">
-                        </div>
-                        <div class="flex flex-col gap-2">
-                            <label for="team-orange-name" class="text-xs font-semibold text-rlorange">Nombre Equipo Naranja:</label>
-                            <input type="text" id="team-orange-name" placeholder="Naranja" maxlength="24" class="bg-slate-950 border border-slate-800 focus:border-rlorange focus:ring-1 focus:ring-rlorange text-slate-200 rounded-xl px-3.5 py-2 text-xs outline-none transition-all">
-                            <input type="file" id="team-orange-logo" accept="image/*" class="text-[10px] text-slate-500 file:mr-2 file:py-1 file:px-2 file:rounded-lg file:border-0 file:text-[10px] file:font-semibold file:bg-slate-800 file:text-slate-300">
+                        <div>
+                            <h2 class="font-bold text-sm text-slate-200">Marcador OBS & Equipos</h2>
+                            <p class="text-[10px] text-slate-400">Nombres y escudos para la transmisión</p>
                         </div>
                     </div>
-                    <div id="overlay-settings-status" class="hidden text-xs rounded-xl p-3.5 border font-medium"></div>
-                    <button id="btn-save-team-config" class="w-full bg-brand-500 hover:bg-brand-600 active:scale-[0.98] text-slate-950 font-bold py-2.5 px-4 rounded-xl shadow-lg hover:shadow-brand-500/20 flex items-center justify-center gap-2 transition-all">
-                        <i class="fa-solid fa-floppy-disk text-sm"></i>
-                        <span>Guardar Marcador</span>
+
+                    <div class="flex flex-col gap-1.5">
+                        <label for="overlay-url" class="text-xs font-semibold text-slate-300">URL para Browser Source en OBS:</label>
+                        <div class="flex gap-2">
+                            <input type="text" id="overlay-url" readonly class="flex-1 bg-slate-950/90 border border-slate-800 text-slate-300 rounded-xl px-3.5 py-2 text-xs outline-none font-mono">
+                            <button id="btn-copy-overlay-url" type="button" class="bg-slate-800 hover:bg-slate-700 text-brand-500 hover:text-white border border-slate-700 rounded-xl px-3.5 py-2 text-xs font-bold transition-all">
+                                <i class="fa-regular fa-copy"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3">
+                        <div class="flex flex-col gap-2 bg-slate-950/40 p-3 rounded-xl border border-slate-800/60">
+                            <label for="team-blue-name" class="text-xs font-extrabold text-rlblue uppercase tracking-wider">Equipo Azul</label>
+                            <input type="text" id="team-blue-name" placeholder="Nombre Azul" maxlength="32" class="bg-slate-950 border border-slate-800 focus:border-rlblue focus:ring-1 focus:ring-rlblue text-slate-200 rounded-lg px-3 py-1.5 text-xs outline-none transition-all">
+                            <label class="text-[10px] font-semibold text-slate-400">Escudo Logo:</label>
+                            <input type="file" id="team-blue-logo" accept="image/*" class="text-[10px] text-slate-400 file:mr-2 file:py-1 file:px-2.5 file:rounded-md file:border-0 file:text-[10px] file:font-bold file:bg-slate-800 file:text-slate-300 hover:file:bg-slate-700 cursor-pointer">
+                        </div>
+                        <div class="flex flex-col gap-2 bg-slate-950/40 p-3 rounded-xl border border-slate-800/60">
+                            <label for="team-orange-name" class="text-xs font-extrabold text-rlorange uppercase tracking-wider">Equipo Naranja</label>
+                            <input type="text" id="team-orange-name" placeholder="Nombre Naranja" maxlength="32" class="bg-slate-950 border border-slate-800 focus:border-rlorange focus:ring-1 focus:ring-rlorange text-slate-200 rounded-lg px-3 py-1.5 text-xs outline-none transition-all">
+                            <label class="text-[10px] font-semibold text-slate-400">Escudo Logo:</label>
+                            <input type="file" id="team-orange-logo" accept="image/*" class="text-[10px] text-slate-400 file:mr-2 file:py-1 file:px-2.5 file:rounded-md file:border-0 file:text-[10px] file:font-bold file:bg-slate-800 file:text-slate-300 hover:file:bg-slate-700 cursor-pointer">
+                        </div>
+                    </div>
+
+                    <div id="overlay-settings-status" class="hidden text-xs rounded-xl p-3 border font-medium"></div>
+
+                    <button id="btn-save-team-config" type="button" class="w-full bg-slate-800 hover:bg-slate-700 text-brand-500 hover:text-white border border-brand-500/30 font-bold py-2.5 px-4 rounded-xl shadow-md transition-all flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-arrows-rotate text-sm"></i>
+                        <span>Actualizar Equipos en Overlay</span>
                     </button>
                 </section>
-                <section class="glass-card rounded-2xl p-6 flex flex-col gap-4">
-                    <div class="flex items-center gap-3 pb-3 border-b border-slate-800">
-                        <div class="w-9 h-9 rounded-lg bg-amber-500/10 border border-amber-500/20 flex items-center justify-center shrink-0">
+
+                <!-- CONTROL DE SERIE Y TORNEO -->
+                <section class="glass-card glass-card-hover rounded-2xl p-5 flex flex-col gap-4">
+                    <div class="flex items-center gap-3 pb-3 border-b border-slate-800/80">
+                        <div class="w-9 h-9 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center shrink-0">
                             <i class="fa-solid fa-trophy text-amber-500 text-base"></i>
                         </div>
-                        <h2 class="font-bold text-sm text-slate-200">Serie / Torneo</h2>
-                    </div>
-                    <p class="text-xs text-slate-400 leading-relaxed -mt-1">
-                        Esto no viene del juego: lo controlas tú como operador de transmisión (igual que en un broadcast real).
-                    </p>
-                    <div class="grid grid-cols-2 gap-4">
-                        <div class="flex flex-col gap-2">
-                            <label for="series-phase" class="text-xs font-semibold text-slate-400">Fase del torneo:</label>
-                            <input type="text" id="series-phase" placeholder="Ej: Semifinal" maxlength="40" class="bg-slate-950 border border-slate-800 focus:border-brand-500 focus:ring-1 focus:ring-brand-500 text-slate-200 rounded-xl px-3.5 py-2 text-xs outline-none transition-all">
+                        <div>
+                            <h2 class="font-bold text-sm text-slate-200">Control de Serie / Torneo</h2>
+                            <p class="text-[10px] text-slate-400">Marcador de victorias de la serie (Best of N)</p>
                         </div>
-                        <div class="flex flex-col gap-2">
-                            <label for="series-format" class="text-xs font-semibold text-slate-400">Formato:</label>
-                            <select id="series-format" class="bg-slate-950 border border-slate-800 focus:border-brand-500 focus:ring-1 focus:ring-brand-500 text-slate-200 rounded-xl px-3.5 py-2 text-xs outline-none transition-all">
-                                <option value="bo1">Bo1</option>
-                                <option value="bo3">Bo3</option>
-                                <option value="bo5">Bo5</option>
-                                <option value="bo7">Bo7</option>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3">
+                        <div class="flex flex-col gap-1.5">
+                            <label for="series-phase" class="text-xs font-semibold text-slate-300">Fase del Torneo:</label>
+                            <input type="text" id="series-phase" placeholder="Ej: FINALES" maxlength="40" class="bg-slate-950/90 border border-slate-800 focus:border-amber-500 focus:ring-1 focus:ring-amber-500 text-slate-200 rounded-xl px-3.5 py-2 text-xs outline-none transition-all uppercase">
+                        </div>
+                        <div class="flex flex-col gap-1.5">
+                            <label for="series-format" class="text-xs font-semibold text-slate-300">Formato:</label>
+                            <select id="series-format" class="bg-slate-950/90 border border-slate-800 focus:border-amber-500 focus:ring-1 focus:ring-amber-500 text-slate-200 rounded-xl px-3.5 py-2 text-xs outline-none transition-all">
+                                <option value="bo1">BO1 (Best of 1)</option>
+                                <option value="bo3">BO3 (Best of 3)</option>
+                                <option value="bo5" selected>BO5 (Best of 5)</option>
+                                <option value="bo7">BO7 (Best of 7)</option>
                             </select>
                         </div>
                     </div>
-                    <div class="grid grid-cols-2 gap-4">
-                        <div class="flex flex-col items-center gap-2 bg-slate-950/40 p-3 rounded-xl border border-slate-900">
-                            <span class="text-[10px] font-bold text-rlblue uppercase">Serie Azul</span>
+
+                    <div class="grid grid-cols-2 gap-3">
+                        <div class="flex flex-col items-center gap-2 bg-slate-950/60 p-3 rounded-xl border border-slate-800">
+                            <span class="text-[10px] font-black text-rlblue uppercase tracking-widest">Serie Azul</span>
                             <div class="flex items-center gap-3">
-                                <button id="btn-series-blue-minus" type="button" class="w-8 h-8 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-base flex items-center justify-center transition-all">-</button>
-                                <span id="series-blue-score" class="text-2xl font-black text-white w-7 text-center">0</span>
-                                <button id="btn-series-blue-plus" type="button" class="w-8 h-8 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-base flex items-center justify-center transition-all">+</button>
+                                <button id="btn-series-blue-minus" type="button" class="w-8 h-8 rounded-lg bg-slate-800 hover:bg-slate-700 active:scale-95 text-slate-200 font-bold text-base flex items-center justify-center transition-all">-</button>
+                                <span id="series-blue-score" class="text-2xl font-black text-white w-8 text-center font-mono">0</span>
+                                <button id="btn-series-blue-plus" type="button" class="w-8 h-8 rounded-lg bg-slate-800 hover:bg-slate-700 active:scale-95 text-slate-200 font-bold text-base flex items-center justify-center transition-all">+</button>
                             </div>
                         </div>
-                        <div class="flex flex-col items-center gap-2 bg-slate-950/40 p-3 rounded-xl border border-slate-900">
-                            <span class="text-[10px] font-bold text-rlorange uppercase">Serie Naranja</span>
+
+                        <div class="flex flex-col items-center gap-2 bg-slate-950/60 p-3 rounded-xl border border-slate-800">
+                            <span class="text-[10px] font-black text-rlorange uppercase tracking-widest">Serie Naranja</span>
                             <div class="flex items-center gap-3">
-                                <button id="btn-series-orange-minus" type="button" class="w-8 h-8 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-base flex items-center justify-center transition-all">-</button>
-                                <span id="series-orange-score" class="text-2xl font-black text-white w-7 text-center">0</span>
-                                <button id="btn-series-orange-plus" type="button" class="w-8 h-8 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-base flex items-center justify-center transition-all">+</button>
+                                <button id="btn-series-orange-minus" type="button" class="w-8 h-8 rounded-lg bg-slate-800 hover:bg-slate-700 active:scale-95 text-slate-200 font-bold text-base flex items-center justify-center transition-all">-</button>
+                                <span id="series-orange-score" class="text-2xl font-black text-white w-8 text-center font-mono">0</span>
+                                <button id="btn-series-orange-plus" type="button" class="w-8 h-8 rounded-lg bg-slate-800 hover:bg-slate-700 active:scale-95 text-slate-200 font-bold text-base flex items-center justify-center transition-all">+</button>
                             </div>
                         </div>
                     </div>
                 </section>
-                <section class="glass-card rounded-2xl p-5 text-xs text-slate-400 flex flex-col gap-3">
-                    <div class="flex items-center gap-3 font-bold text-slate-200 pb-2 border-b border-slate-800">
-                        <div class="w-9 h-9 rounded-lg bg-amber-500/10 border border-amber-500/20 flex items-center justify-center shrink-0">
-                            <i class="fa-solid fa-bullseye text-amber-500 text-base"></i>
-                        </div>
-                        <span>Cámara Espectador / Objetivo</span>
-                    </div>
-                    <div class="flex items-center justify-between bg-slate-950/40 p-2.5 rounded-xl border border-slate-900">
-                        <span class="text-[11px] text-slate-400">Enfocado actualmente:</span>
-                        <span id="target-player" class="font-extrabold text-brand-500 text-xs">Ninguno</span>
-                    </div>
-                </section>
-                -->
-            </div>
-            <template id="disabled-dashboard-column">
-            <div class="lg:col-span-8 flex flex-col gap-6">
-                <!-- HEADER SUPER-SIMPLIFICADO DE PARTIDA EN VIVO -->
-                <div class="glass-card rounded-2xl p-4 flex flex-wrap items-center justify-between gap-4 relative overflow-hidden">
-                    <div class="flex items-center gap-3">
-                        <span id="target-player-badge" class="px-3 py-1 bg-brand-500/10 text-brand-500 border border-brand-500/20 text-xs font-black rounded-lg uppercase tracking-wider">
-                            TARGET FOCUS: DANYELM855
+
+                <!-- TERMINAL DE LOGS -->
+                <section class="glass-card rounded-2xl p-4 flex flex-col gap-3">
+                    <div class="flex items-center justify-between border-b border-slate-800/80 pb-2">
+                        <span class="text-xs font-extrabold text-slate-300 flex items-center gap-2">
+                            <i class="fa-solid fa-terminal text-brand-500 text-xs"></i> Registro de Eventos
                         </span>
-                        <div class="flex items-center gap-1.5 bg-slate-900 border border-slate-800 rounded-lg px-2.5 py-1">
-                            <span class="text-[10px] font-semibold text-slate-500 uppercase">Reloj:</span>
-                            <span id="match-timer" class="text-xs font-mono font-bold text-slate-100">05:00</span>
-                        </div>
+                        <span class="text-[9px] bg-slate-900 text-slate-400 px-2 py-0.5 rounded font-mono">Socket Live</span>
                     </div>
-                    <div class="flex items-center gap-4">
-                        <div class="flex items-center gap-2 bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 rounded-lg px-3 py-1.5 text-xs font-extrabold">
-                            <i class="fa-solid fa-gauge-high text-sm"></i>
-                            <span>Vel. Balón: <span id="ball-speed" class="text-white">0</span> km/h</span>
-                        </div>
+                    <div id="log-terminal" class="bg-slate-950 p-3 rounded-xl font-mono text-[11px] text-slate-300 h-36 overflow-y-auto space-y-1 border border-slate-900 leading-relaxed">
+                        <div class="text-slate-500">// Esperando eventos de Rocket League...</div>
                     </div>
-                </div>
-
-                <!-- CONTENEDOR PRINCIPAL: CORE STATS COCKPIT (FULL WIDTH) -->
-                <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
-                    <!-- CUADRO DE ESTADÍSTICAS PRO SUPER-DETALLADO (Lg: col-span-12) -->
-                    <section class="lg:col-span-12 flex flex-col gap-5">
-                        <!-- PANEL DE CONTROL TÁCTICO: AIRE VS SUELO -->
-                        <div class="glass-card rounded-2xl p-5 flex flex-col gap-3">
-                            <div class="flex items-center justify-between border-b border-slate-800 pb-2">
-                                <span class="text-xs font-black text-slate-200 tracking-wider flex items-center gap-2">
-                                    <i class="fa-solid fa-angles-up text-indigo-400 text-sm"></i> DISTRIBUCIÓN DE ALTURA / ACROBACIA
-                                </span>
-                                <span class="text-[9px] bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 px-1.5 py-0.5 rounded-md font-bold uppercase">Aéreo vs Suelo</span>
-                            </div>
-                            
-                            <!-- Barra dual de progreso -->
-                            <div class="flex flex-col gap-2.5">
-                                <div class="flex justify-between text-xs font-extrabold text-slate-400">
-                                    <span class="flex items-center gap-1.5"><i class="fa-solid fa-plane text-cyan-400"></i> Tiempo Aéreo: <span id="db-air-pct" class="text-white">0%</span></span>
-                                    <span class="flex items-center gap-1.5">Suelo: <span id="db-ground-pct" class="text-white">100%</span> <i class="fa-solid fa-car text-emerald-400"></i></span>
-                                </div>
-                                <div class="w-full h-3 bg-slate-950 rounded-full overflow-hidden border border-slate-900 flex">
-                                    <div id="db-air-bar" class="bg-gradient-to-r from-cyan-500 to-indigo-500 h-full transition-all duration-300 shadow-[0_0_10px_rgba(6,182,212,0.4)]" style="width: 0%"></div>
-                                    <div id="db-ground-bar" class="bg-gradient-to-r from-emerald-500 to-teal-500 h-full transition-all duration-300" style="width: 100%"></div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- PANEL CINEMÁTICA Y MOVILIDAD -->
-                        <div class="grid grid-cols-2 gap-4">
-                            <div class="glass-card rounded-2xl p-4 flex flex-col gap-2">
-                                <span class="text-[10px] font-extrabold text-slate-500 uppercase tracking-widest">Velocidad Promedio</span>
-                                <div class="flex items-baseline gap-1.5 mt-1">
-                                    <span id="db-avg-speed" class="text-2xl font-black text-white">0 km/h</span>
-                                    <span class="text-[10px] text-slate-500 font-bold">Media</span>
-                                </div>
-                                <div class="flex items-center gap-1.5 mt-1 text-[10px] text-slate-400 font-semibold border-t border-slate-900 pt-1.5">
-                                    <span>Instantánea:</span>
-                                    <span id="db-current-speed" class="text-cyan-400 font-bold">0 km/h</span>
-                                </div>
-                            </div>
-                            
-                            <div class="glass-card rounded-2xl p-4 flex flex-col gap-2">
-                                <span class="text-[10px] font-extrabold text-slate-500 uppercase tracking-widest">Tiempo Supersónico</span>
-                                <div class="flex items-center justify-between mt-1">
-                                    <span id="db-supersonic-pct" class="text-2xl font-black text-white">0%</span>
-                                    <span id="db-supersonic-badge" class="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase bg-slate-900 text-slate-500 border border-slate-800">Crucero</span>
-                                </div>
-                                <p class="text-[9px] text-slate-500 font-bold border-t border-slate-900 pt-1.5 mt-1 uppercase tracking-wider">Velocidad > 2200 UU/s</p>
-                            </div>
-                        </div>
-
-                        <!-- GESTIÓN Y EFICIENCIA DE TURBO -->
-                        <div class="glass-card rounded-2xl p-4 flex flex-col gap-3">
-                            <span class="text-xs font-black text-slate-200 tracking-wider flex items-center gap-1.5">
-                                <i class="fa-solid fa-bolt text-yellow-500"></i> CONSUMO Y EFICIENCIA DE TURBO (BOOST)
-                            </span>
-                            <div class="grid grid-cols-4 gap-2 mt-1 border-t border-slate-900 pt-3">
-                                <div class="flex flex-col text-center p-2 bg-slate-950/40 border border-slate-900 rounded-xl">
-                                    <span class="text-[9px] text-slate-500 font-bold uppercase">Recolectado</span>
-                                    <span id="db-boost-picked-up" class="text-lg font-extrabold text-yellow-400 mt-1">0</span>
-                                </div>
-                                <div class="flex flex-col text-center p-2 bg-slate-950/40 border border-slate-900 rounded-xl">
-                                    <span class="text-[9px] text-slate-500 font-bold uppercase">Consumido</span>
-                                    <span id="db-boost-consumed" class="text-lg font-extrabold text-orange-400 mt-1">0</span>
-                                </div>
-                                <div class="flex flex-col text-center p-2 bg-slate-950/40 border border-slate-900 rounded-xl">
-                                    <span class="text-[9px] text-slate-500 font-bold uppercase">% No Supers.</span>
-                                    <span id="db-boost-non-supersonic-pct" class="text-lg font-extrabold text-rose-400 mt-1">0%</span>
-                                </div>
-                                <div class="flex flex-col text-center p-2 bg-slate-950/40 border border-slate-900 rounded-xl">
-                                    <span class="text-[9px] text-slate-500 font-bold uppercase">Eficiencia</span>
-                                    <span id="db-boost-efficiency" class="text-[11px] font-extrabold text-cyan-400 mt-1.5">0 /toque</span>
-                                </div>
-                            </div>
-                            <div class="text-[10px] text-slate-400 mt-0.5 flex items-start gap-1.5 bg-slate-950/20 px-2.5 py-1.5 rounded-lg">
-                                <i class="fa-solid fa-circle-info text-slate-500 mt-0.5"></i>
-                                <span>Turbo gastado sin estar en supersónico (Aceleración o corrección ineficiente).</span>
-                            </div>
-                        </div>
-
-                        <!-- MÉTRICAS DE COMBATE Y APORTACIÓN -->
-                        <div class="grid grid-cols-3 gap-4">
-                            <div class="glass-card rounded-2xl p-3 flex flex-col items-center justify-center text-center">
-                                <span class="text-[9px] text-slate-500 font-bold uppercase">Golpes al Balón</span>
-                                <span id="db-touches" class="text-2xl font-black text-white mt-1 shadow-sm shadow-cyan-400/20">0</span>
-                            </div>
-                            <div class="glass-card rounded-2xl p-3 flex flex-col items-center justify-center text-center">
-                                <span class="text-[9px] text-slate-500 font-bold uppercase">Score en Juego</span>
-                                <span id="db-score" class="text-2xl font-black text-brand-500 mt-1">0</span>
-                            </div>
-                            <div class="glass-card rounded-2xl p-3 flex flex-col items-center justify-center text-center font-bold">
-                                <span class="text-[9px] text-slate-500 font-bold uppercase">Demoliciones</span>
-                                <span id="db-demos" class="text-2xl font-black text-red-500 mt-1">0</span>
-                            </div>
-                        </div>
-
-                        <!-- REJILLA DETALLADA DE GOLES / ASISTENCIAS / SALVADAS / DISPAROS -->
-                        <div class="glass-card rounded-2xl p-4 grid grid-cols-4 gap-3 bg-slate-950/30">
-                            <div class="text-center p-2">
-                                <div class="text-[9px] text-slate-500 font-black uppercase tracking-wider">Goles</div>
-                                <div id="db-goals" class="text-xl font-black text-emerald-400 mt-0.5">0</div>
-                            </div>
-                            <div class="text-center p-2">
-                                <div class="text-[9px] text-slate-500 font-black uppercase tracking-wider">Disparos</div>
-                                <div id="db-shots" class="text-xl font-black text-cyan-400 mt-0.5">0</div>
-                            </div>
-                            <div class="text-center p-2">
-                                <div class="text-[9px] text-slate-500 font-black uppercase tracking-wider">Salvadas</div>
-                                <div id="db-saves" class="text-xl font-black text-indigo-400 mt-0.5">0</div>
-                            </div>
-                            <div class="text-center p-2">
-                                <div class="text-[9px] text-slate-500 font-black uppercase tracking-wider">Asistencias</div>
-                                <div id="db-assists" class="text-xl font-black text-yellow-400 mt-0.5">0</div>
-                            </div>
-                        </div>
-                    </section>
-                </div>
+                </section>
             </div>
-            </template>
+
+            <!-- COLUMNA DERECHA: DASHBOARD Y HISTORIAL JSON (7 COLS) -->
+            <div class="lg:col-span-7 flex flex-col gap-6">
+                
+                <!-- HEADER DE PARTIDO EN VIVO -->
+                <div class="glass-card rounded-2xl p-5 flex flex-wrap items-center justify-between gap-4 border-b border-brand-500/20 relative overflow-hidden">
+                    <div class="flex flex-wrap items-center gap-3">
+                        <span id="target-player-badge" class="px-3.5 py-1.5 bg-brand-500/15 text-brand-500 border border-brand-500/30 text-xs font-black rounded-xl uppercase tracking-wider shadow-sm">
+                            JUGADOR TARGET: BUSCANDO...
+                        </span>
+                        
+                        <div class="flex items-center gap-2 bg-slate-950/80 border border-slate-800 rounded-xl px-3 py-1.5">
+                            <i class="fa-solid fa-stopwatch text-slate-400 text-xs"></i>
+                            <span class="text-[10px] font-bold text-slate-400 uppercase">Tiempo:</span>
+                            <span id="match-timer" class="text-xs font-mono font-black text-white">05:00</span>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center gap-3">
+                        <div id="overtime-badge" class="hidden bg-rose-500/15 border border-rose-500/30 text-rose-400 px-3 py-1 rounded-xl text-xs font-black uppercase tracking-wider animate-pulse">
+                            Prórroga
+                        </div>
+
+                        <div class="flex items-center gap-2 bg-cyan-500/10 text-cyan-400 border border-cyan-500/25 rounded-xl px-3.5 py-1.5 text-xs font-black">
+                            <i class="fa-solid fa-futbol text-sm"></i>
+                            <span>Pelota: <span id="ball-speed" class="text-white font-mono text-sm">0</span> km/h</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- INFO DE MODO Y ARENA -->
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="glass-card rounded-xl p-3.5 flex items-center gap-3">
+                        <div class="w-8 h-8 rounded-lg bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-indigo-400 shrink-0">
+                            <i class="fa-solid fa-gamepad text-sm"></i>
+                        </div>
+                        <div>
+                            <span class="text-[10px] font-bold text-slate-400 uppercase">Modo de Juego</span>
+                            <div id="match-mode" class="text-xs font-black text-white truncate">Esperando...</div>
+                        </div>
+                    </div>
+
+                    <div class="glass-card rounded-xl p-3.5 flex items-center gap-3">
+                        <div class="w-8 h-8 rounded-lg bg-teal-500/10 border border-teal-500/20 flex items-center justify-center text-teal-400 shrink-0">
+                            <i class="fa-solid fa-map-location-dot text-sm"></i>
+                        </div>
+                        <div>
+                            <span class="text-[10px] font-bold text-slate-400 uppercase">Arena / Estadio</span>
+                            <div id="match-arena" class="text-xs font-black text-white truncate">Esperando...</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SECCIÓN DISTRIBUCIÓN DE ALTURA -->
+                <div class="glass-card rounded-2xl p-5 flex flex-col gap-3">
+                    <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+                        <span class="text-xs font-black text-slate-200 tracking-wider flex items-center gap-2 uppercase">
+                            <i class="fa-solid fa-angles-up text-indigo-400 text-sm"></i> Distribución Posicional / Acrobacia
+                        </span>
+                        <span class="text-[9px] bg-indigo-500/15 text-indigo-400 border border-indigo-500/30 px-2 py-0.5 rounded-full font-extrabold uppercase">Aéreo vs Suelo</span>
+                    </div>
+                    
+                    <div class="flex flex-col gap-2.5 mt-1">
+                        <div class="flex justify-between text-xs font-black text-slate-300">
+                            <span class="flex items-center gap-1.5"><i class="fa-solid fa-plane text-cyan-400"></i> Tiempo Aéreo: <span id="db-air-pct" class="text-white font-mono">0%</span></span>
+                            <span class="flex items-center gap-1.5">Tiempo Suelo: <span id="db-ground-pct" class="text-white font-mono">100%</span> <i class="fa-solid fa-car text-emerald-400"></i></span>
+                        </div>
+                        <div class="w-full h-3.5 bg-slate-950 rounded-full overflow-hidden border border-slate-800 flex shadow-inner">
+                            <div id="db-air-bar" class="bg-gradient-to-r from-cyan-500 to-indigo-500 h-full transition-all duration-300 shadow-[0_0_12px_rgba(6,182,212,0.5)]" style="width: 0%"></div>
+                            <div id="db-ground-bar" class="bg-gradient-to-r from-emerald-500 to-teal-500 h-full transition-all duration-300" style="width: 100%"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- PANEL CINEMÁTICA Y CINÉTICA DE VELOCIDAD -->
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="glass-card glass-card-hover rounded-2xl p-4 flex flex-col gap-2">
+                        <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Velocidad Promedio</span>
+                        <div class="flex items-baseline gap-2 mt-0.5">
+                            <span id="db-avg-speed" class="text-3xl font-black text-white font-mono">0 km/h</span>
+                        </div>
+                        <div class="flex items-center justify-between text-[11px] text-slate-400 font-semibold border-t border-slate-800/80 pt-2 mt-1">
+                            <span>Velocidad Instantánea:</span>
+                            <span id="db-current-speed" class="text-cyan-400 font-black font-mono">0 km/h</span>
+                        </div>
+                    </div>
+                    
+                    <div class="glass-card glass-card-hover rounded-2xl p-4 flex flex-col gap-2">
+                        <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Tiempo Supersónico</span>
+                        <div class="flex items-center justify-between mt-0.5">
+                            <span id="db-supersonic-pct" class="text-2xl font-black text-white font-mono">0%</span>
+                            <span id="db-supersonic-badge" class="px-2.5 py-1 rounded-full text-[10px] font-extrabold uppercase bg-slate-900 text-slate-500 border border-slate-800">Crucero</span>
+                        </div>
+                        <p class="text-[9px] text-slate-400 font-bold border-t border-slate-800/80 pt-2 mt-1 uppercase tracking-wider">Velocidad &gt; 80 KM/H</p>
+                    </div>
+                </div>
+
+                <!-- GESTIÓN Y EFICIENCIA DE TURBO -->
+                <div class="glass-card rounded-2xl p-5 flex flex-col gap-3">
+                    <span class="text-xs font-black text-slate-200 tracking-wider flex items-center gap-2 uppercase">
+                        <i class="fa-solid fa-bolt text-yellow-400"></i> Consumo y Eficiencia de Turbo (Boost)
+                    </span>
+                    <div class="grid grid-cols-4 gap-3 mt-1 border-t border-slate-800/80 pt-3">
+                        <div class="flex flex-col text-center p-2.5 bg-slate-950/60 border border-slate-800/80 rounded-xl">
+                            <span class="text-[9px] text-slate-400 font-bold uppercase">Recolectado</span>
+                            <span id="db-boost-picked-up" class="text-xl font-black text-yellow-400 font-mono mt-1">0</span>
+                        </div>
+                        <div class="flex flex-col text-center p-2.5 bg-slate-950/60 border border-slate-800/80 rounded-xl">
+                            <span class="text-[9px] text-slate-400 font-bold uppercase">Consumido</span>
+                            <span id="db-boost-consumed" class="text-xl font-black text-orange-400 font-mono mt-1">0</span>
+                        </div>
+                        <div class="flex flex-col text-center p-2.5 bg-slate-950/60 border border-slate-800/80 rounded-xl">
+                            <span class="text-[9px] text-slate-400 font-bold uppercase">% No Supers.</span>
+                            <span id="db-boost-non-supersonic-pct" class="text-xl font-black text-rose-400 font-mono mt-1">0%</span>
+                        </div>
+                        <div class="flex flex-col text-center p-2.5 bg-slate-950/60 border border-slate-800/80 rounded-xl">
+                            <span class="text-[9px] text-slate-400 font-bold uppercase">Eficiencia</span>
+                            <span id="db-boost-efficiency" class="text-xs font-black text-cyan-400 mt-2 font-mono">0 /toque</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- MÉTRICAS DE IMPACTO Y COMBATE -->
+                <div class="grid grid-cols-3 gap-4">
+                    <div class="glass-card glass-card-hover rounded-2xl p-4 flex flex-col items-center justify-center text-center">
+                        <span class="text-[10px] text-slate-400 font-black uppercase tracking-wider">Golpes al Balón</span>
+                        <span id="db-touches" class="text-3xl font-black text-white font-mono mt-1">0</span>
+                    </div>
+                    <div class="glass-card glass-card-hover rounded-2xl p-4 flex flex-col items-center justify-center text-center">
+                        <span class="text-[10px] text-slate-400 font-black uppercase tracking-wider">Score Total</span>
+                        <span id="db-score" class="text-3xl font-black text-brand-500 font-mono mt-1">0</span>
+                    </div>
+                    <div class="glass-card glass-card-hover rounded-2xl p-4 flex flex-col items-center justify-center text-center font-bold">
+                        <span class="text-[10px] text-slate-400 font-black uppercase tracking-wider">Demoliciones</span>
+                        <span id="db-demos" class="text-3xl font-black text-rose-500 font-mono mt-1">0</span>
+                    </div>
+                </div>
+
+                <!-- REJILLA DETALLADA DE GOLES / DISPAROS / SALVADAS / ASISTENCIAS -->
+                <div class="glass-card rounded-2xl p-4 grid grid-cols-4 gap-3 bg-slate-950/50 border border-slate-800">
+                    <div class="text-center p-2">
+                        <div class="text-[10px] text-slate-400 font-black uppercase tracking-wider">Goles</div>
+                        <div id="db-goals" class="text-2xl font-black text-emerald-400 font-mono mt-1">0</div>
+                    </div>
+                    <div class="text-center p-2">
+                        <div class="text-[10px] text-slate-400 font-black uppercase tracking-wider">Disparos</div>
+                        <div id="db-shots" class="text-2xl font-black text-cyan-400 font-mono mt-1">0</div>
+                    </div>
+                    <div class="text-center p-2">
+                        <div class="text-[10px] text-slate-400 font-black uppercase tracking-wider">Salvadas</div>
+                        <div id="db-saves" class="text-2xl font-black text-indigo-400 font-mono mt-1">0</div>
+                    </div>
+                    <div class="text-center p-2">
+                        <div class="text-[10px] text-slate-400 font-black uppercase tracking-wider">Asistencias</div>
+                        <div id="db-assists" class="text-2xl font-black text-yellow-400 font-mono mt-1">0</div>
+                    </div>
+                </div>
+
+                <!-- NUEVA SECCIÓN: HISTORIAL DE PARTIDAS GUARDADAS & ARCHIVOS JSON -->
+                <section class="glass-card rounded-2xl p-5 flex flex-col gap-4">
+                    <div class="flex items-center justify-between border-b border-slate-800/80 pb-3">
+                        <div class="flex items-center gap-3">
+                            <div class="w-9 h-9 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400 shrink-0">
+                                <i class="fa-solid fa-file-code text-base"></i>
+                            </div>
+                            <div>
+                                <h2 class="font-bold text-sm text-slate-200">Historial & Archivos JSON de Partidas</h2>
+                                <p class="text-[10px] text-slate-400">Resúmenes guardados en <span class="font-mono text-slate-300">data/matches/*.json</span></p>
+                            </div>
+                        </div>
+
+                        <button id="btn-refresh-matches" type="button" class="bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700 rounded-xl px-3 py-1.5 text-xs font-bold transition-all flex items-center gap-1.5">
+                            <i class="fa-solid fa-rotate-right"></i>
+                            <span>Refrescar</span>
+                        </button>
+                    </div>
+
+                    <div id="matches-json-list" class="flex flex-col gap-2 max-h-64 overflow-y-auto pr-1">
+                        <div class="text-xs text-slate-500 text-center py-4">Cargando partidas guardadas...</div>
+                    </div>
+                </section>
+
+            </div>
+
         </div>
     </div>
+
+    <!-- MODAL VISOR DE JSON -->
+    <div id="json-modal" class="hidden fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 flex items-center justify-center p-4">
+        <div class="glass-card rounded-2xl border border-slate-800 w-full max-w-3xl flex flex-col max-h-[85vh] shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+            <div class="flex items-center justify-between p-4 border-b border-slate-800/80 bg-slate-900/60">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-lg bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center text-cyan-400">
+                        <i class="fa-solid fa-code text-sm"></i>
+                    </div>
+                    <h3 id="json-modal-title" class="font-extrabold text-sm text-white font-mono">Visor de JSON</h3>
+                </div>
+
+                <div class="flex items-center gap-2">
+                    <button id="btn-copy-json" type="button" class="bg-slate-800 hover:bg-slate-700 text-cyan-400 hover:text-white border border-slate-700 rounded-xl px-3 py-1.5 text-xs font-bold transition-all flex items-center gap-1.5">
+                        <i class="fa-regular fa-copy"></i>
+                        <span>Copiar JSON</span>
+                    </button>
+                    <button id="btn-close-json-modal" type="button" class="w-8 h-8 rounded-xl bg-slate-800 hover:bg-rose-600 text-slate-400 hover:text-white flex items-center justify-center transition-all">
+                        <i class="fa-solid fa-xmark text-sm"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="p-4 flex-1 overflow-hidden flex flex-col">
+                <pre id="json-modal-code" class="flex-1 bg-slate-950 p-4 rounded-xl font-mono text-xs text-cyan-300 overflow-auto border border-slate-900 leading-relaxed select-text"></pre>
+            </div>
+        </div>
+    </div>
+
+    <!-- SCRIPTS LÓGICOS (EEL & SOCKET) -->
     <script type="text/javascript" src="/eel.js"></script>
     <script>
+        // Elementos de Configuración y Control
         const folderPathInput = document.getElementById('folder-path');
         const apiPortInput = document.getElementById('api-port');
         const sendRateInput = document.getElementById('send-rate');
@@ -383,12 +523,25 @@
         const statusDot = document.getElementById('status-dot');
         const statusText = document.getElementById('status-text');
         const toggleCapture = document.getElementById('toggle-capture');
+        
         const matchTimer = document.getElementById('match-timer');
         const ballSpeed = document.getElementById('ball-speed');
         const matchMode = document.getElementById('match-mode');
         const matchArena = document.getElementById('match-arena');
         const overtimeBadge = document.getElementById('overtime-badge');
-        const targetPlayer = document.getElementById('target-player');
+        const targetPlayerBadge = document.getElementById('target-player-badge');
+
+        const btnInspectLiveJson = document.getElementById('btn-inspect-live-json');
+        const jsonModal = document.getElementById('json-modal');
+        const jsonModalTitle = document.getElementById('json-modal-title');
+        const jsonModalCode = document.getElementById('json-modal-code');
+        const btnCopyJson = document.getElementById('btn-copy-json');
+        const btnCloseJsonModal = document.getElementById('btn-close-json-modal');
+        const matchesJsonList = document.getElementById('matches-json-list');
+        const btnRefreshMatches = document.getElementById('btn-refresh-matches');
+
+        let latestRawTelemetryPayload = null;
+        let currentModalJsonString = "";
 
         const playlistNames = {
             1: "Duelo (1v1)",
@@ -422,8 +575,6 @@
             lastSaves: 0,
             lastShots: 0,
             lastTouches: 0,
-            
-            // Métricas avanzadas de rendimiento pro
             boostConsumed: 0,
             boostConsumedNonSupersonic: 0,
             boostPickedUp: 0,
@@ -435,8 +586,120 @@
 
         let lastBlueScore = 0;
         let lastOrangeScore = 0;
+        let teamNameSuggested = { blue: false, orange: false };
 
-        // Elementos y lógica colapsable de la Configuración de la API
+        // Modal de JSON
+        function openJsonModal(title, jsonObj) {
+            jsonModalTitle.textContent = title;
+            currentModalJsonString = JSON.stringify(jsonObj, null, 2);
+            jsonModalCode.textContent = currentModalJsonString;
+            jsonModal.classList.remove('hidden');
+        }
+
+        if (btnCloseJsonModal) {
+            btnCloseJsonModal.addEventListener('click', () => {
+                jsonModal.classList.add('hidden');
+            });
+        }
+
+        if (btnCopyJson) {
+            btnCopyJson.addEventListener('click', async () => {
+                try {
+                    await navigator.clipboard.writeText(currentModalJsonString);
+                    btnCopyJson.innerHTML = `<i class="fa-solid fa-check text-emerald-400"></i> <span class="text-emerald-400">¡Copiado!</span>`;
+                    setTimeout(() => {
+                        btnCopyJson.innerHTML = `<i class="fa-regular fa-copy"></i> <span>Copiar JSON</span>`;
+                    }, 2000);
+                } catch (e) {
+                    console.error("Error al copiar JSON:", e);
+                }
+            });
+        }
+
+        if (btnInspectLiveJson) {
+            btnInspectLiveJson.addEventListener('click', () => {
+                if (latestRawTelemetryPayload) {
+                    openJsonModal("RAW JSON - Telemetría en Vivo (Socket)", latestRawTelemetryPayload);
+                } else {
+                    openJsonModal("RAW JSON - Telemetría en Vivo", { message: "Aún no se ha recibido ningún paquete de telemetría por Socket." });
+                }
+            });
+        }
+
+        async function loadSavedMatchesList() {
+            if (!matchesJsonList) return;
+            try {
+                const matches = await eel.get_saved_matches()();
+                if (!matches || matches.length === 0) {
+                    matchesJsonList.innerHTML = `<div class="text-xs text-slate-500 text-center py-4">No se han encontrado archivos JSON de partidas guardadas aún en data/matches/.</div>`;
+                    return;
+                }
+
+                matchesJsonList.innerHTML = '';
+                matches.forEach(m => {
+                    const item = document.createElement('div');
+                    item.className = "flex items-center justify-between bg-slate-950/70 border border-slate-800/80 hover:border-brand-500/40 rounded-xl p-3 transition-all";
+                    
+                    const summary = m.summary || {};
+                    const arena = summary.arena ? (arenaNames[summary.arena.toLowerCase()] || summary.arena) : "Estadio Desconocido";
+                    const teams = summary.teams || [];
+                    const blueTeam = teams.find(t => (t.team_num !== undefined ? t.team_num : t.team) === 0) || {};
+                    const orangeTeam = teams.find(t => (t.team_num !== undefined ? t.team_num : t.team) === 1) || {};
+                    const blueScore = blueTeam.score !== undefined ? blueTeam.score : 0;
+                    const orangeScore = orangeTeam.score !== undefined ? orangeTeam.score : 0;
+                    
+                    item.innerHTML = `
+                        <div class="flex items-center gap-3">
+                            <div class="w-8 h-8 rounded-lg bg-slate-900 border border-slate-800 flex items-center justify-center text-amber-400 font-mono text-xs font-bold shrink-0">
+                                <i class="fa-solid fa-file-lines"></i>
+                            </div>
+                            <div>
+                                <div class="text-xs font-bold text-white flex items-center gap-2">
+                                    <span>${blueTeam.name || 'AZUL'} (${blueScore}) - (${orangeScore}) ${orangeTeam.name || 'NARANJA'}</span>
+                                    ${summary.overtime ? '<span class="text-[9px] bg-rose-500/20 text-rose-400 px-1.5 py-0.5 rounded font-mono uppercase">OT</span>' : ''}
+                                </div>
+                                <div class="text-[10px] text-slate-400 font-mono flex items-center gap-2 mt-0.5">
+                                    <span>${m.mtime}</span>
+                                    <span>•</span>
+                                    <span>${arena}</span>
+                                    <span>•</span>
+                                    <span class="text-slate-500">${m.filename}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <button type="button" class="btn-view-match-json bg-slate-900 hover:bg-slate-800 text-cyan-400 hover:text-white border border-slate-800 rounded-lg px-2.5 py-1.5 text-xs font-bold transition-all shrink-0 flex items-center gap-1.5" data-filename="${m.filename}">
+                            <i class="fa-solid fa-code text-xs"></i>
+                            <span>Ver JSON</span>
+                        </button>
+                    `;
+                    matchesJsonList.appendChild(item);
+                });
+
+                document.querySelectorAll('.btn-view-match-json').forEach(btn => {
+                    btn.addEventListener('click', async (e) => {
+                        const filename = e.currentTarget.getAttribute('data-filename');
+                        const jsonContent = await eel.get_match_json_content(filename)();
+                        if (jsonContent) {
+                            openJsonModal(`JSON: ${filename}`, jsonContent);
+                        }
+                    });
+                });
+            } catch (err) {
+                console.error("Error al cargar la lista de partidas guardadas:", err);
+            }
+        }
+
+        if (btnRefreshMatches) {
+            btnRefreshMatches.addEventListener('click', () => loadSavedMatchesList());
+        }
+
+        eel.expose(on_match_saved);
+        function on_match_saved(summary) {
+            addLog(`💾 ¡Partida finalizada! Resumen guardado en JSON.`);
+            loadSavedMatchesList();
+        }
+
+        // Lógica Colapsable de Configuración API
         const btnToggleSettings = document.getElementById('btn-toggle-settings');
         const settingsContent = document.getElementById('settings-content');
         const settingsChevron = document.getElementById('settings-chevron');
@@ -466,12 +729,12 @@
             btnToggleSettings.addEventListener('click', () => toggleSettingsPanel());
         }
 
-
         sendRateInput.addEventListener('input', () => {
-            rateVal.textContent = sendRateInput.value;
+            rateVal.textContent = `${sendRateInput.value} Hz`;
         });
 
         function showSettingsStatus(msg, type) {
+            if (!settingsStatus) return;
             settingsStatus.textContent = msg;
             settingsStatus.className = "text-xs rounded-xl p-3.5 border font-medium block";
             if (type === 'success') {
@@ -490,7 +753,7 @@
                     folderPathInput.value = state.path || '';
                     apiPortInput.value = state.port || 49124;
                     sendRateInput.value = state.send_rate || 30;
-                    rateVal.textContent = state.send_rate || 30;
+                    rateVal.textContent = `${state.send_rate || 30} Hz`;
                     toggleCapture.checked = state.capture_active;
                     
                     if (bannerPort) bannerPort.textContent = state.port || 49124;
@@ -499,10 +762,10 @@
                     const hasPath = state.path && state.path.trim() !== '';
                     if (hasPath || state.has_existing) {
                         if (configBanner) configBanner.classList.remove('hidden');
-                        toggleSettingsPanel(false); // Colapsar por defecto si ya está configurado
+                        toggleSettingsPanel(false);
                     } else {
                         if (configBanner) configBanner.classList.add('hidden');
-                        toggleSettingsPanel(true);  // Expandir de primeras si está vacío
+                        toggleSettingsPanel(true);
                     }
 
                     if (state.capture_active) {
@@ -580,7 +843,6 @@
                 lastSaves: 0,
                 lastShots: 0,
                 lastTouches: 0,
-                
                 boostConsumed: 0,
                 boostConsumedNonSupersonic: 0,
                 boostPickedUp: 0,
@@ -592,15 +854,21 @@
             teamNameSuggested = { blue: false, orange: false };
         }
 
-        let teamNameSuggested = { blue: false, orange: false };
-
         function suggestTeamName(side, name) {
             if (!name || teamNameSuggested[side]) return;
             const input = side === 'blue' ? teamBlueNameInput : teamOrangeNameInput;
-            if (input && document.activeElement !== input && !input.value) {
-                input.value = name;
+            if (input && document.activeElement !== input) {
+                if (!input.value || input.value === 'Azul' || input.value === 'Naranja') {
+                    input.value = name;
+                }
             }
             teamNameSuggested[side] = true;
+            if (teamBlueNameInput && teamOrangeNameInput && (teamBlueNameInput.value || teamOrangeNameInput.value)) {
+                eel.set_team_config(
+                    teamBlueNameInput.value.trim(),
+                    teamOrangeNameInput.value.trim()
+                )();
+            }
         }
 
         function addLog(message) {
@@ -610,10 +878,11 @@
             
             const time = new Date().toLocaleTimeString();
             const logItem = document.createElement('div');
-            logItem.innerHTML = `<span class="text-slate-500">[${time}]</span> ${message}`;
+            logItem.className = "hover:bg-slate-900/50 rounded px-1 transition-colors";
+            logItem.innerHTML = `<span class="text-slate-500 font-mono">[${time}]</span> ${message}`;
             logTerminal.appendChild(logItem);
             
-            while (logTerminal.children.length > 50) {
+            while (logTerminal.children.length > 60) {
                 logTerminal.removeChild(logTerminal.firstChild);
             }
             
@@ -621,9 +890,10 @@
         }
 
         function updateStatusUI(status, label) {
+            if (!statusText || !statusDot) return;
             statusText.textContent = label;
             statusDot.className = "w-2.5 h-2.5 rounded-full pulse-indicator";
-            statusText.className = "text-xs font-bold uppercase";
+            statusText.className = "text-xs font-bold uppercase tracking-wide";
             if (status === 'connected') {
                 statusDot.classList.add('bg-emerald-500');
                 statusText.classList.add('text-emerald-400');
@@ -638,13 +908,12 @@
 
         function formatTime(seconds) {
             const m = Math.floor(seconds / 60);
-            const s = seconds % 60;
+            const s = Math.floor(seconds % 60);
             return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
         }
 
         eel.expose(on_status_change);
         function on_status_change(status, message) {
-            console.log("Status change:", status, message);
             addLog(message);
             if (status === 'connected') {
                 updateStatusUI('connected', 'Capturando datos');
@@ -665,6 +934,8 @@
 
         eel.expose(on_telemetry_data);
         function on_telemetry_data(payload) {
+            latestRawTelemetryPayload = payload;
+
             const eventName = payload.Event || payload.event;
             let data = payload.Data || payload.data;
             if (!data) return;
@@ -673,7 +944,7 @@
                 try {
                     data = JSON.parse(data);
                 } catch (e) {
-                    console.error("Error al deserializar Data secundaria de Rocket League:", e);
+                    console.error("Error al deserializar Data secundaria:", e);
                     return;
                 }
             }
@@ -722,13 +993,8 @@
                     orangeScore = game.orange_score !== undefined ? game.orange_score : 0;
                 }
 
-                // --- DETECCION EVENTO DE GOL ---
-                if (blueScore > lastBlueScore) {
-                    addLog("⚽ ¡GOOOOOL DEL EQUIPO AZUL! 🔵");
-                }
-                if (orangeScore > lastOrangeScore) {
-                    addLog("⚽ ¡GOOOOOL DEL EQUIPO NARANJA! 🟠");
-                }
+                if (blueScore > lastBlueScore) addLog("⚽ ¡GOL DEL EQUIPO AZUL! 🔵");
+                if (orangeScore > lastOrangeScore) addLog("⚽ ¡GOL DEL EQUIPO NARANJA! 🟠");
                 lastBlueScore = blueScore;
                 lastOrangeScore = orangeScore;
 
@@ -742,11 +1008,11 @@
                     rawBallSpeed = game.ball_speed !== undefined ? game.ball_speed : 0;
                 }
 
-                let speedKmh = rawBallSpeed;
-                if (rawBallSpeed > 0 && rawBallSpeed < 10) {
-                    speedKmh = Math.round(rawBallSpeed * 100);
-                } else if (rawBallSpeed > 300) {
+                let speedKmh = 0;
+                if (rawBallSpeed > 300) {
                     speedKmh = Math.round(rawBallSpeed * 0.036);
+                } else if (rawBallSpeed > 0 && rawBallSpeed <= 24) {
+                    speedKmh = Math.round(rawBallSpeed * 3.6);
                 } else {
                     speedKmh = Math.round(rawBallSpeed);
                 }
@@ -755,28 +1021,25 @@
                 if (ballSpeed) ballSpeed.textContent = speedKmh;
 
                 if (game.PlaylistId !== undefined && matchMode) {
-                    matchMode.textContent = "Modo: " + (playlistNames[game.PlaylistId] || `ID ${game.PlaylistId}`);
+                    matchMode.textContent = playlistNames[game.PlaylistId] || `Playlist ID ${game.PlaylistId}`;
                 }
                 if (game.Arena && matchArena) {
-                    matchArena.textContent = "Arena: " + (arenaNames[game.Arena.toLowerCase()] || game.Arena);
+                    matchArena.textContent = arenaNames[game.Arena.toLowerCase()] || game.Arena;
                 }
                 if (game.bOvertime && overtimeBadge) {
                     overtimeBadge.classList.remove('hidden');
                 } else if (overtimeBadge) {
                     overtimeBadge.classList.add('hidden');
                 }
-                if (game.Target && game.Target.Name && targetPlayer) {
-                    targetPlayer.textContent = game.Target.Name;
-                } else if (game.Target && game.Target.name && targetPlayer) {
-                    targetPlayer.textContent = game.Target.name;
-                } else if (targetPlayer) {
-                    targetPlayer.textContent = "Cámara Libre / Ninguno";
-                }
             }
 
             const players = data.Players || data.players;
             if (players && players.length > 0) {
-                let targetUser = players.find(p => (p.Name || p.name || '').toLowerCase().includes('danyelm855'));
+                const target = game && (game.Target || game.target);
+                let targetUser = null;
+                if (target && target.Name) {
+                    targetUser = players.find(p => (p.Name || p.name) === target.Name);
+                }
                 if (!targetUser) targetUser = players[0]; 
                 
                 if (targetUser) {
@@ -785,29 +1048,19 @@
                     const bOnGround = targetUser.bOnGround !== undefined ? targetUser.bOnGround : true;
                     const speedVal = targetUser.Speed !== undefined ? targetUser.Speed : (targetUser.speed !== undefined ? targetUser.speed : 0);
                     
-                    // Conversión inteligente adaptativa a km/h según unidad de origen (UU/s, m/s, o km/h)
                     let speedKmh = 0;
                     if (speedVal > 300) {
-                        // Viene en Unreal Units por segundo (ej. 2300 UU/s)
                         speedKmh = Math.round(speedVal * 0.036);
                     } else if (speedVal > 0 && speedVal <= 24) {
-                        // Viene en m/s (ej. 22.5 m/s)
                         speedKmh = Math.round(speedVal * 3.6);
                     } else {
-                        // Ya viene en km/h o es 0
                         speedKmh = Math.round(speedVal);
                     }
                     
-                    if (boost < 20) {
-                        userStats.lowBoostFrames++;
-                    }
-                    if (bOnGround) {
-                        userStats.onGroundFrames++;
-                    } else {
-                        userStats.airFrames++;
-                    }
+                    if (boost < 20) userStats.lowBoostFrames++;
+                    if (bOnGround) userStats.onGroundFrames++;
+                    else userStats.airFrames++;
                     
-                    // Trackear consumo y recolección de boost
                     if (userStats.lastBoostVal !== undefined) {
                         const bDiff = boost - userStats.lastBoostVal;
                         if (bDiff > 0) {
@@ -815,32 +1068,26 @@
                         } else if (bDiff < 0) {
                             const consumed = Math.abs(bDiff);
                             userStats.boostConsumed += consumed;
-                            if (speedKmh < 79) {
+                            if (speedKmh < 80) {
                                 userStats.boostConsumedNonSupersonic += consumed;
                             }
                         }
                     }
                     userStats.lastBoostVal = boost;
                     
-                    // Trackear cinemática de velocidad
                     userStats.totalSpeedSum += speedKmh;
                     userStats.speedCount++;
-                    if (speedKmh >= 79) {
-                        userStats.supersonicFrames++;
-                    }
+                    if (speedKmh >= 80) userStats.supersonicFrames++;
                     
                     userStats.demos = targetUser.Demos !== undefined ? targetUser.Demos : (targetUser.demos !== undefined ? targetUser.demos : 0);
-                    
                     userStats.lastScore = targetUser.Score !== undefined ? targetUser.Score : 0;
                     userStats.lastGoals = targetUser.Goals !== undefined ? targetUser.Goals : 0;
                     userStats.lastSaves = targetUser.Saves !== undefined ? targetUser.Saves : 0;
                     userStats.lastShots = targetUser.Shots !== undefined ? targetUser.Shots : 0;
                     userStats.lastTouches = targetUser.Touches !== undefined ? targetUser.Touches : 0;
                     
-                    // Actualizar el nombre del target de enfoque
-                    const badge = document.getElementById('target-player-badge');
-                    if (badge) {
-                        badge.textContent = `TARGET FOCUS: ${targetUser.Name || 'DANYELM855'}`;
+                    if (targetPlayerBadge) {
+                        targetPlayerBadge.textContent = `TARGET FOCUS: ${(targetUser.Name || targetUser.name || 'JUGADOR').toUpperCase()}`;
                     }
                     
                     updateProStatsDashboard(targetUser, speedKmh);
@@ -849,7 +1096,6 @@
         }
 
         function updateProStatsDashboard(player, currentSpeedKmh) {
-            // Elementos del dashboard
             const dbAirPct = document.getElementById('db-air-pct');
             const dbGroundPct = document.getElementById('db-ground-pct');
             const dbAirBar = document.getElementById('db-air-bar');
@@ -873,7 +1119,6 @@
             const dbSaves = document.getElementById('db-saves');
             const dbAssists = document.getElementById('db-assists');
             
-            // Cálculos
             const total = userStats.totalFrames || 1;
             const airPct = Math.round((userStats.airFrames / total) * 100);
             const groundPct = 100 - airPct;
@@ -888,7 +1133,6 @@
             const touches = userStats.lastTouches;
             const boostEfficiency = touches > 0 ? (userStats.boostConsumed / touches).toFixed(1) : 0;
             
-            // Actualizar interfaz con animaciones y opacidades
             if (dbAirPct) dbAirPct.textContent = `${airPct}%`;
             if (dbGroundPct) dbGroundPct.textContent = `${groundPct}%`;
             if (dbAirBar) dbAirBar.style.width = `${airPct}%`;
@@ -896,14 +1140,14 @@
             
             if (dbAvgSpeed) dbAvgSpeed.textContent = `${avgSpeed} km/h`;
             if (dbCurrentSpeed) dbCurrentSpeed.textContent = `${currentSpeedKmh} km/h`;
-            if (dbSupersonicPct) dbSupersonicPct.textContent = `${supersonicPct}% del tiempo`;
+            if (dbSupersonicPct) dbSupersonicPct.textContent = `${supersonicPct}%`;
             
             if (dbSupersonicBadge) {
-                if (currentSpeedKmh > 79) { // 80 km/h o más es supersónico (>2200 UU/s is 79.2 km/h)
-                    dbSupersonicBadge.className = "px-2 py-0.5 rounded-full text-[10px] font-black uppercase bg-cyan-500/20 text-cyan-400 border border-cyan-500/30 animate-pulse shadow-[0_0_8px_rgba(34,211,238,0.3)]";
+                if (currentSpeedKmh >= 80) {
+                    dbSupersonicBadge.className = "px-2.5 py-1 rounded-full text-[10px] font-black uppercase bg-cyan-500/20 text-cyan-400 border border-cyan-500/30 animate-pulse shadow-[0_0_8px_rgba(34,211,238,0.3)]";
                     dbSupersonicBadge.textContent = "Supersónico";
                 } else {
-                    dbSupersonicBadge.className = "px-2 py-0.5 rounded-full text-[10px] font-bold uppercase bg-slate-900 text-slate-500 border border-slate-800";
+                    dbSupersonicBadge.className = "px-2.5 py-1 rounded-full text-[10px] font-extrabold uppercase bg-slate-900 text-slate-500 border border-slate-800";
                     dbSupersonicBadge.textContent = "Crucero";
                 }
             }
@@ -911,7 +1155,7 @@
             if (dbBoostConsumed) dbBoostConsumed.textContent = userStats.boostConsumed;
             if (dbBoostPickedUp) dbBoostPickedUp.textContent = userStats.boostPickedUp;
             if (dbBoostNonSupersonicPct) dbBoostNonSupersonicPct.textContent = `${nonSupersonicBoostConsumedPct}%`;
-            if (dbBoostEfficiency) dbBoostEfficiency.textContent = `${boostEfficiency} turbo/toque`;
+            if (dbBoostEfficiency) dbBoostEfficiency.textContent = `${boostEfficiency} /toque`;
             
             if (dbTouches) dbTouches.textContent = touches;
             if (dbScore) dbScore.textContent = userStats.lastScore;
@@ -923,7 +1167,7 @@
             if (dbAssists) dbAssists.textContent = player.Assists !== undefined ? player.Assists : (player.assists !== undefined ? player.assists : 0);
         }
 
-        // --- MARCADOR PARA OBS (OVERLAY) ---
+        // --- MARCADOR Y OVERLAY DE EQUIPOS ---
         const overlayUrlInput = document.getElementById('overlay-url');
         const teamBlueNameInput = document.getElementById('team-blue-name');
         const teamOrangeNameInput = document.getElementById('team-orange-name');
@@ -961,7 +1205,7 @@
         function showOverlaySettingsStatus(msg, type) {
             if (!overlaySettingsStatus) return;
             overlaySettingsStatus.textContent = msg;
-            overlaySettingsStatus.className = "text-xs rounded-xl p-3.5 border font-medium block";
+            overlaySettingsStatus.className = "text-xs rounded-xl p-3 border font-medium block";
             if (type === 'success') {
                 overlaySettingsStatus.classList.add('bg-emerald-500/10', 'border-emerald-500/30', 'text-emerald-400');
             } else if (type === 'error') {
@@ -979,9 +1223,9 @@
                         pendingOrangeLogo
                     )();
                     if (res && res.success) {
-                        showOverlaySettingsStatus('✓ Marcador guardado. El overlay se actualiza automáticamente.', 'success');
+                        showOverlaySettingsStatus('✓ Marcador y escudos actualizados en el overlay.', 'success');
                     } else {
-                        showOverlaySettingsStatus('Error al guardar el marcador.', 'error');
+                        showOverlaySettingsStatus('Error al guardar la configuración.', 'error');
                     }
                 } catch (err) {
                     showOverlaySettingsStatus('Error de comunicación con el backend.', 'error');
@@ -994,14 +1238,14 @@
                 if (!overlayUrlInput) return;
                 try {
                     await navigator.clipboard.writeText(overlayUrlInput.value);
-                    showOverlaySettingsStatus('✓ URL copiada al portapapeles.', 'success');
+                    showOverlaySettingsStatus('✓ URL del overlay copiada al portapapeles.', 'success');
                 } catch (err) {
                     overlayUrlInput.select();
                 }
             });
         }
 
-        // --- SERIE / TORNEO (control manual de operador) ---
+        // --- CONTROL DE SERIE Y TORNEO ---
         const seriesPhaseInput = document.getElementById('series-phase');
         const seriesFormatSelect = document.getElementById('series-format');
         const seriesBlueScoreEl = document.getElementById('series-blue-score');
@@ -1020,7 +1264,7 @@
                     parseInt(seriesOrangeScoreEl.textContent) || 0
                 )();
             } catch (err) {
-                console.error("Error al guardar configuración de la serie:", err);
+                console.error("Error al guardar serie:", err);
             }
         }
 
@@ -1048,16 +1292,14 @@
                 const cfg = await eel.get_series_config()();
                 if (cfg) {
                     if (seriesPhaseInput) seriesPhaseInput.value = cfg.phase || '';
-                    if (seriesFormatSelect) seriesFormatSelect.value = cfg.format || 'bo3';
+                    if (seriesFormatSelect) seriesFormatSelect.value = cfg.format || 'bo5';
                     if (seriesBlueScoreEl) seriesBlueScoreEl.textContent = cfg.blue_series_score || 0;
                     if (seriesOrangeScoreEl) seriesOrangeScoreEl.textContent = cfg.orange_series_score || 0;
                 }
             } catch (err) {
-                console.error("Error al cargar configuración de la serie:", err);
+                console.error("Error al cargar configuración de serie:", err);
             }
         }
-
-        window.addEventListener('load', loadSeriesConfig);
 
         async function loadTeamConfig() {
             if (overlayUrlInput) {
@@ -1074,8 +1316,10 @@
             }
         }
 
+        window.addEventListener('load', loadSeriesConfig);
         window.addEventListener('load', loadTeamConfig);
         window.addEventListener('load', loadState);
+        window.addEventListener('load', loadSavedMatchesList);
     </script>
 </body>
 </html>

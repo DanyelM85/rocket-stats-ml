@@ -6,10 +6,64 @@ import threading
 import socket
 import json
 import time
+import datetime
 import ctypes
 from ctypes import wintypes
 
 eel.init('web')
+
+MATCHES_DIR = Path("data/matches")
+
+def _build_match_summary(last_update_data: dict, match_ended_data: dict) -> dict:
+    """Arma un resumen liviano de la partida a partir del último UpdateState
+    visto (que ya trae los contadores acumulados del propio motor de RL:
+    Score/Goals/Assists/Saves/etc.) y del evento MatchEnded que confirma
+    quién ganó (incluyendo si la partida se resolvió en tiempo extra)."""
+    last_update_data = last_update_data or {}
+    game = last_update_data.get("Game") or last_update_data.get("game") or {}
+    players = last_update_data.get("Players") or last_update_data.get("players") or []
+    teams = game.get("Teams") or game.get("teams") or []
+    return {
+        "match_guid": match_ended_data.get("MatchGuid", ""),
+        "ended_at": datetime.datetime.now().isoformat(timespec="seconds"),
+        "arena": game.get("Arena", ""),
+        "playlist_id": game.get("PlaylistId"),
+        "overtime": bool(game.get("bOvertime", False)),
+        "winner_team_num": match_ended_data.get("WinnerTeamNum"),
+        "teams": [
+            {
+                "team_num": t.get("TeamNum", t.get("team")),
+                "name": t.get("Name", t.get("name")),
+                "score": t.get("Score", t.get("score")),
+                "color_primary": t.get("ColorPrimary"),
+                "color_secondary": t.get("ColorSecondary")
+            } for t in teams
+        ],
+        "players": [
+            {
+                "name": p.get("Name", p.get("name")),
+                "team_num": p.get("TeamNum", p.get("team")),
+                "score": p.get("Score", p.get("score")),
+                "goals": p.get("Goals", p.get("goals")),
+                "assists": p.get("Assists", p.get("assists")),
+                "saves": p.get("Saves", p.get("saves")),
+                "shots": p.get("Shots", p.get("shots")),
+                "touches": p.get("Touches", p.get("touches")),
+                "demos": p.get("Demos", p.get("demos")),
+                "boost_at_end": p.get("Boost", p.get("boost"))
+            } for p in players
+        ]
+    }
+
+def _save_match_summary(summary: dict) -> str:
+    MATCHES_DIR.mkdir(parents=True, exist_ok=True)
+    guid_part = (summary.get("match_guid") or "")[:8]
+    timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+    filename = f"match_{timestamp}{'_' + guid_part if guid_part else ''}.json"
+    filepath = MATCHES_DIR / filename
+    with open(filepath, "w", encoding="utf-8") as f:
+        json.dump(summary, f, indent=2, ensure_ascii=False)
+    return str(filepath)
 
 def _fire(js_call):
     # eel solo libera la entrada en _call_return_values cuando alguien consume
@@ -86,6 +140,7 @@ class RLConnectionThread(threading.Thread):
         self.running = False
         self.socket = None
         self.daemon = True
+        self.last_update_data = None
 
     def run(self):
         self.running = True
@@ -129,7 +184,27 @@ class RLConnectionThread(threading.Thread):
                                             payload["data"] = parsed
                                     except:
                                         pass
-                            
+
+                            event_name = payload.get("Event") or payload.get("event")
+                            data_field = payload.get("Data") or payload.get("data")
+                            if isinstance(data_field, str):
+                                try:
+                                    data_field = json.loads(data_field)
+                                except:
+                                    data_field = None
+
+                            if event_name == "UpdateState" and isinstance(data_field, dict):
+                                self.last_update_data = data_field
+                            elif event_name == "MatchEnded" and isinstance(data_field, dict):
+                                try:
+                                    summary = _build_match_summary(self.last_update_data, data_field)
+                                    saved_path = _save_match_summary(summary)
+                                    print(f"[OK] Resumen de partida guardado en: {saved_path}")
+                                    _fire(eel.on_match_saved(summary))
+                                except Exception as e:
+                                    print(f"[ERROR] No se pudo guardar el resumen de partida: {e}")
+                                self.last_update_data = None
+
                             _fire(eel.on_telemetry_data(payload))
                             buffer = buffer[idx:].strip()
                         except json.JSONDecodeError:
@@ -233,13 +308,16 @@ def get_team_config():
     return load_team_config()
 
 @eel.expose
-def set_team_config(blue_name, orange_name, blue_logo, orange_logo):
-    from config_manager import save_team_config, DEFAULT_TEAM_CONFIG
+def set_team_config(blue_name, orange_name, blue_logo=None, orange_logo=None):
+    from config_manager import save_team_config, load_team_config, DEFAULT_TEAM_CONFIG
+    current_cfg = load_team_config()
+    b_logo = blue_logo if blue_logo is not None and blue_logo != "" else current_cfg.get("blue_logo", "")
+    o_logo = orange_logo if orange_logo is not None and orange_logo != "" else current_cfg.get("orange_logo", "")
     cfg = {
-        "blue_name": (blue_name or "").strip()[:24] or DEFAULT_TEAM_CONFIG["blue_name"],
-        "orange_name": (orange_name or "").strip()[:24] or DEFAULT_TEAM_CONFIG["orange_name"],
-        "blue_logo": blue_logo or "",
-        "orange_logo": orange_logo or ""
+        "blue_name": (blue_name or "").strip()[:32] or DEFAULT_TEAM_CONFIG["blue_name"],
+        "orange_name": (orange_name or "").strip()[:32] or DEFAULT_TEAM_CONFIG["orange_name"],
+        "blue_logo": b_logo,
+        "orange_logo": o_logo
     }
     save_team_config(cfg)
     _fire(eel.on_team_config_update(cfg))
@@ -276,17 +354,101 @@ def toggle_live_capture(active):
         if _capture_thread:
             _capture_thread.stop()
             _capture_thread = None
-        _fire(eel.on_status_change("disconnected", "Captura de datos en vivo detenida."))
-        return {"active": False}
+@eel.expose
+def get_saved_matches():
+    """Retorna la lista de archivos JSON de partidas guardadas en data/matches."""
+    try:
+        if not MATCHES_DIR.exists():
+            return []
+        files = sorted(list(MATCHES_DIR.glob("*.json")), key=lambda f: f.stat().st_mtime, reverse=True)
+        result = []
+        for f in files[:30]:
+            try:
+                with open(f, "r", encoding="utf-8") as file:
+                    data = json.load(file)
+                result.append({
+                    "filename": f.name,
+                    "filepath": str(f.as_posix()),
+                    "mtime": datetime.datetime.fromtimestamp(f.stat().st_mtime).strftime("%Y-%m-%d %H:%M:%S"),
+                    "summary": data
+                })
+            except Exception:
+                pass
+        return result
+    except Exception as e:
+        print(f"Error al listar partidas JSON: {e}")
+        return []
+
+@eel.expose
+def get_match_json_content(filename):
+    """Lee y retorna el objeto JSON completo de una partida específica."""
+    try:
+        clean_name = Path(filename).name
+        filepath = MATCHES_DIR / clean_name
+        if filepath.exists():
+            with open(filepath, "r", encoding="utf-8") as f:
+                return json.load(f)
+    except Exception as e:
+        print(f"Error al leer JSON de la partida {filename}: {e}")
+    return None
+
+def kill_process_on_port(port: int):
+    """Mata cualquier proceso huérfano que esté ocupando el puerto en Windows."""
+    import subprocess
+    import os
+    try:
+        current_pid = os.getpid()
+        output = subprocess.check_output(f'netstat -ano | findstr :{port}', shell=True, text=True, errors='ignore')
+        pids_to_kill = set()
+        for line in output.strip().splitlines():
+            parts = line.split()
+            if len(parts) >= 5 and 'LISTENING' in line:
+                try:
+                    pid = int(parts[-1])
+                    if pid != current_pid and pid > 0:
+                        pids_to_kill.add(pid)
+                except ValueError:
+                    pass
+        for pid in pids_to_kill:
+            subprocess.run(f'taskkill /F /PID {pid}', shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    except Exception:
+        pass
+
+def _on_window_close(page, sockets):
+    print("\n[i] Ventana del navegador cerrada por el usuario. Cerrando main.py...")
+    global _capture_thread
+    if _capture_thread:
+        try:
+            _capture_thread.stop()
+        except Exception:
+            pass
+        _capture_thread = None
+    import os
+    os._exit(0)
 
 def run_config_ui(validate_fn, submit_fn):
     global _validate_fn
     _validate_fn = validate_fn
+    kill_process_on_port(8000)
     try:
-        eel.start('index.html', mode='chrome', size=(1000, 780), block=True)
-    except (SystemExit, MemoryError):
+        eel.start(
+            'index.html',
+            mode='chrome',
+            host='localhost',
+            port=8000,
+            size=(1080, 800),
+            close_callback=_on_window_close,
+            block=True
+        )
+    except (SystemExit, MemoryError, KeyboardInterrupt):
         pass
     finally:
         global _capture_thread
         if _capture_thread:
-            _capture_thread.stop()
+            try:
+                _capture_thread.stop()
+            except Exception:
+                pass
+            _capture_thread = None
+        import os
+        os._exit(0)
